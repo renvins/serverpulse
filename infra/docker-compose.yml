@@ -1,0 +1,23 @@
+version: '3.8' # Use the latest version of Docker Compose
+services:
+  influxdb:
+    image: influxdb:latest # Use the latest version of InfluxDB
+    container_name: influxdb
+    volumes:
+      - ./influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro # Use a custom configuration file
+      - influxdb-data:/var/lib/influxdb # Persist data
+    ports:
+      - "8086:8086" # Expose the InfluxDB API
+    command: -config /etc/influxdb/influxdb.conf # Use the custom configuration file
+  grafana:
+    image: grafana/grafana:latest # Use the latest version of Grafana
+    container_name: grafana
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning # Use a custom provisioning directory
+      - ./grafana/dashboards:/var/lib/grafana/dashboards # Use a custom dashboards directory
+    ports:
+      - "3000:3000" # Expose the Grafana UI
+    depends_on:
+      - influxdb # Wait for InfluxDB to be ready
+volumes:
+  influxdb-data: # Define a named volume for InfluxDB data

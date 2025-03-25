@@ -1,0 +1,10 @@
+apiVersion: 1
+providers: # This is a list of providers (where to load dashboards from)
+    - name: 'default'
+      orgId: 1
+      folder: '' # Will use default dashboard folder
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards # Load dashboards from this directory in container

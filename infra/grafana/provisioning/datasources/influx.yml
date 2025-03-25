@@ -1,0 +1,9 @@
+apiVersion: 1
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy # Use the Grafana backend to access InfluxDB
+    url: http://influxdb:8086 # Use the InfluxDB service name (from docker)
+    isDefault: true # Use this as the default data source
+    editable: false # Allow users to edit this data source
+    database: metrics_db
