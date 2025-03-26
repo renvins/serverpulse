@@ -10,23 +10,24 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class CustomConfig {
 
+    private final ServerPulsePlugin plugin;
     private final String name;
-    private final File file;
+
+    private File file;
     @Getter private YamlConfiguration config;
 
     public CustomConfig(ServerPulsePlugin plugin, String name) {
+        this.plugin = plugin;
         this.name = name;
-
-        this.file = new File(plugin.getDataFolder().getAbsolutePath() + "/" + name);
     }
 
     public void load() {
+        if (!plugin.getDataFolder().exists()) {
+            plugin.getDataFolder().mkdir();
+        }
+        file = new File(plugin.getDataFolder(), name);
         if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (Exception e) {
-                ServerPulseLoader.LOGGER.log(Level.SEVERE, "Could not create " + name + " file", e);
-            }
+            plugin.saveResource(name, false);
         }
         config = YamlConfiguration.loadConfiguration(file);
     }
