@@ -4,11 +4,10 @@ services:
     image: influxdb:latest # Use the latest version of InfluxDB
     container_name: influxdb
     volumes:
-      - ./influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro # Use a custom configuration file
+      - ./influxdb:/etc/influxdb2 # Use a custom configuration directory to prevent chown issues
       - influxdb-data:/var/lib/influxdb # Persist data
     ports:
       - "8086:8086" # Expose the InfluxDB API
-    command: -config /etc/influxdb/influxdb.conf # Use the custom configuration file
   grafana:
     image: grafana/grafana:latest # Use the latest version of Grafana
     container_name: grafana
