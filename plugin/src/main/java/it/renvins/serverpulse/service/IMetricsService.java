@@ -1,4 +1,7 @@
 package it.renvins.serverpulse.service;
 
-public interface IMetricsService extends Service{
+import com.influxdb.client.write.Point;
+
+public interface IMetricsService extends Service {
+    void writePoint(Point point);
 }
