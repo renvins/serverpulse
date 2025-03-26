@@ -3,10 +3,9 @@ metrics:
   enabled: true
   interval: 5
   influxdb:
-    url: http://localhost:8086
+    url: http://localhost:8086 # The URL of the InfluxDB API
+    org: my-org # The organization where metrics are stored
     bucket: metrics_db # The bucket where metrics are stored
-    username: admin
-    password: admin
     token: my-token # The token to access the InfluxDB API
   tags:
     server: "bed1"
