@@ -1,0 +1,12 @@
+# Configuration for ServerPulse
+metrics:
+  enabled: true
+  interval: 5
+  influxdb:
+    url: http://localhost:8086
+    bucket: metrics_db # The bucket where metrics are stored
+    username: admin
+    password: admin
+    token: my-token # The token to access the InfluxDB API
+  tags:
+    server: "bed1"

@@ -1,0 +1,5 @@
+name: ServerPulse
+version: ${rootProject.version}
+main: it.renvins.serverpulse.ServerPulsePlugin
+author: renvins
+description: ServerPulse plugin for monitoring server metrics
