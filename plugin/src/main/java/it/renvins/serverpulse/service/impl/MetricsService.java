@@ -60,7 +60,6 @@ public class MetricsService implements IMetricsService {
             });
         }
         databaseService.getWriteApi().writePoint(point);
-        ServerPulseLoader.LOGGER.info("Metrics sent to InfluxDB...");
     }
 
     @Override
