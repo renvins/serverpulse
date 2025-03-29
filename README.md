@@ -47,11 +47,25 @@ The system uses InfluxDB to store metrics and Grafana to visualize them. Configu
     Still in the InfluxDB UI, go to the API Tokens section and generate a new token. Ensure this token has **Read** and **Write** permissions for the `metrics_db` bucket. Copy this token; you'll need it in the next step. **Treat this token like a password; do not share it publicly.**
 
 5.  **Update Configuration Files:**
-    You need to replace the placeholder `"my-token"` with the token you just generated in **two** files:
-    * **Grafana Datasource Configuration:** Edit the file `infra/grafana/provisioning/datasources/influx.yml` at the line `token: my-token`.
-    * **Plugin Configuration:** Edit the file `plugin/src/main/resources/config.yml` **before building**, OR (recommended method for end-users) start the Minecraft server with the plugin installed once, then edit the `config.yml` file that will be created in your server's `plugins/ServerPulse/` folder. Replace `my-token` with your actual InfluxDB token.
-
-    *Note:* You might need to restart the Docker containers after modifying Grafana's provisioning file for the changes to take effect (`docker compose down && docker compose up -d` in the `infra` directory). If you modify the plugin's `config.yml` while the Minecraft server is running, you may need to restart the server or reload the plugin (if supported).
+    You need to configure both Grafana and the ServerPulse plugin:
+    * **Grafana Datasource Configuration:** Edit the file `infra/grafana/provisioning/datasources/influx.yml`. Replace `my-token` with the InfluxDB API token you generated. *(Restart Docker containers if they are already running: `docker compose down && docker compose up -d`)*.
+    * **Plugin Configuration (`config.yml`):**
+        * **Location:** The primary configuration file for the plugin is `config.yml`. You can edit the template at `plugin/src/main/resources/config.yml` *before* building. However, the recommended method for users is to let the plugin generate the file on the first run in the server's `plugins/ServerPulse/` directory, then edit that generated file.
+        * **InfluxDB Token:** Replace `my-token` under `metrics.influxdb` with your InfluxDB API token.
+        * **Server Tag:** **Crucially, change the default `server: "bed1"` tag under `metrics.tags`** to reflect the actual name of your server (e.g., `server: "survival-1"`, `server: "lobby"`). This is essential for distinguishing metrics if you monitor multiple servers.
+        * **Custom Tags:** You can add **additional custom tags** under `metrics.tags` as key-value pairs (e.g., `region: "eu"`, `network: "main"`). These tags will be attached to every metric sent to InfluxDB and can be used for filtering and grouping in Grafana. Example:
+            ```yaml
+            metrics:
+              # ... other settings ...
+              influxdb:
+                # ... url, org, bucket ...
+                token: your-influxdb-api-token-here
+              tags:
+                server: "your-server-name" # Change this!
+                environment: "production"   # Example custom tag
+                proxy: "velocity-1"       # Example custom tag
+            ```
+        *(Restart your Minecraft server or reload the plugin after editing `config.yml` for changes to take effect).*
 
 ### 2. Build and Install the Plugin
 
@@ -67,12 +81,12 @@ The system uses InfluxDB to store metrics and Grafana to visualize them. Configu
 
 ### 3. Start and Access
 
-1.  **Start your Minecraft server.** The ServerPulse plugin will load automatically. If it's the first time, it will create the `config.yml` file in its data folder (`plugins/ServerPulse/`). Ensure you have correctly configured the InfluxDB token in that file (see step 1.5). Once configured, the plugin will start sending metrics to InfluxDB at the configured interval. Check the server console for any error messages from the plugin.
+1.  **Start your Minecraft server.** The ServerPulse plugin will load. Ensure you have correctly configured the InfluxDB token and customized the `server` tag (and added any other desired tags) in `plugins/ServerPulse/config.yml`. The plugin will then start sending metrics to InfluxDB. Check the server console for status messages or errors.
 
 2.  **Access Grafana:**
     Open your browser and navigate to `http://localhost:3000`.
     * The default credentials for Grafana are usually `admin` / `admin` (you will be prompted to change the password on first login).
-    * The InfluxDB datasource and a preconfigured dashboard ("Bed1's metrics" or similar) should already be available thanks to the provisioning files. You might need to wait a few minutes for the first metrics to appear after the server starts and the token is correctly configured.
+    * The InfluxDB datasource and a preconfigured dashboard should be available. You might need to adjust the dashboard queries (or create new ones) to filter by the specific `server` tag you configured.
 
 ---
 
@@ -82,9 +96,9 @@ While ServerPulse provides a preconfigured dashboard as a starting point, the re
 
 * **Explore Grafana:** Log in to your Grafana instance (`http://localhost:3000`) and explore its interface. You can edit the existing dashboard or create entirely new ones.
 * **Create Panels:** Add new panels to your dashboards to visualize specific metrics. Grafana offers various panel types (graphs, gauges, tables, etc.).
-* **Query Your Data:** When configuring a panel, you'll use the **InfluxDB datasource** and write **Flux queries** to retrieve the data you want to display. All metrics sent by the ServerPulse plugin are available in the `metrics_db` bucket within the `minecraft_stats` measurement. You can filter by metric (`_field`) and tags (like `server`).
+* **Query Your Data:** When configuring a panel, you'll use the **InfluxDB datasource** and write **Flux queries** to retrieve the data. All metrics are in the `metrics_db` bucket, `minecraft_stats` measurement. Use the **tags** you configured (especially `server`, plus any custom ones) in your `WHERE` clause (or `filter()` function in Flux) to select the correct data.
 
-Feel free to experiment and build dashboards tailored to the specific metrics you care about most!
+Feel free to experiment and build dashboards tailored to the specific metrics and servers you care about most!
 
 ---
 
