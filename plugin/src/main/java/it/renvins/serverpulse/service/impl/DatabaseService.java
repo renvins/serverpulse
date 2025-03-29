@@ -54,7 +54,7 @@ public class DatabaseService implements IDatabaseService {
                     section.getString("org"), section.getString("bucket"));
             writeApi = client.makeWriteApi();
 
-            ServerPulseLoader.LOGGER.info("Connected successfully to InfluxDB :)");
+            ServerPulseLoader.LOGGER.info("Connected successfully to InfluxDB...");
         } catch (Exception e) {
             ServerPulseLoader.LOGGER.log(Level.SEVERE, "Could not connect to InfluxDB, shutting down the plugin...", e);
             plugin.getServer().getPluginManager().disablePlugin(plugin);
@@ -72,6 +72,6 @@ public class DatabaseService implements IDatabaseService {
         String token = section.getString("token");
 
         return url != null && !url.isEmpty() && bucket != null && !bucket.isEmpty() &&
-                org != null && !org.isEmpty() && token != null && !token.isEmpty();
+                org != null && !org.isEmpty() && token != null && !token.isEmpty() && !token.equals("my-token");
     }
 }
