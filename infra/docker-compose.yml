@@ -1,4 +1,3 @@
-version: '3.8' # Use the latest version of Docker Compose
 services:
   influxdb:
     image: influxdb:latest # Use the latest version of InfluxDB
