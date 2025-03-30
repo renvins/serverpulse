@@ -37,29 +37,33 @@ public class MetricsService implements IMetricsService {
         if (databaseService.getWriteApi() == null) {
             return;
         }
-        double[] tps = plugin.getServer().getTPS();
+        try {
+            double[] tps = plugin.getServer().getTPS();
 
-        Point point = Point.measurement("minecraft_stats") // it's like the name of the table
-                           .addTag("server", config.getConfig().getString("metrics.tags.server"))
-                           .addField("tps_1m", tps[0])
-                           .addField("tps_5m", tps[1])
-                           .addField("tps_15m", tps[2])
-                           .addField("players_online", Bukkit.getOnlinePlayers().size())
-                            .addField("used_memory", getUsedHeap())
-                            .addField("available_memory", getAvailable())
-                           // we're going to add other fields, now we are just testing
-                           .time(Instant.now(), WritePrecision.NS);
+            Point point = Point.measurement("minecraft_stats") // it's like the name of the table
+                               .addTag("server", config.getConfig().getString("metrics.tags.server"))
+                               .addField("tps_1m", tps[0])
+                               .addField("tps_5m", tps[1])
+                               .addField("tps_15m", tps[2])
+                               .addField("players_online", Bukkit.getOnlinePlayers().size())
+                               .addField("used_memory", getUsedHeap())
+                               .addField("available_memory", getAvailable())
+                               // we're going to add other fields, now we are just testing
+                               .time(Instant.now(), WritePrecision.NS);
 
-        // add other tags from the configuration
-        Map<String, Object> tags = config.getConfig().getConfigurationSection("metrics.tags").getValues(false);
-        if (tags != null) {
-            tags.forEach((key, value) -> {
-                if (value instanceof String && !key.equals("server")) {
-                    point.addTag(key, value.toString());
-                }
-            });
+            // add other tags from the configuration
+            Map<String, Object> tags = config.getConfig().getConfigurationSection("metrics.tags").getValues(false);
+            if (tags != null) {
+                tags.forEach((key, value) -> {
+                    if (value instanceof String && !key.equals("server")) {
+                        point.addTag(key, value.toString());
+                    }
+                });
+            }
+            databaseService.getWriteApi().writePoint(point);
+        } catch (Exception e) {
+            ServerPulseLoader.LOGGER.severe("Error while sending metrics: " + e.getMessage());
         }
-        databaseService.getWriteApi().writePoint(point);
     }
 
     @Override
