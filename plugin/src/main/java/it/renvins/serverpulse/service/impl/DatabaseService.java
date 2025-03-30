@@ -47,6 +47,10 @@ public class DatabaseService implements IDatabaseService {
         }
     }
 
+    /**
+     * Establishes the connection to the InfluxDB instance using details
+     * from the configuration. Disables the plugin if the connection fails.
+     */
     private void connect() {
         ConfigurationSection section = customConfig.getConfig().getConfigurationSection("metrics.influxdb");
         try {
@@ -61,6 +65,12 @@ public class DatabaseService implements IDatabaseService {
         }
     }
 
+    /**
+     * Validates the presence and basic correctness of InfluxDB connection details
+     * in the configuration file.
+     *
+     * @return {@code true} if connection data seems valid, {@code false} otherwise.
+     */
     private boolean checkConnectionData() {
         ConfigurationSection section = customConfig.getConfig().getConfigurationSection("metrics.influxdb");
         if (section == null) {

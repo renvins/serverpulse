@@ -77,6 +77,11 @@ public class MetricsService implements IMetricsService {
         return maxHeap - getUsedHeap();
     }
 
+    /**
+     * Retrieves the maximum configured heap memory (Xmx).
+     *
+     * @return Maximum heap memory in megabytes (MB), or -1.0 if it's not explicitly set or unlimited.
+     */
     private double getMaxHeap() {
         long max = memoryMXBean.getHeapMemoryUsage().getMax();
         if (max == Long.MAX_VALUE || max < 0) {
@@ -85,6 +90,10 @@ public class MetricsService implements IMetricsService {
         return max / (1024.0 * 1024.0); // Convert to MB
     }
 
+    /**
+     * Schedules the {@link MetricsTask} to run asynchronously at a fixed interval
+     * defined in the configuration (defaults usually involve ticks, e.g., 20L * interval_in_seconds).
+     */
     private void loadTask() {
         MetricsTask task = new MetricsTask(plugin, this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, 0L, 20L * 5L);
