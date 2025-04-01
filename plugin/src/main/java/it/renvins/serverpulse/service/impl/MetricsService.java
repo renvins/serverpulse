@@ -1,23 +1,27 @@
 package it.renvins.serverpulse.service.impl;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.logging.Level;
 
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import it.renvins.serverpulse.ServerPulseLoader;
 import it.renvins.serverpulse.ServerPulsePlugin;
 import it.renvins.serverpulse.config.CustomConfig;
+import it.renvins.serverpulse.data.SyncMetricsSnapshot;
+import it.renvins.serverpulse.data.WorldData;
 import it.renvins.serverpulse.metrics.IDiskRetriever;
 import it.renvins.serverpulse.metrics.IMemoryRetriever;
 import it.renvins.serverpulse.metrics.impl.DiskRetriever;
 import it.renvins.serverpulse.metrics.impl.MemoryRetriever;
 import it.renvins.serverpulse.service.IDatabaseService;
 import it.renvins.serverpulse.service.IMetricsService;
-import it.renvins.serverpulse.task.MetricsTask;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 
 public class MetricsService implements IMetricsService {
@@ -30,6 +34,8 @@ public class MetricsService implements IMetricsService {
     private final IMemoryRetriever memoryRetriever;
     private final IDiskRetriever diskRetriever;
 
+    private final Executor asyncExecutor;
+
     public MetricsService(ServerPulsePlugin plugin, CustomConfig config, IDatabaseService databaseService) {
         this.plugin = plugin;
         this.config = config;
@@ -37,6 +43,8 @@ public class MetricsService implements IMetricsService {
 
         this.memoryRetriever = new MemoryRetriever();
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
+
+        this.asyncExecutor = task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
     }
 
     @Override
@@ -46,45 +54,138 @@ public class MetricsService implements IMetricsService {
     }
 
     @Override
-    public void sendMetrics() {
+    public void collectAndSendMetrics() {
         if (databaseService.getWriteApi() == null) {
+            ServerPulseLoader.LOGGER.warning("Database Write API not available. Skipping metrics send...");
             return;
+        }
+        CompletableFuture.supplyAsync(this::collectSnapshot, Bukkit.getScheduler().getMainThreadExecutor(plugin))
+                .thenApplyAsync(snapshot -> {
+                    if (snapshot == null) {
+                        ServerPulseLoader.LOGGER.warning("Snapshot is null. Skipping metrics send.");
+                        throw new IllegalStateException("Sync metric collection failed.");
+                    }
+                    long usedHeap = memoryRetriever.getUsedHeapBytes();
+                    long committedHeap = memoryRetriever.getCommittedHeapBytes();
+                    long totalDisk = diskRetriever.getTotalSpace();
+                    long usableDisk = diskRetriever.getUsableSpace();
+
+                    return buildPoints(snapshot, usedHeap, committedHeap, totalDisk, usableDisk);
+                }, asyncExecutor).thenAcceptAsync(points -> {
+                    if (!points.isEmpty()) {
+                        try {
+                            databaseService.getWriteApi().writePoints(points);
+                        } catch (Exception e) {
+                            ServerPulseLoader.LOGGER.log(Level.SEVERE, "Error sending metrics to InfluxDB...", e);
+                        }
+                    }
+                }, asyncExecutor)
+                         .exceptionally(ex -> {
+                             ServerPulseLoader.LOGGER.log(Level.SEVERE, "Failed metrics pipeline stage...", ex);
+                             return null;
+                         });
+    }
+
+    /**
+     * Collects the current server metrics snapshot.
+     *
+     * @return A SyncMetricsSnapshot containing the current server metrics.
+     * @throws IllegalStateException if called from a non-primary thread.
+     */
+    private SyncMetricsSnapshot collectSnapshot() {
+        if (!plugin.getServer().isPrimaryThread()) {
+            ServerPulseLoader.LOGGER.warning("Skipping metrics send because the thread is not primary thread...");
+            throw new IllegalStateException("This method must be called on the main thread.");
         }
         try {
             double[] tps = plugin.getServer().getTPS();
+            int playerCount = Bukkit.getOnlinePlayers().size();
+            Map<String, WorldData> worldData = new HashMap<>();
 
-            Point point = Point.measurement(config.getConfig().getString("metrics.influxdb.table")) // it's like the name of the table
-                               .addTag("server", config.getConfig().getString("metrics.tags.server"))
-                               .addField("tps_1m", tps[0])
-                               .addField("tps_5m", tps[1])
-                               .addField("tps_15m", tps[2])
-                               .addField("players_online", Bukkit.getOnlinePlayers().size())
-                               .addField("used_memory", memoryRetriever.getUsedHeapBytes())
-                               .addField("available_memory", memoryRetriever.getCommittedHeapBytes())
-                                 .addField("total_disk_space", diskRetriever.getTotalSpace())
-                                 .addField("usable_disk_space", diskRetriever.getUsableSpace())
-                               // we're going to add other fields, now we are just testing
-                               .time(Instant.now(), WritePrecision.NS);
-
-            // add other tags from the configuration
-            Map<String, Object> tags = config.getConfig().getConfigurationSection("metrics.tags").getValues(false);
-            tags.forEach((key, value) -> {
-                if (value instanceof String && !key.equals("server")) {
-                    point.addTag(key, value.toString());
-                }
+            Bukkit.getWorlds().forEach(world -> {
+                WorldData data = new WorldData(world.getEntities().size(), world.getPlayers().size());
+                worldData.put(world.getName(), data);
             });
-            databaseService.getWriteApi().writePoint(point);
+            return new SyncMetricsSnapshot(tps, playerCount, worldData);
         } catch (Exception e) {
-            ServerPulseLoader.LOGGER.severe("Error while sending metrics: " + e.getMessage());
+            ServerPulseLoader.LOGGER.severe("Unexpected error during sync data collection: " + e.getMessage());
+            // Return null or re-throw to signal failure to the CompletableFuture chain
+            // Throwing is often cleaner as it goes directly to exceptionally()
+            throw new RuntimeException("Sync data collection failed...", e);
         }
     }
 
     /**
-     * Schedules the {@link MetricsTask} to run asynchronously at a fixed interval
-     * defined in the configuration (defaults usually involve ticks, e.g., 20L * interval_in_seconds).
+     * Builds a list of InfluxDB points from the given metrics snapshot and system
+     * information.
+     *
+     * @param snapshot      The metrics snapshot containing server data.
+     * @param usedHeap      The amount of used heap memory in bytes.
+     * @param committedHeap The amount of committed heap memory in bytes.
+     * @param totalDisk     The total disk space in bytes.
+     * @param usableDisk    The usable disk space in bytes.
+     * @return A list of InfluxDB points ready for writing.
+     */
+    private List<Point> buildPoints(SyncMetricsSnapshot snapshot, long usedHeap, long committedHeap,
+            long totalDisk, long usableDisk) {
+        List<Point> points = new ArrayList<>();
+
+        String serverTag = config.getConfig().getString("metrics.tags.server");
+        String measurement = config.getConfig().getString("metrics.influxdb.table");
+
+        Point generalPoint = Point.measurement(measurement)
+                                  .addTag("server", serverTag)
+                                  .addField("tps_1m", snapshot.getTps()[0])
+                                  .addField("tps_5m", snapshot.getTps()[1])
+                                  .addField("tps_15m", snapshot.getTps()[2])
+                                  .addField("players_online", snapshot.getPlayerCount())
+                                  .addField("used_memory", usedHeap)
+                                  .addField("available_memory", committedHeap)
+                                  .addField("total_disk_space", totalDisk)
+                                  .addField("usable_disk_space", usableDisk)
+                                  .time(Instant.now(), WritePrecision.NS);
+        addConfigTags(generalPoint);
+        points.add(generalPoint);
+
+        for (Map.Entry<String, WorldData> entry : snapshot.getWorldData().entrySet()) {
+            String worldName = entry.getKey();
+            WorldData worldData = entry.getValue();
+
+            Point worldPoint = Point.measurement(measurement)
+                                    .addTag("server", serverTag)
+                                    .addTag("world", worldName)
+                                    .addField("entities_count", worldData.getEntities())
+                                    .addField("loaded_chunks", worldData.getLoadedChunks())
+                                    .time(Instant.now(), WritePrecision.NS);
+            addConfigTags(worldPoint);
+            points.add(worldPoint);
+        }
+        return points;
+    }
+
+    /**
+     * Adds configuration tags to the given InfluxDB point.
+     *
+     * @param point The InfluxDB point to which tags will be added.
+     */
+    private void addConfigTags(Point point) {
+        Map<String, Object> tags = config.getConfig().getConfigurationSection("metrics.tags").getValues(false);
+        tags.forEach((key, value) -> {
+            if (value instanceof String && !key.equalsIgnoreCase("server") && !key.equalsIgnoreCase("world")) {
+                point.addTag(key, value.toString());
+            }
+        });
+    }
+
+    /**
+     * Loads the metrics task with a configurable interval.
      */
     private void loadTask() {
-        MetricsTask task = new MetricsTask(plugin, this);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, 0L, 20L * 5L);
+        long intervalTicks = 20L * config.getConfig().getLong("metrics.interval", 5L);
+        if (intervalTicks <= 0) {
+            ServerPulseLoader.LOGGER.warning("Metrics interval is invalid, defaulting to 5 seconds.");
+            intervalTicks = 20L * 5L;
+        }
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::collectAndSendMetrics, 0L, intervalTicks);
     }
 }

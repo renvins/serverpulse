@@ -43,4 +43,10 @@ public class ServerPulseLoader implements Service {
         databaseService.load();
         metricsService.load();
     }
+
+    @Override
+    public void unload() {
+        databaseService.unload();
+        metricsService.unload();
+    }
 }
