@@ -34,11 +34,20 @@ tasks.withType<ShadowJar> {
 
     relocate("com.influxdb", "$relocatePath.influxdb")
 
-    // --- Exclusions ---
     // Prevent Paper from giving errors about duplicate files
     exclude("META-INF/AL2.0")
     exclude("META-INF/LGPL2.1")
     exclude("META-INF/LICENSE")
     exclude("META-INF/LICENSE.txt")
     exclude("META-INF/NOTICE.txt")
+}
+
+tasks.withType<ProcessResources> {
+    // Define the encoding for resource files
+    filteringCharset = "UTF-8"
+
+    filesMatching("plugin.yml") {
+        // Enable property expansion for plugin.yml
+        expand(project.properties) // Expands properties like 'version'
+    }
 }
