@@ -6,5 +6,6 @@ metrics:
     org: my-org # The organization where metrics are stored
     bucket: metrics_db # The bucket where metrics are stored
     token: my-token # The token to access the InfluxDB API (WRITE AND READ ACCESS)
+    table: minecraft_stats # The table where metrics are stored
   tags:
     server: "bed1"

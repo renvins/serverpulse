@@ -40,7 +40,7 @@ public class MetricsService implements IMetricsService {
         try {
             double[] tps = plugin.getServer().getTPS();
 
-            Point point = Point.measurement("minecraft_stats") // it's like the name of the table
+            Point point = Point.measurement(config.getConfig().getString("metrics.influxdb.table")) // it's like the name of the table
                                .addTag("server", config.getConfig().getString("metrics.tags.server"))
                                .addField("tps_1m", tps[0])
                                .addField("tps_5m", tps[1])
@@ -53,13 +53,11 @@ public class MetricsService implements IMetricsService {
 
             // add other tags from the configuration
             Map<String, Object> tags = config.getConfig().getConfigurationSection("metrics.tags").getValues(false);
-            if (tags != null) {
-                tags.forEach((key, value) -> {
-                    if (value instanceof String && !key.equals("server")) {
-                        point.addTag(key, value.toString());
-                    }
-                });
-            }
+            tags.forEach((key, value) -> {
+                if (value instanceof String && !key.equals("server")) {
+                    point.addTag(key, value.toString());
+                }
+            });
             databaseService.getWriteApi().writePoint(point);
         } catch (Exception e) {
             ServerPulseLoader.LOGGER.severe("Error while sending metrics: " + e.getMessage());
