@@ -1,0 +1,88 @@
+name: CI Build and Infrastructure Check
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ master ] # Or your default branch (e.g., master)
+  pull_request:
+    branches: [ master ] # Or your default branch
+
+jobs:
+  # Job to build the plugin and test Docker infrastructure
+  build-and-test-infra:
+    runs-on: ubuntu-latest # Use a standard Linux runner with Docker pre-installed
+
+    steps:
+      # 1. Checkout your repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Set up JDK (Adjust version as needed for your project)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin' # Or 'adopt', 'zulu', etc.
+
+      # 3. Setup Gradle - This action handles caching and executing gradle tasks
+      # It automatically finds and uses ./gradlew
+      - name: Setup Gradle and Build Plugin Jar
+        uses: gradle/actions/setup-gradle@v3 # Use v3 or latest stable version
+        with:
+          # Run the standard 'shadowJar' task to build the plugin jar
+          arguments: shadowJar
+
+      # --- Infrastructure Testing ---
+
+      # 4. Install jq (needed for parsing InfluxDB health check JSON)
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      # 5. Start Docker Compose services in detached mode
+      # Replace 'path/to/your/docker-compose.yml' if it's not in the root
+      - name: Start Docker Infrastructure
+        run: docker compose -f infra/docker-compose.yml up -d
+
+      # 6. Wait for services to be healthy
+      # This is crucial. Services take time to initialize.
+      # We'll use curl to ping health endpoints with retries.
+      - name: Wait for InfluxDB Health
+        run: |
+          echo "Waiting for InfluxDB..."
+          # Timeout after 90 seconds. Ping /health endpoint. Check status is "pass".
+          timeout 90s bash -c ' \
+            until curl -sf http://localhost:8086/health | jq -e ".status == \"pass\""; do \
+              echo "InfluxDB not ready yet..."; \
+              sleep 5; \
+            done \
+          '
+          echo "InfluxDB is ready."
+
+      - name: Wait for Grafana Health
+        run: |
+          echo "Waiting for Grafana..."
+          # Timeout after 60 seconds. Ping /api/health endpoint. Exit code 0 means success.
+          timeout 60s bash -c ' \
+            until curl -sf http://localhost:3000/api/health; do \
+              echo "Grafana not ready yet..."; \
+              sleep 5; \
+            done \
+          '
+          echo "Grafana is ready."
+
+      # 7. Optional: Perform a very basic check (e.g., confirm endpoints respond)
+      # If the wait steps above succeeded, this is slightly redundant but confirms again.
+      - name: Basic Infrastructure Check
+        run: |
+          echo "Performing basic health checks..."
+          curl --fail http://localhost:8086/health
+          curl --fail http://localhost:3000/api/health
+          echo "Infrastructure checks passed."
+
+      # 8. Stop and remove Docker Compose services
+      # The 'if: always()' ensures this runs even if previous steps failed, cleaning up the runner.
+      - name: Stop Docker Infrastructure
+        if: always()
+        run: |
+          echo "Stopping Docker containers..."
+          docker compose -f path/to/your/docker-compose.yml down -v # -v removes volumes too
