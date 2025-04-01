@@ -23,8 +23,12 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin' # Or 'adopt', 'zulu', etc.
-
-      # 3. Setup Gradle - This action handles caching and executing gradle tasks
+          
+      # 3. Give permission to gradle to execute commands
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      # Setup Gradle - This action handles caching and executing gradle tasks
       # It automatically finds and uses ./gradlew
       - name: Setup Gradle and Build Plugin Jar
         uses: gradle/actions/setup-gradle@v4 # Use v4 or latest stable version
@@ -46,7 +50,6 @@ jobs:
 
       # 6. Wait for services to be healthy
       # This is crucial. Services take time to initialize.
-      # We'll use curl to ping health endpoints with retries.
       - name: Wait for InfluxDB Health
         run: |
           echo "Waiting for InfluxDB..."
@@ -71,19 +74,63 @@ jobs:
           '
           echo "Grafana is ready."
 
-      # 7. Optional: Perform a very basic check (e.g., confirm endpoints respond)
-      # If the wait steps above succeeded, this is slightly redundant but confirms again.
-      - name: Basic Infrastructure Check
-        run: |
-          echo "Performing basic health checks..."
-          curl --fail http://localhost:8086/health
-          curl --fail http://localhost:3000/api/health
-          echo "Infrastructure checks passed."
-
-      # 8. Stop and remove Docker Compose services
+      # 7. Stop and remove Docker Compose services
       # The 'if: always()' ensures this runs even if previous steps failed, cleaning up the runner.
       - name: Stop Docker Infrastructure
         if: always()
         run: |
           echo "Stopping Docker containers..."
           docker compose -f infra/docker-compose.yml down -v # -v removes volumes too
+  create-release:
+    needs: build-and-test-infra
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to create releases and upload assets
+
+    steps:
+      # 1. Checkout Repository code - Needed to access build files/scripts
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Set up JDK (Must match the version used for building)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # 3. Grant permissions to gradle to execute commands
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      # Setup Gradle and Build the Shadow Jar
+      - name: Setup Gradle and Build Shadow Jar
+        uses: gradle/actions/setup-gradle@v4
+
+      # Build the jar
+      - name: Build jar
+        run: ./gradlew shadowJar
+
+      # 4. Find the specific Shadow Jar file
+      # Adjust the pattern if your shadowJar output has a different name convention
+      - name: Find Shadow Jar
+        id: find_jar
+        run: |
+          # Common patterns: *-all.jar, *-shadow.jar, or just your plugin name + version.jar
+          # This finds the largest JAR in build/libs, usually the shadowJar
+          JAR_FILE=$(find plugin/build/libs -maxdepth 1 -name '*.jar' -printf "%s %p\n" | sort -nr | head -n 1 | awk '{print $2}')
+          if [ -z "$JAR_FILE" ]; then
+            echo "Error: Could not find the shadow JAR file in plugin/build/libs/"
+            exit 1
+          fi
+          echo "Found JAR for release: $JAR_FILE"
+          echo "path=$JAR_FILE" >> $GITHUB_OUTPUT
+
+      # 5. Create GitHub Release and Upload the Shadow Jar
+      - name: Create Release and Upload JAR
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          draft: true
+          files: ${{ steps.find_jar.outputs.path }} # Upload the specific JAR found earlier
