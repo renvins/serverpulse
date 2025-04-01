@@ -2,13 +2,22 @@
 
 ServerPulse is an **open‑source**, real‑time performance monitoring tool for Paper Minecraft servers. It will collect key server metrics **(TPS, disk usage, heap memory, online player count, entities, chunks)** and store them in InfluxDB for visualization in Grafana.
 
-![ServerPulse Grafana Dashboard Example](img/dashboard.png)
+<details>
+<summary>📊 View Dashboard Examples</summary>
+
+![ServerPulse Grafana Dashboard Example1](img/dashboard.png)
+*Example dashboard view 1: General Server Overview*
+
+![ServerPulse Grafana Dashboard Example2](img/dashboard2.png)
+*Example dashboard view 2: Per-World Details*
+
+</details>
 
 ---
 
 ## 📖 What This Project Is
 
-- **Goal:** Provide an extensible, lightweight plugin to gather server metrics and expose them via a time‑series database + dashboard
+- **Goal:** Provide an extensible, lightweight plugin to gather server metrics and store them in InfluxDB for visualization with Grafana.
 - **Tech stack:**
     - Java (Paper plugin) → InfluxDB
     - Grafana dashboard (preconfigured via provisioning)
@@ -41,16 +50,16 @@ The system uses InfluxDB to store metrics and Grafana to visualize them. Configu
     Open your browser and navigate to `http://localhost:8086`. Complete the initial InfluxDB setup if it's your first time launching it (create a user, password, and initial organization - you can use `my-org` as the organization name for consistency with the configuration files).
 
 3.  **Create the Bucket:**
-    Within the InfluxDB user interface, create a new **Bucket** named `metrics_db`. All metrics collected by the plugin will be stored here.
+    Within the InfluxDB user interface, create a new **Bucket** named `metrics_db` (if it doesn't already exist from previous attempts). All metrics collected by the plugin will be stored here.
 
 4.  **Generate an API Token:**
     Still in the InfluxDB UI, go to the API Tokens section and generate a new token. Ensure this token has **Read** and **Write** permissions for the `metrics_db` bucket. Copy this token; you'll need it in the next step. **Treat this token like a password; do not share it publicly.**
 
 5.  **Update Configuration Files:**
     You need to configure both Grafana and the ServerPulse plugin:
-    * **Grafana Datasource Configuration:** Edit the file `infra/grafana/provisioning/datasources/influx.yml`. Replace `my-token` with the InfluxDB API token you generated. *(Restart Docker containers if they are already running: `docker compose down && docker compose up -d`)*.
+    * **Grafana Datasource Configuration:** Edit the file `infra/grafana/provisioning/datasources/influx.yml`. Replace `my-token` with the InfluxDB API token you generated. **You must restart the Docker containers (`docker compose down && docker compose up -d`) for this change to take effect.**
     * **Plugin Configuration (`config.yml`):**
-        * **Location:** The primary configuration file for the plugin is `config.yml`. You can edit the template at `plugin/src/main/resources/config.yml` *before* building. However, the recommended method for users is to let the plugin generate the file on the first run in the server's `plugins/ServerPulse/` directory, then edit that generated file.
+        * **Location:** The primary configuration file is `config.yml`. While you can edit the template at `plugin/src/main/resources/config.yml` before building, the standard way is to let the plugin generate the file on its first run inside your server's `plugins/ServerPulse/` directory, and then edit the *generated* file.
         * **InfluxDB Token:** Replace `my-token` under `metrics.influxdb` with your InfluxDB API token.
         * **Server Tag:** **Crucially, change the default `server: "bed1"` tag under `metrics.tags`** to reflect the actual name of your server (e.g., `server: "survival-1"`, `server: "lobby"`). This is essential for distinguishing metrics if you monitor multiple servers.
         * **Custom Tags:** You can add **additional custom tags** under `metrics.tags` as key-value pairs (e.g., `region: "eu"`, `network: "main"`). These tags will be attached to every metric sent to InfluxDB and can be used for filtering and grouping in Grafana. Example:
@@ -65,7 +74,7 @@ The system uses InfluxDB to store metrics and Grafana to visualize them. Configu
                 environment: "production"   # Example custom tag
                 proxy: "velocity-1"       # Example custom tag
             ```
-        *(Restart your Minecraft server or reload the plugin after editing `config.yml` for changes to take effect).*
+        *(Restart your Minecraft server or reload the plugin after editing `plugins/ServerPulse/config.yml` for changes to take effect).*
 
 ### 2. Build and Install the Plugin
 
@@ -111,4 +120,4 @@ We welcome all contributions — bug reports, feature proposals, pull requests, 
 3.  Commit your changes with clear, descriptive messages
 4.  Open a Pull Request against `main`
 
-Please maintain the same design of authors' code.
+Please follow the existing code style and conventions.
