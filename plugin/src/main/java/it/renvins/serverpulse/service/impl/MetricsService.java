@@ -10,13 +10,16 @@ import com.influxdb.client.write.Point;
 import it.renvins.serverpulse.ServerPulseLoader;
 import it.renvins.serverpulse.ServerPulsePlugin;
 import it.renvins.serverpulse.config.CustomConfig;
+import it.renvins.serverpulse.metrics.IDiskRetriever;
+import it.renvins.serverpulse.metrics.IMemoryRetriever;
+import it.renvins.serverpulse.metrics.impl.DiskRetriever;
+import it.renvins.serverpulse.metrics.impl.MemoryRetriever;
 import it.renvins.serverpulse.service.IDatabaseService;
 import it.renvins.serverpulse.service.IMetricsService;
 import it.renvins.serverpulse.task.MetricsTask;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 
-@RequiredArgsConstructor
 public class MetricsService implements IMetricsService {
 
     private final ServerPulsePlugin plugin;
@@ -24,7 +27,17 @@ public class MetricsService implements IMetricsService {
 
     private final IDatabaseService databaseService;
 
-    private final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    private final IMemoryRetriever memoryRetriever;
+    private final IDiskRetriever diskRetriever;
+
+    public MetricsService(ServerPulsePlugin plugin, CustomConfig config, IDatabaseService databaseService) {
+        this.plugin = plugin;
+        this.config = config;
+        this.databaseService = databaseService;
+
+        this.memoryRetriever = new MemoryRetriever();
+        this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
+    }
 
     @Override
     public void load() {
@@ -46,8 +59,10 @@ public class MetricsService implements IMetricsService {
                                .addField("tps_5m", tps[1])
                                .addField("tps_15m", tps[2])
                                .addField("players_online", Bukkit.getOnlinePlayers().size())
-                               .addField("used_memory", getUsedHeap())
-                               .addField("available_memory", getAvailable())
+                               .addField("used_memory", memoryRetriever.getUsedHeapBytes())
+                               .addField("available_memory", memoryRetriever.getCommittedHeapBytes())
+                                 .addField("total_disk_space", diskRetriever.getTotalSpace())
+                                 .addField("usable_disk_space", diskRetriever.getUsableSpace())
                                // we're going to add other fields, now we are just testing
                                .time(Instant.now(), WritePrecision.NS);
 
@@ -62,34 +77,6 @@ public class MetricsService implements IMetricsService {
         } catch (Exception e) {
             ServerPulseLoader.LOGGER.severe("Error while sending metrics: " + e.getMessage());
         }
-    }
-
-    @Override
-    public double getUsedHeap() {
-        long used = memoryMXBean.getHeapMemoryUsage().getUsed();
-        return used / (1024.0 * 1024.0); // Convert to MB
-    }
-
-    @Override
-    public double getAvailable() {
-        double maxHeap = getMaxHeap();
-        if (maxHeap < 0) {
-            return -1.0; // Indicate that the available memory cannot be calculated
-        }
-        return maxHeap - getUsedHeap();
-    }
-
-    /**
-     * Retrieves the maximum configured heap memory (Xmx).
-     *
-     * @return Maximum heap memory in megabytes (MB), or -1.0 if it's not explicitly set or unlimited.
-     */
-    private double getMaxHeap() {
-        long max = memoryMXBean.getHeapMemoryUsage().getMax();
-        if (max == Long.MAX_VALUE || max < 0) {
-            return -1.0; // Indicate that the max heap size is not set
-        }
-        return max / (1024.0 * 1024.0); // Convert to MB
     }
 
     /**
