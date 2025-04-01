@@ -1,6 +1,6 @@
 # ServerPulse
 
-ServerPulse is an **open‑source**, real‑time performance monitoring tool for Paper Minecraft servers. It will collect key server metrics **(TPS, CPU usage, heap memory, online player count, entities, chunks)** and store them in InfluxDB for visualization in Grafana.
+ServerPulse is an **open‑source**, real‑time performance monitoring tool for Paper Minecraft servers. It will collect key server metrics **(TPS, disk usage, heap memory, online player count, entities, chunks)** and store them in InfluxDB for visualization in Grafana.
 
 ![ServerPulse Grafana Dashboard Example](img/dashboard.png)
 
