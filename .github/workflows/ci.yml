@@ -85,4 +85,4 @@ jobs:
         if: always()
         run: |
           echo "Stopping Docker containers..."
-          docker compose -f path/to/your/docker-compose.yml down -v # -v removes volumes too
+          docker compose -f infra/docker-compose.yml down -v # -v removes volumes too
