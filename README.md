@@ -118,6 +118,6 @@ We welcome all contributions — bug reports, feature proposals, pull requests, 
 1.  Fork this repository
 2.  Create a feature branch (`git checkout -b feature/awesome-idea`)
 3.  Commit your changes with clear, descriptive messages
-4.  Open a Pull Request against `main`
+4.  Open a Pull Request against `master`
 
 Please follow the existing code style and conventions.
