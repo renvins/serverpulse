@@ -55,7 +55,12 @@ public class MetricsService implements IMetricsService {
 
     @Override
     public void collectAndSendMetrics() {
-        if (!databaseService.isConnected()) {
+        if (!databaseService.isConnected() || databaseService.getWriteApi() == null) {
+            return;
+        }
+        if (!databaseService.ping()) {
+            databaseService.disconnect();
+            databaseService.startRetryTaskIfNeeded();
             return;
         }
         CompletableFuture.supplyAsync(this::collectSnapshot, Bukkit.getScheduler().getMainThreadExecutor(plugin))

@@ -1,5 +1,6 @@
 package it.renvins.serverpulse.service.impl;
 
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -47,7 +48,7 @@ public class DatabaseService implements IDatabaseService {
     @Override
     public void load() {
         if (!checkConnectionData()) {
-            ServerPulseLoader.LOGGER.severe("InfluxDB connection data is missing or invalid. Disabling plugin.");
+            ServerPulseLoader.LOGGER.severe("InfluxDB connection data is missing or invalid. Disabling plugin...");
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             return;
         }
@@ -60,6 +61,49 @@ public class DatabaseService implements IDatabaseService {
         disconnect();
         if (httpClient != null) {
             httpClient.close();
+        }
+    }
+
+    @Override
+    public boolean ping() {
+        String url = customConfig.getConfig().getString("metrics.influxdb.url");
+        if (url == null || url.isEmpty()) {
+            ServerPulseLoader.LOGGER.severe("InfluxDB URL is missing for ping...");
+            return false;
+        }
+
+        // Ensure httpClient is initialized
+        if (this.httpClient == null) {
+            ServerPulseLoader.LOGGER.severe("HttpClient not initialized for ping...");
+            this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        }
+
+        HttpRequest request;
+        try {
+            String pingUrl = url.endsWith("/") ? url + "ping" : url + "/ping";
+            request = HttpRequest.newBuilder()
+                                 .uri(URI.create(pingUrl))
+                                 .GET()
+                                 .timeout(Duration.ofSeconds(5)) // Add timeout specific to ping
+                                 .build();
+        } catch (IllegalArgumentException e) {
+            ServerPulseLoader.LOGGER.log(Level.SEVERE, "Invalid InfluxDB URL format for ping: " + url, e);
+            return false;
+        }
+
+        try {
+            HttpResponse<Void> response = this.httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            return response.statusCode() == 204;
+        } catch (java.net.ConnectException | java.net.UnknownHostException e) {
+            ServerPulseLoader.LOGGER.warning("InfluxDB service is offline...");
+            return false;
+        } catch (
+                SocketTimeoutException e) {
+            ServerPulseLoader.LOGGER.warning("InfluxDB ping timed out: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            ServerPulseLoader.LOGGER.log(Level.SEVERE, "Error during InfluxDB ping: " + e.getMessage(), e);
+            return false;
         }
     }
 
@@ -81,20 +125,11 @@ public class DatabaseService implements IDatabaseService {
 
         // Ensure previous resources are closed if attempting a new connection
         // This might be needed if connect() is called manually or by retry.
-        if (client != null) {
-            client.close();
-            client = null;
-        }
-        if (writeApi != null) {
-            writeApi.close();
-            writeApi = null;
-        }
-        // Reset status before attempting connection
-        this.isConnected = false;
+        disconnect();
 
         ConfigurationSection section = customConfig.getConfig().getConfigurationSection("metrics.influxdb");
         if (section == null) {
-            ServerPulseLoader.LOGGER.severe("InfluxDB config section missing during connect attempt.");
+            ServerPulseLoader.LOGGER.severe("InfluxDB config section missing during connect attempt...");
             return;
         }
         String url = section.getString("url");
@@ -116,10 +151,10 @@ public class DatabaseService implements IDatabaseService {
                 this.retryCount = 0; // Reset retry count on successful connection
 
                 stopRetryTask(); // Stop retrying if we just connected
-                ServerPulseLoader.LOGGER.info("Successfully connected to InfluxDB and ping successful.");
+                ServerPulseLoader.LOGGER.info("Successfully connected to InfluxDB and ping successful...");
             } else {
-                // Ping failed after client creation (maybe auth ok, but server busy/unhealthy?)
-                ServerPulseLoader.LOGGER.warning("Connected to InfluxDB instance, but ping failed. Will retry.");
+                // Ping failed after client creation
+                ServerPulseLoader.LOGGER.warning("Created InfluxDB instance, but ping failed. Will retry...");
                 this.isConnected = false; // Ensure status is false
 
                 if (client != null) {
@@ -140,10 +175,8 @@ public class DatabaseService implements IDatabaseService {
         }
     }
 
-
-    /** Closes InfluxDB client and write API. */
-    private void disconnect() {
-        ServerPulseLoader.LOGGER.info("Disconnecting from InfluxDB...");
+    @Override
+    public void disconnect() {
         if (writeApi != null) {
             try {
                 writeApi.close();
@@ -164,54 +197,48 @@ public class DatabaseService implements IDatabaseService {
     }
 
 
-    /** Starts the retry task only if it's not already running. */
-    private synchronized void startRetryTaskIfNeeded() {
+    @Override
+    public synchronized void startRetryTaskIfNeeded() {
         if (retryTask != null && !retryTask.isCancelled()) {
             return;
         }
         if (!plugin.isEnabled()) {
-            ServerPulseLoader.LOGGER.warning("Plugin disabling, not starting retry task.");
+            ServerPulseLoader.LOGGER.warning("Plugin disabling, not starting retry task...");
             return;
         }
 
-        // Reset retry count ONLY when starting the task sequence anew
+        // Reset retry count ONLY when starting the task sequence
         this.retryCount = 0;
         ServerPulseLoader.LOGGER.warning("Connection failed. Starting connection retry task (Max " + MAX_RETRIES + " attempts)...");
 
         retryTask = plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             // Check connection status *first* using the flag
             if (this.isConnected) {
-                ServerPulseLoader.LOGGER.info("Connection successful, stopping retry task.");
+                ServerPulseLoader.LOGGER.info("Connection successful, stopping retry task...");
                 stopRetryTask();
                 return;
             }
 
             // Check if plugin got disabled externally
             if (!plugin.isEnabled()) {
-                ServerPulseLoader.LOGGER.warning("Plugin disabled during retry task execution.");
+                ServerPulseLoader.LOGGER.warning("Plugin disabled during retry task execution...");
                 stopRetryTask();
                 return;
             }
 
             // Check retries *before* attempting connection
             if (retryCount >= MAX_RETRIES) {
-                ServerPulseLoader.LOGGER.severe("Max connection retries (" + MAX_RETRIES + ") reached. Disabling ServerPulse metrics.");
+                ServerPulseLoader.LOGGER.severe("Max connection retries (" + MAX_RETRIES + ") reached. Disabling ServerPulse metrics...");
                 stopRetryTask();
                 disconnect(); // Clean up any partial connection
                 // Schedule plugin disable on main thread
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    ServerPulseLoader.LOGGER.severe("Disabling ServerPulse plugin due to persistent connection failure.");
-                    plugin.getServer().getPluginManager().disablePlugin(plugin);
-                });
+                plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getServer().getPluginManager().disablePlugin(plugin));
                 return;
             }
-
             retryCount++;
+
             ServerPulseLoader.LOGGER.info("Retrying InfluxDB connection... Attempt " + retryCount + "/" + MAX_RETRIES);
-            connect(); // Attempt to connect again
-
-            // Note: connect() will handle setting isConnected flag and potentially stopping the task if successful.
-
+            connect(); // Note: connect() will handle setting isConnected flag and potentially stopping the task if successful.
         }, RETRY_DELAY_TICKS, RETRY_DELAY_TICKS); // Start after delay, repeat at delay
     }
 
@@ -227,55 +254,6 @@ public class DatabaseService implements IDatabaseService {
                 }
             }
             retryTask = null;
-        }
-    }
-
-    /**
-     * Performs a health check ping to the InfluxDB instance.
-     * Should only be called internally by connect() or dedicated health checks.
-     * @return true if ping is successful (HTTP 204), false otherwise.
-     */
-    private boolean ping() {
-        String url = customConfig.getConfig().getString("metrics.influxdb.url");
-        if (url == null || url.isEmpty()) {
-            ServerPulseLoader.LOGGER.severe("InfluxDB URL is missing for ping.");
-            return false;
-        }
-
-        // Ensure httpClient is initialized
-        if (this.httpClient == null) {
-            ServerPulseLoader.LOGGER.severe("HttpClient not initialized for ping.");
-            // Re-initialize as a fallback, though it should be done in constructor
-            this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-        }
-
-        HttpRequest request;
-        try {
-            String pingUrl = url.endsWith("/") ? url + "ping" : url + "/ping";
-            request = HttpRequest.newBuilder()
-                                 .uri(URI.create(pingUrl))
-                                 .GET()
-                                 .timeout(Duration.ofSeconds(5)) // Add timeout specific to ping
-                                 .build();
-        } catch (IllegalArgumentException e) {
-            ServerPulseLoader.LOGGER.log(Level.SEVERE, "Invalid InfluxDB URL format for ping: " + url, e);
-            return false;
-        }
-
-
-        try {
-            HttpResponse<Void> response = this.httpClient.send(request, HttpResponse.BodyHandlers.discarding());
-            int statusCode = response.statusCode();
-
-            if (statusCode == 204) {
-                return true;
-            } else {
-                ServerPulseLoader.LOGGER.warning("InfluxDB ping failed: Received HTTP status code " + statusCode + " (expected 204).");
-                return false;
-            }
-        } catch (Exception e) { // Catch broader exceptions
-            ServerPulseLoader.LOGGER.log(Level.SEVERE, "Error during InfluxDB ping to " + url + ": " + e.getMessage());
-            return false;
         }
     }
 
