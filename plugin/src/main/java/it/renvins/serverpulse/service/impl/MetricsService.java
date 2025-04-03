@@ -55,8 +55,12 @@ public class MetricsService implements IMetricsService {
 
     @Override
     public void collectAndSendMetrics() {
-        if (databaseService.getWriteApi() == null) {
-            ServerPulseLoader.LOGGER.warning("Database Write API not available. Skipping metrics send...");
+        if (!databaseService.isConnected() || databaseService.getWriteApi() == null) {
+            return;
+        }
+        if (!databaseService.ping()) {
+            databaseService.disconnect();
+            databaseService.startRetryTaskIfNeeded();
             return;
         }
         CompletableFuture.supplyAsync(this::collectSnapshot, Bukkit.getScheduler().getMainThreadExecutor(plugin))

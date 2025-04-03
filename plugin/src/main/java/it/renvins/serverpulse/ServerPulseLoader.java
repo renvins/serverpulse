@@ -41,6 +41,9 @@ public class ServerPulseLoader implements Service {
             return;
         }
         databaseService.load();
+        if (!plugin.isEnabled()) {
+            return;
+        }
         metricsService.load();
     }
 
