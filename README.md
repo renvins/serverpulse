@@ -25,6 +25,19 @@ ServerPulse is an **open‑source**, real‑time performance monitoring tool for
 
 ---
 
+## Why Choose ServerPulse?
+
+ServerPulse isn't just another metrics exporter - it offers several unique advantages:
+
+* **Complete Monitoring Stack**: Unlike simple exporters, ServerPulse provides a fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards
+* **Per-World Analytics**: Track entity counts, chunk loading, and performance metrics separately for each world
+* **Flexible Tagging System**: Group and filter metrics by server, network, region, or any custom dimension through simple configuration
+* **Zero-Configuration Dashboards**: Auto-provisioned Grafana dashboards - no manual setup required
+* **Production-Ready Infrastructure**: Built-in health checks, connection retry mechanisms, and proper error handling
+* **Docker-First Deployment**: Single command deployment with Docker Compose for the entire monitoring stack
+
+---
+
 ## 🚀 Getting Started
 
 Follow these steps to set up and run the ServerPulse monitoring environment:
@@ -108,6 +121,32 @@ While ServerPulse provides a preconfigured dashboard as a starting point, the re
 * **Query Your Data:** When configuring a panel, you'll use the **InfluxDB datasource** and write **Flux queries** to retrieve the data. All metrics are in the `metrics_db` bucket, `minecraft_stats` measurement. Use the **tags** you configured (especially `server`, plus any custom ones) in your `WHERE` clause (or `filter()` function in Flux) to select the correct data.
 
 Feel free to experiment and build dashboards tailored to the specific metrics and servers you care about most!
+
+---
+
+### Comparison with Alternative Solutions
+
+| Feature | ServerPulse | Generic Prometheus Exporters |
+|---------|------------|--------------------------|
+| Setup Time | ~5 minutes with Docker Compose | Manual metrics + Prometheus + Grafana setup |
+| Dashboard Configuration | Pre-configured, auto-provisioned | Manual dashboard creation |
+| Data Storage | InfluxDB (optimized for time-series) | Prometheus (general-purpose) |
+| Per-World Metrics | ✅ Built-in | ❌ Usually not available |
+| Custom Tagging | ✅ Flexible tag system | ❌ Limited labeling |
+| Infrastructure | ✅ Complete stack included | ❌ Manual integration required |
+| Health Monitoring | ✅ Automated health checks | Varies by implementation |
+
+---
+
+## 🎯 Future Plans
+
+We're actively developing new features to make ServerPulse even better:
+
+- Plugin metrics API for third-party plugin integration
+- Alert notifications system (Discord)
+- BungeeCord/Velocity support for network-wide monitoring
+- Advanced memory analysis and leak detection
+- Command to check connection' status
 
 ---
 
