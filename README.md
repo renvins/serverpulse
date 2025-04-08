@@ -112,6 +112,24 @@ The system uses InfluxDB to store metrics and Grafana to visualize them. Configu
 
 ---
 
+## 📝 Commands and Permissions
+
+ServerPulse provides several commands to manage the plugin:
+
+### Commands
+- `/serverpulse status` - Check the connection status with InfluxDB
+- `/serverpulse reload` - Reload the plugin configuration
+
+### Permissions
+- `serverpulse.status` - Permission to check InfluxDB connection status
+- `serverpulse.reload` - Permission to reload plugin configuration
+
+All command messages are customizable through the `config.yml` file and support color codes using the '&' symbol.
+
+---
+
+---
+
 ## 🎨 Custom Dashboards & Visualization
 
 While ServerPulse provides a preconfigured dashboard as a starting point, the real power comes from creating your own visualizations in Grafana!
@@ -131,10 +149,10 @@ Feel free to experiment and build dashboards tailored to the specific metrics an
 | Setup Time | ~5 minutes with Docker Compose | Manual metrics + Prometheus + Grafana setup |
 | Dashboard Configuration | Pre-configured, auto-provisioned | Manual dashboard creation |
 | Data Storage | InfluxDB (optimized for time-series) | Prometheus (general-purpose) |
-| Per-World Metrics | ✅ Built-in | ❌ Usually not available |
-| Custom Tagging | ✅ Flexible tag system | ❌ Limited labeling |
-| Infrastructure | ✅ Complete stack included | ❌ Manual integration required |
-| Health Monitoring | ✅ Automated health checks | Varies by implementation |
+| Per-World Metrics | Built-in | Usually not available |
+| Custom Tagging | Flexible tag system | Limited labeling |
+| Infrastructure | Complete stack included | Manual integration required |
+| Health Monitoring | Automated health checks | Varies by implementation |
 
 ---
 
@@ -146,7 +164,6 @@ We're actively developing new features to make ServerPulse even better:
 - Alert notifications system (Discord)
 - BungeeCord/Velocity support for network-wide monitoring
 - Advanced memory analysis and leak detection
-- Command to check connection' status
 
 ---
 
