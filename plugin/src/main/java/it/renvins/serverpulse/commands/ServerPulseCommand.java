@@ -1,18 +1,13 @@
 package it.renvins.serverpulse.commands;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import it.renvins.serverpulse.config.CustomConfig;
 import it.renvins.serverpulse.utils.ChatUtils;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.defaults.HelpCommand;
-import org.bukkit.command.defaults.VersionCommand;
 import org.jetbrains.annotations.NotNull;
 
 public class ServerPulseCommand implements CommandExecutor {
@@ -56,6 +51,6 @@ public class ServerPulseCommand implements CommandExecutor {
     }
 
     private void registerCommands() {
-        commands.put("reload", new ReloadCommand("serverpulse.reload", false));
+        commands.put("reload", new ReloadCommand("serverpulse.reload", false, config));
     }
 }

@@ -9,3 +9,10 @@ metrics:
     table: minecraft_stats # The table where metrics are stored
   tags:
     server: "bed1"
+messages:
+  noPerms: "&7[&bServer&7Pulse] &7You don't have &bpermission &7to use this &bcommand&7."
+  reloadConfig: "&7[&bServer&7Pulse] &7Configuration &breloaded&7."
+  reloadConfigError: "&7[&bServer&7Pulse] &7Error &breloading &7configuration..."
+  noArgs: "&7[&bServer&7Pulse] &7You need to specify a &bcommand&7: &breload&7, &bstatus&7."
+  playerOnly: "&7[&bServer&7Pulse] &7This command can only be used by &bplayers&7."
+  noCommand: "&7[&bServer&7Pulse] &7This command is not &bavailable&7."
