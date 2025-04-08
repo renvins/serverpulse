@@ -17,3 +17,6 @@ messages:
   playerOnly: "&7[&bServer&7Pulse] &7This command can only be used by &bplayers&7."
   noCommand: "&7[&bServer&7Pulse] &7This command is not &bavailable&7."
   reloadConfigUsage: "&7[&bServer&7Pulse] &7Usage: &b/serverpulse reload&7."
+  statusConfigUsage: "&7[&bServer&7Pulse] &7Usage: &b/serverpulse status&7."
+  statusConnected: "&7[&bServer&7Pulse] &7Connected to &bInfluxDB&7."
+  statusNotConnected: "&7[&bServer&7Pulse] &7Not connected to &bInfluxDB&7."

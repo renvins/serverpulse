@@ -47,7 +47,7 @@ public class ServerPulseLoader implements Service {
         }
         metricsService.load();
 
-        plugin.getCommand("serverpulse").setExecutor(new ServerPulseCommand(config));
+        plugin.getCommand("serverpulse").setExecutor(new ServerPulseCommand(databaseService, config));
     }
 
     @Override
