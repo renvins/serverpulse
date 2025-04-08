@@ -15,6 +15,10 @@ public class ReloadCommand extends GeneralCommand {
 
     @Override
     public void run(CommandSender sender, String[] args) {
+        if (args.length > 0) {
+            sender.sendMessage(ChatUtils.format(config.getConfig().getString("messages.reloadConfigUsage")));
+            return;
+        }
         if (!config.reload()) {
             sender.sendMessage(ChatUtils.format(config.getConfig().getString("messages.reloadConfigError")));
         } else {

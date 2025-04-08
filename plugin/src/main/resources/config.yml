@@ -16,3 +16,4 @@ messages:
   noArgs: "&7[&bServer&7Pulse] &7You need to specify a &bcommand&7: &breload&7, &bstatus&7."
   playerOnly: "&7[&bServer&7Pulse] &7This command can only be used by &bplayers&7."
   noCommand: "&7[&bServer&7Pulse] &7This command is not &bavailable&7."
+  reloadConfigUsage: "&7[&bServer&7Pulse] &7Usage: &b/serverpulse reload&7."
