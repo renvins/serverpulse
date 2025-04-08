@@ -128,8 +128,6 @@ All command messages are customizable through the `config.yml` file and support 
 
 ---
 
----
-
 ## 🎨 Custom Dashboards & Visualization
 
 While ServerPulse provides a preconfigured dashboard as a starting point, the real power comes from creating your own visualizations in Grafana!
