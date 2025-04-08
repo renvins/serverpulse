@@ -4,3 +4,6 @@ main: it.renvins.serverpulse.ServerPulsePlugin
 author: renvins
 description: ServerPulse plugin for monitoring server metrics
 api-version: 1.21.4
+commands:
+  serverpulse:
+    description: Main plugin command

@@ -2,6 +2,7 @@ package it.renvins.serverpulse;
 
 import java.util.logging.Logger;
 
+import it.renvins.serverpulse.commands.ServerPulseCommand;
 import it.renvins.serverpulse.config.CustomConfig;
 import it.renvins.serverpulse.service.IDatabaseService;
 import it.renvins.serverpulse.service.IMetricsService;
@@ -45,6 +46,8 @@ public class ServerPulseLoader implements Service {
             return;
         }
         metricsService.load();
+
+        plugin.getCommand("serverpulse").setExecutor(new ServerPulseCommand(databaseService, config));
     }
 
     @Override

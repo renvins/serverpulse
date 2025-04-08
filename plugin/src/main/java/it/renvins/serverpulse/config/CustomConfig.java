@@ -54,4 +54,13 @@ public class CustomConfig {
         }
     }
 
+    public boolean reload() {
+        if (file == null) {
+            ServerPulseLoader.LOGGER.log(Level.SEVERE, "File is null, cannot reload configuration.");
+            return false;
+        }
+        config = YamlConfiguration.loadConfiguration(file);
+        return true;
+    }
+
 }
