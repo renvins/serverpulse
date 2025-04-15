@@ -1,0 +1,76 @@
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: Metrics evaluation
+    folder: Metrics alerts
+    interval: 10s
+    rules:
+      - uid: ceiz0fk56qmtcd
+        title: Low TPS
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P5697886F9CA74929
+            model:
+              intervalMs: 1000
+              maxDataPoints: 43200
+              query: "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"tps_1m\")\r\n  |> filter(fn: (r) => r.server == \"bed1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean_tps_1m\")"
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: []
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: last
+              refId: B
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 18
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - C
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        noDataState: NoData
+        execErrState: Error
+        isPaused: false
+        notification_settings:
+          receiver: Discord contact point

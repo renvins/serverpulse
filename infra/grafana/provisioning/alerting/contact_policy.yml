@@ -1,0 +1,7 @@
+apiVersion: 1
+policies:
+  - orgId: 1
+    receiver: Discord contact point
+    group_wait: 0s # Wait for 0 seconds before sending the first notification
+    group_interval: 30s # Wait for 30 seconds before sending notifications about changes
+    repeat_interval: 3m # Repeat same notifications about every 3 minutes
