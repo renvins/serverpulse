@@ -50,7 +50,7 @@ groups:
               conditions:
                 - evaluator:
                     params:
-                      - 21
+                      - 18
                     type: lt
                   operator:
                     type: and
