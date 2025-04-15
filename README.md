@@ -21,6 +21,7 @@ ServerPulse is an **open‑source**, real‑time performance monitoring tool for
 - **Tech stack:**
     - Java (Paper plugin) → InfluxDB
     - Grafana dashboard (preconfigured via provisioning)
+    - Discord alerts for key server metrics
     - Docker Compose (for InfluxDB & Grafana setup)
 
 ---
@@ -33,6 +34,7 @@ ServerPulse isn't just another metrics exporter - it offers several unique advan
 * **Per-World Analytics**: Track entity counts, chunk loading, and performance metrics separately for each world
 * **Flexible Tagging System**: Group and filter metrics by server, network, region, or any custom dimension through simple configuration
 * **Zero-Configuration Dashboards**: Auto-provisioned Grafana dashboards - no manual setup required
+* **Alert Notifications**: Integrated Discord alerts for critical server metrics (TPS drops, memory issues, etc.)
 * **Production-Ready Infrastructure**: Built-in health checks, connection retry mechanisms, and proper error handling
 * **Docker-First Deployment**: Single command deployment with Docker Compose for the entire monitoring stack
 
@@ -47,6 +49,7 @@ Follow these steps to set up and run the ServerPulse monitoring environment:
 * Docker and Docker Compose installed on your machine.
 * A Minecraft server running Paper (or compatible forks) where you can install the plugin.
 * Git for cloning the repository (optional if you download the ZIP).
+* Discord server with webhook permissions (for alerts).
 
 ### 1. InfluxDB Setup and Token Configuration
 
@@ -89,7 +92,27 @@ The system uses InfluxDB to store metrics and Grafana to visualize them. Configu
             ```
         *(Restart your Minecraft server or reload the plugin after editing `plugins/ServerPulse/config.yml` for changes to take effect).*
 
-### 2. Build and Install the Plugin
+### 2. Discord Alerts Configuration (New in v0.1.3)
+
+ServerPulse now includes built-in alert notifications via Discord:
+
+1. **Create a Discord Webhook:**
+   - Go to your Discord server settings
+   - Navigate to "Integrations" → "Webhooks"
+   - Create a new webhook for the channel where you want alerts to appear
+   - Copy the webhook URL
+
+2. **Configure the Discord Integration:**
+   - Edit the file `infra/grafana/provisioning/alerting/discord_contact.yml`
+   - Replace the example webhook URL with your own Discord webhook URL
+   - Save the file and restart the Docker containers for changes to take effect
+
+3. **Customize Alert Rules (Optional):**
+   - Default alerts are pre-configured for TPS issues (< 18 TPS)
+   - Review and customize alert rules in `infra/grafana/provisioning/alerting/metrics.yml`
+   - You can adjust thresholds and add new alert rules based on your needs
+
+### 3. Build and Install the Plugin
 
 1.  **Build the Plugin:** (If you don't already have the JAR file)
     Run the Gradle command to build the plugin JAR. From the project root directory:
@@ -99,9 +122,9 @@ The system uses InfluxDB to store metrics and Grafana to visualize them. Configu
     You will find the resulting JAR file in `plugin/build/libs/`.
 
 2.  **Installation:**
-    Copy the ServerPulse plugin JAR file (e.g., `serverpulse-plugin-x.y.z.jar`) into the `plugins` folder of your Paper Minecraft server.
+    Copy the ServerPulse plugin JAR file (e.g., `serverpulse-plugin-0.1.3.jar`) into the `plugins` folder of your Paper Minecraft server.
 
-### 3. Start and Access
+### 4. Start and Access
 
 1.  **Start your Minecraft server.** The ServerPulse plugin will load. Ensure you have correctly configured the InfluxDB token and customized the `server` tag (and added any other desired tags) in `plugins/ServerPulse/config.yml`. The plugin will then start sending metrics to InfluxDB. Check the server console for status messages or errors.
 
@@ -128,6 +151,37 @@ All command messages are customizable through the `config.yml` file and support 
 
 ---
 
+## 🔔 Alert System (New in v0.1.3)
+
+The new alert system provides proactive monitoring for your Minecraft servers:
+
+### Pre-configured Alerts
+- **Low TPS Detection**: Get notified when server TPS drops below 18
+- **Alert Notification Schedule**: Configured with sensible defaults (30s group interval, 3m repeat interval)
+
+### Alert Customization
+You can customize existing alerts or create new ones through the Grafana UI or by editing the provisioning YAML files:
+
+1. **Via Grafana UI:**
+   - Navigate to Alerting section in Grafana
+   - Edit existing rules or create new ones
+   - Set thresholds, notification channels, and evaluation intervals
+
+2. **Via YAML Files:**
+   - Edit `infra/grafana/provisioning/alerting/metrics.yml` to modify alert rules
+   - Edit `infra/grafana/provisioning/alerting/contact_policy.yml` to adjust notification policies
+   - Restart Docker containers to apply changes
+
+### Create Custom Alerts
+You can easily create additional alerts for metrics like:
+- Memory usage
+- Disk space
+- Entity count
+- Online player spikes
+- Network connectivity issues
+
+---
+
 ## 🎨 Custom Dashboards & Visualization
 
 While ServerPulse provides a preconfigured dashboard as a starting point, the real power comes from creating your own visualizations in Grafana!
@@ -149,6 +203,7 @@ Feel free to experiment and build dashboards tailored to the specific metrics an
 | Data Storage | InfluxDB (optimized for time-series) | Prometheus (general-purpose) |
 | Per-World Metrics | Built-in | Usually not available |
 | Custom Tagging | Flexible tag system | Limited labeling |
+| Alert System | Discord integration | Requires manual setup |
 | Infrastructure | Complete stack included | Manual integration required |
 | Health Monitoring | Automated health checks | Varies by implementation |
 
@@ -159,7 +214,6 @@ Feel free to experiment and build dashboards tailored to the specific metrics an
 We're actively developing new features to make ServerPulse even better:
 
 - Plugin metrics API for third-party plugin integration
-- Alert notifications system (Discord)
 - BungeeCord/Velocity support for network-wide monitoring
 - Advanced memory analysis and leak detection
 
