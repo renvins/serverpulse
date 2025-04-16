@@ -8,6 +8,6 @@ contactPoints:
         settings:
           message: '{{ template "discord.default.message" . }}'
           title: '{{ template "default.title" . }}'
-          url: https://discord.com/api/webhooks/1359937944529408100/nufab_o-rZpRj2RApWzRnpl5D_6w-cGu2w5gv3ksV0RcM2eVC2lvotJqNTGtDbNBDGsO # The Discord webhook URL
+          url: https://discord.com/api/webhooks/your-webhook # The Discord webhook URL
           use_discord_username: false
         disableResolveMessage: false
