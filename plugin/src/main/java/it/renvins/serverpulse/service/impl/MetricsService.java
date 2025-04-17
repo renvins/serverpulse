@@ -18,8 +18,10 @@ import it.renvins.serverpulse.data.SyncMetricsSnapshot;
 import it.renvins.serverpulse.data.WorldData;
 import it.renvins.serverpulse.metrics.IDiskRetriever;
 import it.renvins.serverpulse.metrics.IMemoryRetriever;
+import it.renvins.serverpulse.metrics.IPingRetriever;
 import it.renvins.serverpulse.metrics.impl.DiskRetriever;
 import it.renvins.serverpulse.metrics.impl.MemoryRetriever;
+import it.renvins.serverpulse.metrics.impl.PingRetriever;
 import it.renvins.serverpulse.service.IDatabaseService;
 import it.renvins.serverpulse.service.IMetricsService;
 import org.bukkit.Bukkit;
@@ -33,6 +35,7 @@ public class MetricsService implements IMetricsService {
 
     private final IMemoryRetriever memoryRetriever;
     private final IDiskRetriever diskRetriever;
+    private final IPingRetriever pingRetriever;
 
     private final Executor asyncExecutor;
 
@@ -43,6 +46,7 @@ public class MetricsService implements IMetricsService {
 
         this.memoryRetriever = new MemoryRetriever();
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
+        this.pingRetriever = new PingRetriever();
 
         this.asyncExecutor = task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
     }
@@ -71,10 +75,15 @@ public class MetricsService implements IMetricsService {
                     }
                     long usedHeap = memoryRetriever.getUsedHeapBytes();
                     long committedHeap = memoryRetriever.getCommittedHeapBytes();
+
                     long totalDisk = diskRetriever.getTotalSpace();
                     long usableDisk = diskRetriever.getUsableSpace();
 
-                    return buildPoints(snapshot, usedHeap, committedHeap, totalDisk, usableDisk);
+                    int minPing = pingRetriever.getMinPing();
+                    int maxPing = pingRetriever.getMaxPing();
+                    int avgPing = pingRetriever.getAveragePing();
+
+                    return buildPoints(snapshot, usedHeap, committedHeap, totalDisk, usableDisk, minPing, maxPing, avgPing);
                 }, asyncExecutor).thenAcceptAsync(points -> {
                     if (!points.isEmpty()) {
                         try {
@@ -120,18 +129,17 @@ public class MetricsService implements IMetricsService {
     }
 
     /**
-     * Builds a list of InfluxDB points from the given metrics snapshot and system
-     * information.
+     * Builds a list of InfluxDB points from the given metrics snapshot.
      *
-     * @param snapshot      The metrics snapshot containing server data.
-     * @param usedHeap      The amount of used heap memory in bytes.
-     * @param committedHeap The amount of committed heap memory in bytes.
-     * @param totalDisk     The total disk space in bytes.
-     * @param usableDisk    The usable disk space in bytes.
-     * @return A list of InfluxDB points ready for writing.
+     * @param snapshot The metrics snapshot to convert.
+     * @param usedHeap The used heap memory in bytes.
+     * @param committedHeap The committed heap memory in bytes.
+     * @param totalDisk The total disk space in bytes.
+     * @param usableDisk The usable disk space in bytes.
+     * @return A list of InfluxDB points representing the metrics.
      */
     private List<Point> buildPoints(SyncMetricsSnapshot snapshot, long usedHeap, long committedHeap,
-            long totalDisk, long usableDisk) {
+            long totalDisk, long usableDisk, int minPing, int maxPing, int avgPing) {
         List<Point> points = new ArrayList<>();
 
         String serverTag = config.getConfig().getString("metrics.tags.server");
@@ -147,6 +155,9 @@ public class MetricsService implements IMetricsService {
                                   .addField("available_memory", committedHeap)
                                   .addField("total_disk_space", totalDisk)
                                   .addField("usable_disk_space", usableDisk)
+                                  .addField("min_ping", minPing)
+                                  .addField("max_ping", maxPing)
+                                  .addField("avg_ping", avgPing)
                                   .time(Instant.now(), WritePrecision.NS);
         addConfigTags(generalPoint);
         points.add(generalPoint);
