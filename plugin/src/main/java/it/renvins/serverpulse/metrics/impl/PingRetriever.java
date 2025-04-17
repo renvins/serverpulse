@@ -20,7 +20,7 @@ public class PingRetriever implements IPingRetriever {
 
     @Override
     public int getMaxPing() {
-        int maxPing = Integer.MIN_VALUE;
+        int maxPing = 0;
         if (Bukkit.getOnlinePlayers().isEmpty()) {
             return 0;
         }

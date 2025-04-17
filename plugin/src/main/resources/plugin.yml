@@ -2,8 +2,8 @@ name: ServerPulse
 version: ${rootProject.version}
 main: it.renvins.serverpulse.ServerPulsePlugin
 author: renvins
-description: ServerPulse plugin for monitoring server metrics
-api-version: 1.21.4
+description: Effortless Minecraft performance monitoring with pre-configured Grafana/InfluxDB via Docker.
+api-version: 1.13 # avoid unnecessary warnings and remappings
 commands:
   serverpulse:
     description: Main plugin command
