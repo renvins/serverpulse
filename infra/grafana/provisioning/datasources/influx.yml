@@ -6,10 +6,10 @@ datasources:
     url: http://influxdb:8086
     jsonData:
       version: Flux # InfluxDB v2 uses Flux as the query language
-      organization: my-org # The organization name in InfluxDB
+      organization: ares # The organization name in InfluxDB
       defaultBucket: metrics_db # The default bucket for queries
       tlsSkipVerify: true
     secureJsonData:
-      token: my-token # The token for InfluxDB API access (WRITE AND READ ACCESS)
+      token: L7AsZj1em2Dt_lUMlZlKgJAq9yletVqT1TjxTOIiyqgGeHs7Ix0ZxesOJl72dY86fW_w99NaNpNIMpHozI_rjg== # The token for InfluxDB API access (WRITE AND READ ACCESS)
     isDefault: true # Set this datasource as the default
     editable: false # Make it non-editable
