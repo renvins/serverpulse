@@ -32,7 +32,7 @@ public class ServerPulseLoader implements Service {
 
     @Override
     public void load() {
-        LOGGER.info("Loading metrics' configuration...");
+        LOGGER.info("Loading configuration...");
         config.load();
 
         if(!config.getConfig().getBoolean("metrics.enabled")) {
