@@ -34,6 +34,11 @@ tasks.withType<ShadowJar> {
 
     relocate("com.influxdb", "$relocatePath.influxdb")
 
+    // Exclude Kotlin to avoid conflicts with eco
+    exclude("kotlin/**")
+    exclude("org/jetbrains/kotlin/**")
+    exclude("META-INF/kotlin*")
+
     // Prevent Paper from giving errors about duplicate files
     exclude("META-INF/AL2.0")
     exclude("META-INF/LGPL2.1")
