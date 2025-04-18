@@ -52,6 +52,7 @@ public class DatabaseService implements IDatabaseService {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             return;
         }
+        ServerPulseLoader.LOGGER.info("Connecting to InfluxDB...");
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, this::connect);
     }
 
