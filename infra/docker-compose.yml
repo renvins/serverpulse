@@ -13,9 +13,11 @@ services:
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning # Use a custom provisioning directory
       - ./grafana/dashboards:/var/lib/grafana/dashboards # Use a custom dashboards directory
+      - grafana-data:/var/lib/grafana # Persist data
     ports:
       - "3000:3000" # Expose the Grafana UI
     depends_on:
       - influxdb # Wait for InfluxDB to be ready
 volumes:
   influxdb-data: # Define a named volume for InfluxDB data
+  grafana-data: # Define a named volume for Grafana data
