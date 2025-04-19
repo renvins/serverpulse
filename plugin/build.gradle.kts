@@ -33,6 +33,16 @@ tasks.withType<ShadowJar> {
     archiveVersion = "${rootProject.version}"
 
     relocate("com.influxdb", "$relocatePath.influxdb")
+    relocate("okhttp3", "$relocatePath.okhttp3")
+    relocate("okio", "$relocatePath.okio")
+    relocate("org.jetbrains", "$relocatePath.jetbrains")
+    relocate("com.google", "$relocatePath.google")
+    relocate("io.reactivex", "$relocatePath.reactivex")
+    relocate("javax.annotation", "$relocatePath.annotation")
+    relocate("org.apache", "$relocatePath.apache")
+    relocate("org.intellij", "$relocatePath.intellij")
+    relocate("org.reactivestreams", "$relocatePath.reactivestreams")
+    relocate("retrofit2", "$relocatePath.retrofit2")
 
     // Exclude Kotlin to avoid conflicts with eco
     exclude("kotlin/**")
