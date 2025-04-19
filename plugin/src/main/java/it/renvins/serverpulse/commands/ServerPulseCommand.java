@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.renvins.serverpulse.config.CustomConfig;
-import it.renvins.serverpulse.service.IDatabaseService;
 import it.renvins.serverpulse.utils.ChatUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,12 +12,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class ServerPulseCommand implements CommandExecutor {
 
-    private final IDatabaseService databaseService;
     private final CustomConfig config;
     private final Map<String, GeneralCommand> commands = new HashMap<>();
 
-    public ServerPulseCommand(IDatabaseService databaseService, CustomConfig config) {
-        this.databaseService = databaseService;
+    public ServerPulseCommand(CustomConfig config) {
         this.config = config;
         registerCommands();
     }
@@ -55,6 +52,6 @@ public class ServerPulseCommand implements CommandExecutor {
 
     private void registerCommands() {
         commands.put("reload", new ReloadCommand("serverpulse.reload", false, config));
-        commands.put("status", new StatusCommand("serverpulse.status", false, config, databaseService));
+        commands.put("status", new StatusCommand("serverpulse.status", false, config));
     }
 }
