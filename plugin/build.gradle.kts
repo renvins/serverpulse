@@ -17,6 +17,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":api"))
     implementation("com.influxdb:influxdb-client-java:7.2.0")
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
 }
