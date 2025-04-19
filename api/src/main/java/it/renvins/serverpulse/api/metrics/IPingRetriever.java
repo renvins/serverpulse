@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.metrics;
+package it.renvins.serverpulse.api.metrics;
 
 public interface IPingRetriever {
 

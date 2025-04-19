@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.service;
+package it.renvins.serverpulse.api.service;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.WriteApi;

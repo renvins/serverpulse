@@ -182,6 +182,206 @@ You can easily create additional alerts for metrics like:
 
 ---
 
+## 🧩 Developer API
+
+ServerPulse now includes a dedicated API module that allows other plugins to interact with and extend its functionality. This API provides a clean interface for accessing metrics data, monitoring services, and integrating with the ServerPulse ecosystem.
+
+### API Structure
+
+The API module contains several key components:
+
+```
+it.renvins.serverpulse.api
+├── ServerPulseAPI          # Main API interface
+├── ServerPulseProvider     # Static access point to the API
+├── data                    # Data model classes
+│   ├── SyncMetricsSnapshot # Container for server-wide metrics
+│   └── WorldData           # Per-world metrics data
+├── metrics                 # Metrics collection interfaces
+│   ├── IDiskRetriever      # Disk space metrics
+│   └── IPingRetriever      # Player ping metrics
+├── service                 # Core services
+│   ├── IDatabaseService    # InfluxDB connection management
+│   ├── IMetricsService     # Metrics collection and reporting
+│   └── Service             # Base service interface
+└── utils                   # Utility classes
+    └── MemoryUtils         # Memory-related helper methods
+```
+
+### Using the API in Your Plugin
+
+#### Add ServerPulse as a Dependency
+
+First, add ServerPulse as a dependency in your `plugin.yml`:
+
+```yaml
+depend: [ServerPulse]
+```
+
+Or as a soft dependency:
+
+```yaml
+softdepend: [ServerPulse]
+```
+
+#### Access the API
+
+The API is accessed through the `ServerPulseProvider` class:
+
+```java
+import it.renvins.serverpulse.api.ServerPulseAPI;
+import it.renvins.serverpulse.api.ServerPulseProvider;
+
+public class YourPlugin extends JavaPlugin {
+    
+    @Override
+    public void onEnable() {
+        // Check if ServerPulse is available
+        if (getServer().getPluginManager().getPlugin("ServerPulse") != null) {
+            try {
+                ServerPulseAPI api = ServerPulseProvider.get();
+                // Now you can use the API
+                useServerPulseAPI(api);
+            } catch (IllegalStateException e) {
+                getLogger().warning("ServerPulse API is not available yet!");
+            }
+        }
+    }
+    
+    private void useServerPulseAPI(ServerPulseAPI api) {
+        // Example: Check if ServerPulse is connected to InfluxDB
+        boolean connected = api.getDatabaseService().isConnected();
+        getLogger().info("ServerPulse connection status: " + connected);
+        
+        // Example: Get disk metrics
+        long totalDiskSpace = api.getDiskRetriever().getTotalSpace();
+        long usableDiskSpace = api.getDiskRetriever().getUsableSpace();
+        getLogger().info("Disk space: " + usableDiskSpace + "/" + totalDiskSpace + " bytes");
+    }
+}
+```
+
+### Key API Features
+
+#### Metrics Access
+
+Access real-time server metrics:
+
+```java
+// Get memory information
+long usedHeap = MemoryUtils.getUsedHeapBytes();
+long committedHeap = MemoryUtils.getCommittedHeapBytes();
+
+// Get ping information
+int minPing = api.getPingRetriever().getMinPing();
+int maxPing = api.getPingRetriever().getMaxPing();
+int avgPing = api.getPingRetriever().getAveragePing();
+```
+
+#### Database Service Integration
+
+Check or manipulate the InfluxDB connection:
+
+```java
+IDatabaseService dbService = api.getDatabaseService();
+
+// Check connection status
+boolean isConnected = dbService.isConnected();
+
+// Manually trigger a ping check
+boolean pingSuccess = dbService.ping();
+
+// Get the InfluxDB client for custom queries
+InfluxDBClient client = dbService.getClient();
+WriteApi writeApi = dbService.getWriteApi();
+```
+
+#### Creating Custom Metrics Providers
+
+You can extend ServerPulse with custom metrics by implementing the appropriate interfaces:
+
+```java
+public class CustomDiskRetriever implements IDiskRetriever {
+    @Override
+    public long getTotalSpace() {
+        // Your custom implementation
+        return customTotalSpace;
+    }
+
+    @Override
+    public long getUsableSpace() {
+        // Your custom implementation
+        return customUsableSpace;
+    }
+}
+```
+
+### Example: Monitoring Plugin-Specific Metrics
+
+Here's an example of how you might track custom metrics from your plugin using ServerPulse:
+
+```java
+import com.influxdb.client.write.Point;
+import it.renvins.serverpulse.api.ServerPulseAPI;
+import it.renvins.serverpulse.api.ServerPulseProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+
+public class MyMonitoringPlugin extends JavaPlugin {
+    
+    private ServerPulseAPI api;
+    
+    @Override
+    public void onEnable() {
+        // Check if ServerPulse is available
+        if (getServer().getPluginManager().getPlugin("ServerPulse") != null) {
+            try {
+                api = ServerPulseProvider.get();
+                startCustomMetricsTask();
+            } catch (IllegalStateException e) {
+                getLogger().warning("ServerPulse API is not available yet!");
+            }
+        }
+    }
+    
+    private void startCustomMetricsTask() {
+        // Run every 5 minutes (6000 ticks)
+        getServer().getScheduler().runTaskTimerAsynchronously(this, this::sendCustomMetrics, 0L, 6000L);
+    }
+    
+    private void sendCustomMetrics() {
+        if (api == null || !api.getDatabaseService().isConnected()) {
+            return;
+        }
+        
+        // Create a point with your custom metrics
+        Point point = Point.measurement("my_plugin_stats")
+                .addTag("server", "my_server")
+                .addTag("plugin", "MyPlugin")
+                .addField("active_features", countActiveFeatures())
+                .addField("player_interactions", getPlayerInteractionCount())
+                .time(Instant.now(), com.influxdb.client.domain.WritePrecision.NS);
+        
+        // Send the data point to InfluxDB
+        api.getDatabaseService().getWriteApi().writePoint(point);
+    }
+    
+    private int countActiveFeatures() {
+        // Your implementation
+        return 42;
+    }
+    
+    private int getPlayerInteractionCount() {
+        // Your implementation
+        return 123;
+    }
+}
+```
+
+---
+
 ## 🎨 Custom Dashboards & Visualization
 
 While ServerPulse provides a preconfigured dashboard as a starting point, the real power comes from creating your own visualizations in Grafana!

@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.service.impl;
+package it.renvins.serverpulse.service;
 
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -14,7 +14,7 @@ import com.influxdb.client.WriteApi;
 import it.renvins.serverpulse.ServerPulseLoader;
 import it.renvins.serverpulse.ServerPulsePlugin;
 import it.renvins.serverpulse.config.CustomConfig;
-import it.renvins.serverpulse.service.IDatabaseService;
+import it.renvins.serverpulse.api.service.IDatabaseService;
 import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.scheduler.BukkitTask;

@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.service.impl;
+package it.renvins.serverpulse.service;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -13,40 +13,24 @@ import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import it.renvins.serverpulse.ServerPulseLoader;
 import it.renvins.serverpulse.ServerPulsePlugin;
+import it.renvins.serverpulse.api.ServerPulseProvider;
+import it.renvins.serverpulse.api.utils.MemoryUtils;
 import it.renvins.serverpulse.config.CustomConfig;
-import it.renvins.serverpulse.data.SyncMetricsSnapshot;
-import it.renvins.serverpulse.data.WorldData;
-import it.renvins.serverpulse.metrics.IDiskRetriever;
-import it.renvins.serverpulse.metrics.IMemoryRetriever;
-import it.renvins.serverpulse.metrics.IPingRetriever;
-import it.renvins.serverpulse.metrics.impl.DiskRetriever;
-import it.renvins.serverpulse.metrics.impl.MemoryRetriever;
-import it.renvins.serverpulse.metrics.impl.PingRetriever;
-import it.renvins.serverpulse.service.IDatabaseService;
-import it.renvins.serverpulse.service.IMetricsService;
+import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
+import it.renvins.serverpulse.api.data.WorldData;
+import it.renvins.serverpulse.api.service.IMetricsService;
 import org.bukkit.Bukkit;
 
 public class MetricsService implements IMetricsService {
 
     private final ServerPulsePlugin plugin;
     private final CustomConfig config;
-
-    private final IDatabaseService databaseService;
-
-    private final IMemoryRetriever memoryRetriever;
-    private final IDiskRetriever diskRetriever;
-    private final IPingRetriever pingRetriever;
-
+    
     private final Executor asyncExecutor;
 
-    public MetricsService(ServerPulsePlugin plugin, CustomConfig config, IDatabaseService databaseService) {
+    public MetricsService(ServerPulsePlugin plugin, CustomConfig config) {
         this.plugin = plugin;
         this.config = config;
-        this.databaseService = databaseService;
-
-        this.memoryRetriever = new MemoryRetriever();
-        this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
-        this.pingRetriever = new PingRetriever();
 
         this.asyncExecutor = task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
     }
@@ -59,12 +43,12 @@ public class MetricsService implements IMetricsService {
 
     @Override
     public void collectAndSendMetrics() {
-        if (!databaseService.isConnected() || databaseService.getWriteApi() == null) {
+        if (!ServerPulseProvider.get().getDatabaseService().isConnected() || ServerPulseProvider.get().getDatabaseService().getWriteApi() == null) {
             return;
         }
-        if (!databaseService.ping()) {
-            databaseService.disconnect();
-            databaseService.startRetryTaskIfNeeded();
+        if (!ServerPulseProvider.get().getDatabaseService().ping()) {
+            ServerPulseProvider.get().getDatabaseService().disconnect();
+            ServerPulseProvider.get().getDatabaseService().startRetryTaskIfNeeded();
             return;
         }
         CompletableFuture.supplyAsync(this::collectSnapshot, Bukkit.getScheduler().getMainThreadExecutor(plugin))
@@ -73,21 +57,21 @@ public class MetricsService implements IMetricsService {
                         ServerPulseLoader.LOGGER.warning("Snapshot is null. Skipping metrics send.");
                         throw new IllegalStateException("Sync metric collection failed.");
                     }
-                    long usedHeap = memoryRetriever.getUsedHeapBytes();
-                    long committedHeap = memoryRetriever.getCommittedHeapBytes();
+                    long usedHeap = MemoryUtils.getUsedHeapBytes();
+                    long committedHeap = MemoryUtils.getCommittedHeapBytes();
 
-                    long totalDisk = diskRetriever.getTotalSpace();
-                    long usableDisk = diskRetriever.getUsableSpace();
+                    long totalDisk = ServerPulseProvider.get().getDiskRetriever().getTotalSpace();
+                    long usableDisk = ServerPulseProvider.get().getDiskRetriever().getUsableSpace();
 
-                    int minPing = pingRetriever.getMinPing();
-                    int maxPing = pingRetriever.getMaxPing();
-                    int avgPing = pingRetriever.getAveragePing();
+                    int minPing = ServerPulseProvider.get().getPingRetriever().getMinPing();
+                    int maxPing = ServerPulseProvider.get().getPingRetriever().getMaxPing();
+                    int avgPing = ServerPulseProvider.get().getPingRetriever().getAveragePing();
 
                     return buildPoints(snapshot, usedHeap, committedHeap, totalDisk, usableDisk, minPing, maxPing, avgPing);
                 }, asyncExecutor).thenAcceptAsync(points -> {
                     if (!points.isEmpty()) {
                         try {
-                            databaseService.getWriteApi().writePoints(points);
+                            ServerPulseProvider.get().getDatabaseService().getWriteApi().writePoints(points);
                         } catch (Exception e) {
                             ServerPulseLoader.LOGGER.log(Level.SEVERE, "Error sending metrics to InfluxDB...", e);
                         }
