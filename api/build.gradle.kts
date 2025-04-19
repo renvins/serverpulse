@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("java-library")
 }
 group = "it.renvins"
 
@@ -7,6 +8,10 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
-    compileOnly("com.influxdb:influxdb-client-java:7.2.0")
+    api("com.influxdb:influxdb-client-java:7.2.0")
 }
