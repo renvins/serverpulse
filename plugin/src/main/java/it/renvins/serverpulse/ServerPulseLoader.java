@@ -67,6 +67,6 @@ public class ServerPulseLoader implements Service {
         databaseService.unload();
         metricsService.unload();
 
-        ServerPulseProvider.register(null);
+        ServerPulseProvider.unregister();
     }
 }
