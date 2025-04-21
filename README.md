@@ -41,7 +41,7 @@ ServerPulse isn't just another metrics exporter - it offers several unique advan
 The wiki contains comprehensive documentation on:
 - Installation and setup instructions
 - Configuration options and customization
-- Discord alerts configuration
+- Discord and Telegram alerts configuration
 - Custom dashboard creation
 - Developer API examples
 - Contributing guidelines
@@ -55,7 +55,7 @@ The wiki contains comprehensive documentation on:
 | Data Storage | InfluxDB (optimized for time-series) | Prometheus (general-purpose) |
 | Per-World Metrics | Built-in | Usually not available |
 | Custom Tagging | Flexible tag system | Limited labeling |
-| Alert System | Discord integration | Requires manual setup |
+| Alert System | Discord and Telegram integration | Requires manual setup |
 | Infrastructure | Complete stack included | Manual integration required |
 | Health Monitoring | Automated health checks | Varies by implementation |
 
