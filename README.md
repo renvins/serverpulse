@@ -1,6 +1,6 @@
 # ServerPulse
 
-ServerPulse is an **open‑source**, real‑time performance monitoring tool for Paper Minecraft servers. It will collect key server metrics **(TPS, disk usage, heap memory, online player count, entities, chunks, ping)** and store them in InfluxDB for visualization in Grafana.
+ServerPulse is an **open-source**, real-time performance monitoring tool for Paper Minecraft servers. It collects key server metrics (TPS, disk usage, memory, player count, entities, chunks, ping) and visualizes them through an integrated Grafana dashboard.
 
 <details>
 <summary>📊 View Dashboard Examples</summary>
@@ -13,8 +13,6 @@ ServerPulse is an **open‑source**, real‑time performance monitoring tool for
 
 </details>
 
----
-
 ## 📖 What This Project Is
 
 - **Goal:** Provide an extensible, lightweight plugin to gather server metrics and store them in InfluxDB for visualization with Grafana.
@@ -24,13 +22,11 @@ ServerPulse is an **open‑source**, real‑time performance monitoring tool for
     - Discord alerts for key server metrics
     - Docker Compose (for InfluxDB & Grafana setup)
 
----
-
 ## Why Choose ServerPulse?
 
 ServerPulse isn't just another metrics exporter - it offers several unique advantages:
 
-* **Complete Monitoring Stack**: Unlike simple exporters, ServerPulse provides a fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards
+* **Complete Monitoring Stack**: Fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards
 * **Per-World Analytics**: Track entity counts, chunk loading, and performance metrics separately for each world
 * **Flexible Tagging System**: Group and filter metrics by server, network, region, or any custom dimension through simple configuration
 * **Zero-Configuration Dashboards**: Auto-provisioned Grafana dashboards - no manual setup required
@@ -38,163 +34,19 @@ ServerPulse isn't just another metrics exporter - it offers several unique advan
 * **Production-Ready Infrastructure**: Built-in health checks, connection retry mechanisms, and proper error handling
 * **Docker-First Deployment**: Single command deployment with Docker Compose for the entire monitoring stack
 
----
+## 📚 Documentation
 
-## 🚀 Getting Started
+**For detailed setup guides, configuration instructions, API examples, and developer information, please visit our [Wiki](https://github.com/renvins/serverpulse/wiki).**
 
-Follow these steps to set up and run the ServerPulse monitoring environment:
+The wiki contains comprehensive documentation on:
+- Installation and setup instructions
+- Configuration options and customization
+- Discord alerts configuration
+- Custom dashboard creation
+- Developer API examples
+- Contributing guidelines
 
-### Prerequisites
-
-* Docker and Docker Compose installed on your machine.
-* A Minecraft server running Paper (or compatible forks) where you can install the plugin.
-* Git for cloning the repository (optional if you download the ZIP).
-* Discord server with webhook permissions (for alerts).
-
-### 1. InfluxDB Setup and Token Configuration
-
-The system uses InfluxDB to store metrics and Grafana to visualize them. Configuring an access token for InfluxDB is essential.
-
-1.  **Start InfluxDB and Grafana Services:**
-    In the `infra` directory of the project, run the command:
-    ```bash
-    docker compose up -d
-    ```
-    This will start the InfluxDB and Grafana containers in the background.
-
-2.  **Access InfluxDB UI:**
-    Open your browser and navigate to `http://localhost:8086`. Complete the initial InfluxDB setup if it's your first time launching it (create a user, password, and initial organization - you can use `my-org` as the organization name for consistency with the configuration files).
-
-3.  **Create the Bucket:**
-    Within the InfluxDB user interface, create a new **Bucket** named `metrics_db` (if it doesn't already exist from previous attempts). All metrics collected by the plugin will be stored here.
-
-4.  **Generate an API Token:**
-    Still in the InfluxDB UI, go to the API Tokens section and generate a new token. Ensure this token has **Read** and **Write** permissions for the `metrics_db` bucket. Copy this token; you'll need it in the next step. **Treat this token like a password; do not share it publicly.**
-
-5.  **Update Configuration Files:**
-    You need to configure both Grafana and the ServerPulse plugin:
-    * **Grafana Datasource Configuration:** Edit the file `infra/grafana/provisioning/datasources/influx.yml`. Replace `my-token` with the InfluxDB API token you generated. **You must restart the Docker containers (`docker compose down && docker compose up -d`) for this change to take effect.**
-    * **Plugin Configuration (`config.yml`):**
-        * **Location:** The primary configuration file is `config.yml`. While you can edit the template at `plugin/src/main/resources/config.yml` before building, the standard way is to let the plugin generate the file on its first run inside your server's `plugins/ServerPulse/` directory, and then edit the *generated* file.
-        * **InfluxDB Token:** Replace `my-token` under `metrics.influxdb` with your InfluxDB API token.
-        * **Server Tag:** **Crucially, change the default `server: "bed1"` tag under `metrics.tags`** to reflect the actual name of your server (e.g., `server: "survival-1"`, `server: "lobby"`). This is essential for distinguishing metrics if you monitor multiple servers.
-        * **Custom Tags:** You can add **additional custom tags** under `metrics.tags` as key-value pairs (e.g., `region: "eu"`, `network: "main"`). These tags will be attached to every metric sent to InfluxDB and can be used for filtering and grouping in Grafana. Example:
-            ```yaml
-            metrics:
-              # ... other settings ...
-              influxdb:
-                # ... url, org, bucket ...
-                token: your-influxdb-api-token-here
-              tags:
-                server: "your-server-name" # Change this!
-                environment: "production"   # Example custom tag
-                proxy: "velocity-1"       # Example custom tag
-            ```
-        *(Restart your Minecraft server or reload the plugin after editing `plugins/ServerPulse/config.yml` for changes to take effect).*
-
-### 2. Discord Alerts Configuration (New in v0.1.3)
-
-ServerPulse now includes built-in alert notifications via Discord:
-
-1. **Create a Discord Webhook:**
-   - Go to your Discord server settings
-   - Navigate to "Integrations" → "Webhooks"
-   - Create a new webhook for the channel where you want alerts to appear
-   - Copy the webhook URL
-
-2. **Configure the Discord Integration:**
-   - Edit the file `infra/grafana/provisioning/alerting/discord_contact.yml`
-   - Replace the example webhook URL with your own Discord webhook URL
-   - Save the file and restart the Docker containers for changes to take effect
-
-3. **Customize Alert Rules (Optional):**
-   - Default alerts are pre-configured for TPS issues (< 18 TPS)
-   - Review and customize alert rules in `infra/grafana/provisioning/alerting/metrics.yml`
-   - You can adjust thresholds and add new alert rules based on your needs
-
-### 3. Build and Install the Plugin
-
-1.  **Build the Plugin:** (If you don't already have the JAR file)
-    Run the Gradle command to build the plugin JAR. From the project root directory:
-    ```bash
-    ./gradlew shadowJar
-    ```
-    You will find the resulting JAR file in `plugin/build/libs/`.
-
-2.  **Installation:**
-    Copy the ServerPulse plugin JAR file (e.g., `serverpulse-plugin-0.1.3.jar`) into the `plugins` folder of your Paper Minecraft server.
-
-### 4. Start and Access
-
-1.  **Start your Minecraft server.** The ServerPulse plugin will load. Ensure you have correctly configured the InfluxDB token and customized the `server` tag (and added any other desired tags) in `plugins/ServerPulse/config.yml`. The plugin will then start sending metrics to InfluxDB. Check the server console for status messages or errors.
-
-2.  **Access Grafana:**
-    Open your browser and navigate to `http://localhost:3000`.
-    * The default credentials for Grafana are usually `admin` / `admin` (you will be prompted to change the password on first login).
-    * The InfluxDB datasource and a preconfigured dashboard should be available. You might need to adjust the dashboard queries (or create new ones) to filter by the specific `server` tag you configured.
-
----
-
-## 📝 Commands and Permissions
-
-ServerPulse provides several commands to manage the plugin:
-
-### Commands
-- `/serverpulse status` - Check the connection status with InfluxDB
-- `/serverpulse reload` - Reload the plugin configuration
-
-### Permissions
-- `serverpulse.status` - Permission to check InfluxDB connection status
-- `serverpulse.reload` - Permission to reload plugin configuration
-
-All command messages are customizable through the `config.yml` file and support color codes using the '&' symbol.
-
----
-
-## 🔔 Alert System (New in v0.1.3)
-
-The new alert system provides proactive monitoring for your Minecraft servers:
-
-### Pre-configured Alerts
-- **Low TPS Detection**: Get notified when server TPS drops below 18
-- **Alert Notification Schedule**: Configured with sensible defaults (30s group interval, 3m repeat interval)
-
-### Alert Customization
-You can customize existing alerts or create new ones through the Grafana UI or by editing the provisioning YAML files:
-
-1. **Via Grafana UI:**
-   - Navigate to Alerting section in Grafana
-   - Edit existing rules or create new ones
-   - Set thresholds, notification channels, and evaluation intervals
-
-2. **Via YAML Files:**
-   - Edit `infra/grafana/provisioning/alerting/metrics.yml` to modify alert rules
-   - Edit `infra/grafana/provisioning/alerting/contact_policy.yml` to adjust notification policies
-   - Restart Docker containers to apply changes
-
-### Create Custom Alerts
-You can easily create additional alerts for metrics like:
-- Memory usage
-- Disk space
-- Entity count
-- Online player spikes
-- Network connectivity issues
-
----
-
-## 🎨 Custom Dashboards & Visualization
-
-While ServerPulse provides a preconfigured dashboard as a starting point, the real power comes from creating your own visualizations in Grafana!
-
-* **Explore Grafana:** Log in to your Grafana instance (`http://localhost:3000`) and explore its interface. You can edit the existing dashboard or create entirely new ones.
-* **Create Panels:** Add new panels to your dashboards to visualize specific metrics. Grafana offers various panel types (graphs, gauges, tables, etc.).
-* **Query Your Data:** When configuring a panel, you'll use the **InfluxDB datasource** and write **Flux queries** to retrieve the data. All metrics are in the `metrics_db` bucket, `minecraft_stats` measurement. Use the **tags** you configured (especially `server`, plus any custom ones) in your `WHERE` clause (or `filter()` function in Flux) to select the correct data.
-
-Feel free to experiment and build dashboards tailored to the specific metrics and servers you care about most!
-
----
-
-### Comparison with Alternative Solutions
+## 📊 Comparison with Alternative Solutions
 
 | Feature | ServerPulse | Generic Prometheus Exporters |
 |---------|------------|--------------------------|
@@ -207,25 +59,10 @@ Feel free to experiment and build dashboards tailored to the specific metrics an
 | Infrastructure | Complete stack included | Manual integration required |
 | Health Monitoring | Automated health checks | Varies by implementation |
 
----
-
-## 🎯 Future Plans
-
-We're actively developing new features to make ServerPulse even better:
-
-- Plugin metrics API for third-party plugin integration
-- BungeeCord/Velocity support for network-wide monitoring
-- Advanced memory analysis and leak detection
-
----
-
 ## 🤝 Contributing
 
-We welcome all contributions — bug reports, feature proposals, pull requests, or simply feedback.
+We welcome all contributions — bug reports, feature proposals, pull requests, or simply feedback. Read [Contributing](https://github.com/renvins/serverpulse/wiki/7.-Contributing-guidelines)
 
-1.  Fork this repository
-2.  Create a feature branch (`git checkout -b feature/awesome-idea`)
-3.  Commit your changes with clear, descriptive messages
-4.  Open a Pull Request against `master`
+## 📄 License
 
-Please follow the existing code style and conventions.
+ServerPulse is licensed under the GNU General Public License v3.0.
