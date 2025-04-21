@@ -36,7 +36,7 @@ ServerPulse isn't just another metrics exporter - it offers several unique advan
 
 ## 📚 Documentation
 
-**For detailed setup guides, configuration instructions, API examples, and developer information, please visit our [Wiki](https://github.com/renvins/serverpulse/wiki).**
+**For setup guides, configuration instructions, API examples, and developer information, please visit our [Wiki](https://github.com/renvins/serverpulse/wiki).**
 
 The wiki contains comprehensive documentation on:
 - Installation and setup instructions
