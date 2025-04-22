@@ -1,6 +1,6 @@
-package it.renvins.serverpulse.metrics.impl;
+package it.renvins.serverpulse.metrics;
 
-import it.renvins.serverpulse.metrics.IPingRetriever;
+import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

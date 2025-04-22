@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.service;
+package it.renvins.serverpulse.api.service;
 
 public interface Service {
 

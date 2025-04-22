@@ -1,8 +1,7 @@
-package it.renvins.serverpulse.metrics.impl;
+package it.renvins.serverpulse.metrics;
 
 import java.io.File;
-
-import it.renvins.serverpulse.metrics.IDiskRetriever;
+import it.renvins.serverpulse.api.metrics.IDiskRetriever;
 
 public class DiskRetriever implements IDiskRetriever {
 
