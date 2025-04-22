@@ -1,0 +1,14 @@
+apiVersion: 1
+contactPoints:
+    - orgId: 1
+      name: Telegram contact point
+      receivers:
+        - uid: eejlr7re61og0e
+          type: telegram
+          settings:
+            bottoken: your_bot_token
+            chatid: "your_chat_id"
+            disable_notification: false
+            disable_web_page_preview: false
+            protect_content: false
+          disableResolveMessage: false
