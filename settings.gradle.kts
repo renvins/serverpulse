@@ -1,3 +1,5 @@
 rootProject.name = "serverpulse"
-include("plugin")
 include("api")
+
+include("plugin")
+include("bukkit")
