@@ -1,4 +1,8 @@
 package it.renvins.serverpulse.bukkit;
 
-public class ServerPulseBukkit {
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class ServerPulseBukkit extends JavaPlugin {
+
+
 }
