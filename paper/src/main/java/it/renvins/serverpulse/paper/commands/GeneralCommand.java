@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.commands;
+package it.renvins.serverpulse.paper.commands;
 
 import lombok.Getter;
 import org.bukkit.command.CommandSender;

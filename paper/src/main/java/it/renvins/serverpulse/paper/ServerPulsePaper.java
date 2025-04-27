@@ -1,10 +1,10 @@
-package it.renvins.serverpulse;
+package it.renvins.serverpulse.paper;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class ServerPulsePlugin extends JavaPlugin {
+public class ServerPulsePaper extends JavaPlugin {
 
-    private final ServerPulseLoader loader = new ServerPulseLoader(this);
+    private final ServerPulsePaperLoader loader = new ServerPulsePaperLoader(this);
 
     @Override
     public void onEnable() {

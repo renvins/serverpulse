@@ -1,16 +1,16 @@
-package it.renvins.serverpulse.config;
+package it.renvins.serverpulse.paper.config;
 
 import java.io.File;
 import java.util.logging.Level;
 
-import it.renvins.serverpulse.ServerPulseLoader;
-import it.renvins.serverpulse.ServerPulsePlugin;
+import it.renvins.serverpulse.paper.ServerPulsePaperLoader;
+import it.renvins.serverpulse.paper.ServerPulsePaper;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class CustomConfig {
 
-    private final ServerPulsePlugin plugin;
+    private final ServerPulsePaper plugin;
     private final String name;
 
     private File file;
@@ -22,7 +22,7 @@ public class CustomConfig {
      * @param plugin The main ServerPulsePlugin instance.
      * @param name   The name of the configuration file (e.g., "config.yml").
      */
-    public CustomConfig(ServerPulsePlugin plugin, String name) {
+    public CustomConfig(ServerPulsePaper plugin, String name) {
         this.plugin = plugin;
         this.name = name;
     }
@@ -50,13 +50,13 @@ public class CustomConfig {
         try {
             config.save(file);
         } catch (Exception e) {
-            ServerPulseLoader.LOGGER.log(Level.SEVERE, "Could not save " + name + " file", e);
+            ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "Could not save " + name + " file", e);
         }
     }
 
     public boolean reload() {
         if (file == null) {
-            ServerPulseLoader.LOGGER.log(Level.SEVERE, "File is null, cannot reload configuration.");
+            ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "File is null, cannot reload configuration.");
             return false;
         }
         config = YamlConfiguration.loadConfiguration(file);

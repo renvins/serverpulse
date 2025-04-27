@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.metrics;
+package it.renvins.serverpulse.paper.metrics;
 
 import java.io.File;
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;

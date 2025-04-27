@@ -1,4 +1,4 @@
-package it.renvins.serverpulse;
+package it.renvins.serverpulse.paper;
 
 import it.renvins.serverpulse.api.ServerPulseAPI;
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;

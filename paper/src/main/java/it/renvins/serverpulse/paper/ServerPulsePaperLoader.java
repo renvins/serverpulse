@@ -1,4 +1,4 @@
-package it.renvins.serverpulse;
+package it.renvins.serverpulse.paper;
 
 import java.util.logging.Logger;
 
@@ -8,16 +8,16 @@ import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.api.service.Service;
-import it.renvins.serverpulse.commands.ServerPulseCommand;
-import it.renvins.serverpulse.config.CustomConfig;
-import it.renvins.serverpulse.metrics.DiskRetriever;
-import it.renvins.serverpulse.metrics.PingRetriever;
-import it.renvins.serverpulse.service.DatabaseService;
-import it.renvins.serverpulse.service.MetricsService;
+import it.renvins.serverpulse.paper.commands.ServerPulseCommand;
+import it.renvins.serverpulse.paper.config.CustomConfig;
+import it.renvins.serverpulse.paper.metrics.DiskRetriever;
+import it.renvins.serverpulse.paper.metrics.PingRetriever;
+import it.renvins.serverpulse.paper.service.DatabaseService;
+import it.renvins.serverpulse.paper.service.MetricsService;
 
-public class ServerPulseLoader implements Service {
+public class ServerPulsePaperLoader implements Service {
 
-    private final ServerPulsePlugin plugin;
+    private final ServerPulsePaper plugin;
     public static Logger LOGGER;
 
     private final CustomConfig config;
@@ -28,7 +28,7 @@ public class ServerPulseLoader implements Service {
     private final IDiskRetriever diskRetriever;
     private final IPingRetriever pingRetriever;
 
-    public ServerPulseLoader(ServerPulsePlugin plugin) {
+    public ServerPulsePaperLoader(ServerPulsePaper plugin) {
         this.plugin = plugin;
         LOGGER = plugin.getLogger();
 

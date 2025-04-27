@@ -29,7 +29,7 @@ val relocatePath = "it.renvins.serverpulse.libs"
 
 tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"
-    archiveClassifier = "plugin"
+    archiveClassifier = "paper"
     archiveVersion = "${rootProject.version}"
 
     relocate("com.influxdb", "$relocatePath.influxdb")

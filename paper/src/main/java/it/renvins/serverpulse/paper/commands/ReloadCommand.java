@@ -1,7 +1,7 @@
-package it.renvins.serverpulse.commands;
+package it.renvins.serverpulse.paper.commands;
 
-import it.renvins.serverpulse.config.CustomConfig;
-import it.renvins.serverpulse.utils.ChatUtils;
+import it.renvins.serverpulse.paper.config.CustomConfig;
+import it.renvins.serverpulse.paper.utils.ChatUtils;
 import org.bukkit.command.CommandSender;
 
 public class ReloadCommand extends GeneralCommand {
