@@ -1,43 +1,48 @@
-package it.renvins.serverpulse.paper.service;
+package it.renvins.serverpulse.common;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-import it.renvins.serverpulse.paper.ServerPulsePaperLoader;
-import it.renvins.serverpulse.paper.ServerPulsePaper;
 import it.renvins.serverpulse.api.ServerPulseProvider;
 import it.renvins.serverpulse.api.utils.MemoryUtils;
-import it.renvins.serverpulse.paper.config.PaperConfiguration;
 import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.WorldData;
 import it.renvins.serverpulse.api.service.IMetricsService;
-import org.bukkit.Bukkit;
+import it.renvins.serverpulse.common.config.MetricsConfiguration;
+import it.renvins.serverpulse.common.platform.Platform;
+import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 
 public class MetricsService implements IMetricsService {
 
-    private final ServerPulsePaper plugin;
-    private final PaperConfiguration config;
-    
+    private final Logger logger;
+
+    private final Platform platform;
+    private final MetricsConfiguration configuration;
+
+    private final TaskScheduler scheduler;
     private final Executor asyncExecutor;
 
-    public MetricsService(ServerPulsePaper plugin, PaperConfiguration config) {
-        this.plugin = plugin;
-        this.config = config;
+    public MetricsService(Logger logger, Platform platform, MetricsConfiguration configuration, TaskScheduler scheduler) {
+        this.logger = logger;
 
-        this.asyncExecutor = task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
+        this.platform = platform;
+        this.configuration = configuration;
+
+        this.scheduler = scheduler;
+        this.asyncExecutor = scheduler::runAsync;
     }
 
     @Override
     public void load() {
-        ServerPulsePaperLoader.LOGGER.info("Loading metrics task...");
+        logger.info("Loading metrics task...");
         loadTask();
     }
 
@@ -51,10 +56,10 @@ public class MetricsService implements IMetricsService {
             ServerPulseProvider.get().getDatabaseService().startRetryTaskIfNeeded();
             return;
         }
-        CompletableFuture.supplyAsync(this::collectSnapshot, Bukkit.getScheduler().getMainThreadExecutor(plugin))
+        CompletableFuture.supplyAsync(this::collectSnapshot, scheduler::runSync)
                 .thenApplyAsync(snapshot -> {
                     if (snapshot == null) {
-                        ServerPulsePaperLoader.LOGGER.warning("Snapshot is null. Skipping metrics send.");
+                        logger.warning("Snapshot is null. Skipping metrics send.");
                         throw new IllegalStateException("Sync metric collection failed.");
                     }
                     long usedHeap = MemoryUtils.getUsedHeapBytes();
@@ -73,12 +78,12 @@ public class MetricsService implements IMetricsService {
                         try {
                             ServerPulseProvider.get().getDatabaseService().getWriteApi().writePoints(points);
                         } catch (Exception e) {
-                            ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "Error sending metrics to InfluxDB...", e);
+                            logger.log(Level.SEVERE, "Error sending metrics to InfluxDB...", e);
                         }
                     }
                 }, asyncExecutor)
                          .exceptionally(ex -> {
-                             ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "Failed metrics pipeline stage...", ex);
+                             logger.log(Level.SEVERE, "Failed metrics pipeline stage...", ex);
                              return null;
                          });
     }
@@ -90,22 +95,18 @@ public class MetricsService implements IMetricsService {
      * @throws IllegalStateException if called from a non-primary thread.
      */
     private SyncMetricsSnapshot collectSnapshot() {
-        if (!plugin.getServer().isPrimaryThread()) {
-            ServerPulsePaperLoader.LOGGER.warning("Skipping metrics send because the thread is not primary thread...");
+        if (!platform.isPrimaryThread()) {
+            logger.warning("Skipping metrics send because the thread is not primary thread...");
             throw new IllegalStateException("This method must be called on the main thread.");
         }
         try {
-            double[] tps = plugin.getServer().getTPS();
-            int playerCount = Bukkit.getOnlinePlayers().size();
-            Map<String, WorldData> worldData = new HashMap<>();
+            double[] tps = ServerPulseProvider.get().getTPSRetriever().getTPS();
+            int playerCount = platform.getOnlinePlayerCount();
+            Map<String, WorldData> worldsData = platform.getWorldsData();
 
-            Bukkit.getWorlds().forEach(world -> {
-                WorldData data = new WorldData(world.getEntities().size(), world.getPlayers().size());
-                worldData.put(world.getName(), data);
-            });
-            return new SyncMetricsSnapshot(tps, playerCount, worldData);
+            return new SyncMetricsSnapshot(tps, playerCount, worldsData);
         } catch (Exception e) {
-            ServerPulsePaperLoader.LOGGER.severe("Unexpected error during sync data collection: " + e.getMessage());
+            logger.severe("Unexpected error during sync data collection: " + e.getMessage());
             // Return null or re-throw to signal failure to the CompletableFuture chain
             // Throwing is often cleaner as it goes directly to exceptionally()
             throw new RuntimeException("Sync data collection failed...", e);
@@ -126,8 +127,8 @@ public class MetricsService implements IMetricsService {
             long totalDisk, long usableDisk, int minPing, int maxPing, int avgPing) {
         List<Point> points = new ArrayList<>();
 
-        String serverTag = config.getConfig().getString("metrics.tags.server");
-        String measurement = config.getConfig().getString("metrics.influxdb.table");
+        String serverTag = configuration.getServerTag();
+        String measurement = configuration.getMeasurementTable();
 
         Point generalPoint = Point.measurement(measurement)
                                   .addTag("server", serverTag)
@@ -168,23 +169,19 @@ public class MetricsService implements IMetricsService {
      * @param point The InfluxDB point to which tags will be added.
      */
     private void addConfigTags(Point point) {
-        Map<String, Object> tags = config.getConfig().getConfigurationSection("metrics.tags").getValues(false);
-        tags.forEach((key, value) -> {
-            if (value instanceof String && !key.equalsIgnoreCase("server") && !key.equalsIgnoreCase("world")) {
-                point.addTag(key, value.toString());
-            }
-        });
+        Map<String, String> tags = configuration.getTags();
+        tags.forEach(point::addTag);
     }
 
     /**
      * Loads the metrics task with a configurable interval.
      */
     private void loadTask() {
-        long intervalTicks = 20L * config.getConfig().getLong("metrics.interval", 5L);
+        long intervalTicks = 20L * configuration.getMetricsInterval();
         if (intervalTicks <= 0) {
-            ServerPulsePaperLoader.LOGGER.warning("Metrics interval is invalid, defaulting to 5 seconds.");
+            logger.warning("Metrics interval is invalid, defaulting to 5 seconds.");
             intervalTicks = 20L * 5L;
         }
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::collectAndSendMetrics, 0L, intervalTicks);
+        scheduler.runTaskTimerAsync(this::collectAndSendMetrics, 0L, intervalTicks);
     }
 }

@@ -22,9 +22,9 @@ import lombok.Getter;
 public class DatabaseService implements IDatabaseService {
 
     private final Logger logger;
-    private final DatabaseConfiguration configuration;
-
     private final Platform platform;
+
+    private final DatabaseConfiguration configuration;
     private final TaskScheduler scheduler;
 
     private HttpClient httpClient; // Keep for ping
@@ -41,11 +41,12 @@ public class DatabaseService implements IDatabaseService {
     private volatile boolean isConnected = false;
     private volatile int retryCount = 0;
 
-    public DatabaseService(Logger logger, DatabaseConfiguration configuration, Platform platform, TaskScheduler scheduler) {
+    public DatabaseService(Logger logger, Platform platform, DatabaseConfiguration configuration, TaskScheduler scheduler) {
         this.logger = logger;
+        this.platform = platform;
+
         this.configuration = configuration;
 
-        this.platform = platform;
         this.scheduler = scheduler;
 
         this.httpClient = HttpClient.newBuilder()
