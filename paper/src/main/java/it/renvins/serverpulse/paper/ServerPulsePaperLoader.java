@@ -12,7 +12,7 @@ import it.renvins.serverpulse.common.DatabaseService;
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
 import it.renvins.serverpulse.paper.commands.ServerPulseCommand;
 import it.renvins.serverpulse.paper.config.PaperConfiguration;
-import it.renvins.serverpulse.paper.metrics.DiskRetriever;
+import it.renvins.serverpulse.common.metrics.DiskRetriever;
 import it.renvins.serverpulse.paper.metrics.PingRetriever;
 import it.renvins.serverpulse.paper.platform.PaperPlatform;
 import it.renvins.serverpulse.paper.scheduler.PaperTaskScheduler;
