@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.paper.utils;
+package it.renvins.serverpulse.common.utils;
 
 import lombok.experimental.UtilityClass;
 

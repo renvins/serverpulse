@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.paper.service;
+package it.renvins.serverpulse.common;
 
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -7,28 +7,32 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApi;
-import it.renvins.serverpulse.paper.ServerPulsePaperLoader;
-import it.renvins.serverpulse.paper.ServerPulsePaper;
-import it.renvins.serverpulse.paper.config.CustomConfig;
 import it.renvins.serverpulse.api.service.IDatabaseService;
+import it.renvins.serverpulse.common.config.DatabaseConfiguration;
+import it.renvins.serverpulse.common.platform.Platform;
+import it.renvins.serverpulse.common.scheduler.Task;
+import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 import lombok.Getter;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.scheduler.BukkitTask;
 
 public class DatabaseService implements IDatabaseService {
 
-    private final ServerPulsePaper plugin;
-    private final CustomConfig customConfig;
+    private final Logger logger;
+    private final DatabaseConfiguration configuration;
+
+    private final Platform platform;
+    private final TaskScheduler scheduler;
+
+    private HttpClient httpClient; // Keep for ping
 
     @Getter private InfluxDBClient client;
     @Getter private WriteApi writeApi;
 
-    private HttpClient httpClient; // Keep for ping
-    private volatile BukkitTask retryTask; // volatile for visibility across threads
+    private volatile Task retryTask; // volatile for visibility across threads
 
     private final int MAX_RETRIES = 5;
     private final long RETRY_DELAY_TICKS = 20L * 30L; // 30 seconds
@@ -37,9 +41,13 @@ public class DatabaseService implements IDatabaseService {
     private volatile boolean isConnected = false;
     private volatile int retryCount = 0;
 
-    public DatabaseService(ServerPulsePaper plugin, CustomConfig customConfig) {
-        this.plugin = plugin;
-        this.customConfig = customConfig;
+    public DatabaseService(Logger logger, DatabaseConfiguration configuration, Platform platform, TaskScheduler scheduler) {
+        this.logger = logger;
+        this.configuration = configuration;
+
+        this.platform = platform;
+        this.scheduler = scheduler;
+
         this.httpClient = HttpClient.newBuilder()
                                     .connectTimeout(Duration.ofSeconds(10))
                                     .build();
@@ -48,12 +56,12 @@ public class DatabaseService implements IDatabaseService {
     @Override
     public void load() {
         if (!checkConnectionData()) {
-            ServerPulsePaperLoader.LOGGER.severe("InfluxDB connection data is missing or invalid. Disabling plugin...");
-            plugin.getServer().getPluginManager().disablePlugin(plugin);
+            logger.severe("InfluxDB connection data is missing or invalid. Disabling plugin...");
+            platform.disable();
             return;
         }
-        ServerPulsePaperLoader.LOGGER.info("Connecting to InfluxDB...");
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, this::connect);
+        logger.info("Connecting to InfluxDB...");
+        scheduler.runAsync(this::connect);
     }
 
     @Override
@@ -67,15 +75,15 @@ public class DatabaseService implements IDatabaseService {
 
     @Override
     public boolean ping() {
-        String url = customConfig.getConfig().getString("metrics.influxdb.url");
+        String url = configuration.getHost();
         if (url == null || url.isEmpty()) {
-            ServerPulsePaperLoader.LOGGER.severe("InfluxDB URL is missing for ping...");
+            logger.severe("InfluxDB URL is missing for ping...");
             return false;
         }
 
         // Ensure httpClient is initialized
         if (this.httpClient == null) {
-            ServerPulsePaperLoader.LOGGER.severe("HttpClient not initialized for ping...");
+            logger.severe("HttpClient not initialized for ping...");
             this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         }
 
@@ -88,7 +96,7 @@ public class DatabaseService implements IDatabaseService {
                                  .timeout(Duration.ofSeconds(5)) // Add timeout specific to ping
                                  .build();
         } catch (IllegalArgumentException e) {
-            ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "Invalid InfluxDB URL format for ping: " + url, e);
+            logger.log(Level.SEVERE, "Invalid InfluxDB URL format for ping: " + url, e);
             return false;
         }
 
@@ -96,14 +104,14 @@ public class DatabaseService implements IDatabaseService {
             HttpResponse<Void> response = this.httpClient.send(request, HttpResponse.BodyHandlers.discarding());
             return response.statusCode() == 204;
         } catch (java.net.ConnectException | java.net.UnknownHostException e) {
-            ServerPulsePaperLoader.LOGGER.warning("InfluxDB service is offline...");
+            logger.warning("InfluxDB service is offline...");
             return false;
         } catch (
                 SocketTimeoutException e) {
-            ServerPulsePaperLoader.LOGGER.warning("InfluxDB ping timed out: " + e.getMessage());
+            logger.warning("InfluxDB ping timed out: " + e.getMessage());
             return false;
         } catch (Exception e) {
-            ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "Error during InfluxDB ping: " + e.getMessage(), e);
+            logger.log(Level.SEVERE, "Error during InfluxDB ping: " + e.getMessage(), e);
             return false;
         }
     }
@@ -128,18 +136,13 @@ public class DatabaseService implements IDatabaseService {
         // This might be needed if connect() is called manually or by retry.
         disconnect();
 
-        ConfigurationSection section = customConfig.getConfig().getConfigurationSection("metrics.influxdb");
-        if (section == null) {
-            ServerPulsePaperLoader.LOGGER.severe("InfluxDB config section missing during connect attempt...");
-            return;
-        }
-        String url = section.getString("url");
-        String token = section.getString("token");
-        String org = section.getString("org");
-        String bucket = section.getString("bucket");
+        String url = configuration.getHost();
+        String token = configuration.getToken();
+        String org = configuration.getOrg();
+        String bucket = configuration.getBucket();
 
         try {
-            ServerPulsePaperLoader.LOGGER.info("Attempting to connect to InfluxDB at " + url);
+            logger.info("Attempting to connect to InfluxDB at " + url);
             client = InfluxDBClientFactory.create(url, token.toCharArray(), org, bucket);
 
             // Ping immediately after creating client to verify reachability & auth
@@ -152,10 +155,10 @@ public class DatabaseService implements IDatabaseService {
                 this.retryCount = 0; // Reset retry count on successful connection
 
                 stopRetryTask(); // Stop retrying if we just connected
-                ServerPulsePaperLoader.LOGGER.info("Successfully connected to InfluxDB and ping successful...");
+                logger.info("Successfully connected to InfluxDB and ping successful...");
             } else {
                 // Ping failed after client creation
-                ServerPulsePaperLoader.LOGGER.warning("Created InfluxDB instance, but ping failed. Will retry...");
+                logger.warning("Created InfluxDB instance, but ping failed. Will retry...");
                 this.isConnected = false; // Ensure status is false
 
                 if (client != null) {
@@ -166,7 +169,7 @@ public class DatabaseService implements IDatabaseService {
             }
         } catch (Exception e) {
             // Handle exceptions during InfluxDBClientFactory.create() or ping()
-            ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "Failed to connect or ping InfluxDB: " + e.getMessage());
+            logger.log(Level.SEVERE, "Failed to connect or ping InfluxDB: " + e.getMessage());
             this.isConnected = false;
             if (client != null) { // Ensure client is closed on exception
                 client.close();
@@ -182,7 +185,7 @@ public class DatabaseService implements IDatabaseService {
             try {
                 writeApi.close();
             } catch (Exception e) {
-                ServerPulsePaperLoader.LOGGER.log(Level.WARNING, "Error closing InfluxDB WriteApi...", e);
+                logger.log(Level.WARNING, "Error closing InfluxDB WriteApi...", e);
             }
             writeApi = null;
         }
@@ -190,7 +193,7 @@ public class DatabaseService implements IDatabaseService {
             try {
                 client.close();
             } catch (Exception e) {
-                ServerPulsePaperLoader.LOGGER.log(Level.WARNING, "Error closing InfluxDB Client...", e);
+                logger.log(Level.WARNING, "Error closing InfluxDB Client...", e);
             }
             client = null;
         }
@@ -203,42 +206,42 @@ public class DatabaseService implements IDatabaseService {
         if (retryTask != null && !retryTask.isCancelled()) {
             return;
         }
-        if (!plugin.isEnabled()) {
-            ServerPulsePaperLoader.LOGGER.warning("Plugin disabling, not starting retry task...");
+        if (!platform.isEnabled()) {
+            logger.warning("Plugin disabling, not starting retry task...");
             return;
         }
 
         // Reset retry count ONLY when starting the task sequence
         this.retryCount = 0;
-        ServerPulsePaperLoader.LOGGER.warning("Connection failed. Starting connection retry task (Max " + MAX_RETRIES + " attempts)...");
+        logger.warning("Connection failed. Starting connection retry task (Max " + MAX_RETRIES + " attempts)...");
 
-        retryTask = plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+        retryTask = scheduler.runTaskTimerAsync(() -> {
             // Check connection status *first* using the flag
             if (this.isConnected) {
-                ServerPulsePaperLoader.LOGGER.info("Connection successful, stopping retry task...");
+                logger.info("Connection successful, stopping retry task...");
                 stopRetryTask();
                 return;
             }
 
             // Check if plugin got disabled externally
-            if (!plugin.isEnabled()) {
-                ServerPulsePaperLoader.LOGGER.warning("Plugin disabled during retry task execution...");
+            if (!platform.isEnabled()) {
+                logger.warning("Plugin disabled during retry task execution...");
                 stopRetryTask();
                 return;
             }
 
             // Check retries *before* attempting connection
             if (retryCount >= MAX_RETRIES) {
-                ServerPulsePaperLoader.LOGGER.severe("Max connection retries (" + MAX_RETRIES + ") reached. Disabling ServerPulse metrics...");
+                logger.severe("Max connection retries (" + MAX_RETRIES + ") reached. Disabling ServerPulse metrics...");
                 stopRetryTask();
                 disconnect(); // Clean up any partial connection
                 // Schedule plugin disable on main thread
-                plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getServer().getPluginManager().disablePlugin(plugin));
+                scheduler.runSync(platform::disable);
                 return;
             }
             retryCount++;
 
-            ServerPulsePaperLoader.LOGGER.info("Retrying InfluxDB connection... Attempt " + retryCount + "/" + MAX_RETRIES);
+            logger.info("Retrying InfluxDB connection... Attempt " + retryCount + "/" + MAX_RETRIES);
             connect(); // Note: connect() will handle setting isConnected flag and potentially stopping the task if successful.
         }, RETRY_DELAY_TICKS, RETRY_DELAY_TICKS); // Start after delay, repeat at delay
     }
@@ -264,31 +267,26 @@ public class DatabaseService implements IDatabaseService {
      * @return true if data seems present, false otherwise.
      */
     private boolean checkConnectionData() {
-        ConfigurationSection section = customConfig.getConfig().getConfigurationSection("metrics.influxdb");
-        if (section == null) {
-            ServerPulsePaperLoader.LOGGER.severe("Missing 'metrics.influxdb' section in config.");
-            return false;
-        }
-        String url = section.getString("url");
-        String bucket = section.getString("bucket");
-        String org = section.getString("org");
-        String token = section.getString("token");
+        String url = configuration.getHost();
+        String token = configuration.getToken();
+        String org = configuration.getOrg();
+        String bucket = configuration.getBucket();
 
         boolean valid = true;
         if (url == null || url.isEmpty()) {
-            ServerPulsePaperLoader.LOGGER.severe("Missing or empty 'metrics.influxdb.url' in config...");
+            logger.severe("Missing or empty 'metrics.influxdb.url' in config...");
             valid = false;
         }
         if (bucket == null || bucket.isEmpty()) {
-            ServerPulsePaperLoader.LOGGER.severe("Missing or empty 'metrics.influxdb.bucket' in config...");
+            logger.severe("Missing or empty 'metrics.influxdb.bucket' in config...");
             valid = false;
         }
         if (org == null || org.isEmpty()) {
-            ServerPulsePaperLoader.LOGGER.severe("Missing or empty 'metrics.influxdb.org' in config...");
+            logger.severe("Missing or empty 'metrics.influxdb.org' in config...");
             valid = false;
         }
         if (token == null || token.isEmpty() || token.equals("my-token")) {
-            ServerPulsePaperLoader.LOGGER.severe("Missing, empty, or default 'metrics.influxdb.token' in config...");
+            logger.severe("Missing, empty, or default 'metrics.influxdb.token' in config...");
             valid = false;
         }
         return valid;

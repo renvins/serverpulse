@@ -8,7 +8,7 @@ import it.renvins.serverpulse.paper.ServerPulsePaper;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class CustomConfig {
+public class PaperConfiguration {
 
     private final ServerPulsePaper plugin;
     private final String name;
@@ -22,7 +22,7 @@ public class CustomConfig {
      * @param plugin The main ServerPulsePlugin instance.
      * @param name   The name of the configuration file (e.g., "config.yml").
      */
-    public CustomConfig(ServerPulsePaper plugin, String name) {
+    public PaperConfiguration(ServerPulsePaper plugin, String name) {
         this.plugin = plugin;
         this.name = name;
     }
@@ -54,6 +54,12 @@ public class CustomConfig {
         }
     }
 
+    /**
+     * Reloads the configuration file, reloading the YamlConfiguration.
+     * Logs an error if the file is null.
+     *
+     * @return true if the reload was successful, false otherwise.
+     */
     public boolean reload() {
         if (file == null) {
             ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "File is null, cannot reload configuration.");
