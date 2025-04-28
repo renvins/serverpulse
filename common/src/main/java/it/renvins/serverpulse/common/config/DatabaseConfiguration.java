@@ -1,14 +1,9 @@
 package it.renvins.serverpulse.common.config;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+public interface DatabaseConfiguration {
 
-@AllArgsConstructor
-@Getter
-public class DatabaseConfiguration {
-
-    private String host;
-    private String bucket;
-    private String org;
-    private String token;
+    String getHost();
+    String getOrg();
+    String getToken();
+    String getBucket();
 }
