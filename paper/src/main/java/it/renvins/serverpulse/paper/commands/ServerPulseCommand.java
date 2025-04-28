@@ -3,8 +3,8 @@ package it.renvins.serverpulse.paper.commands;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.renvins.serverpulse.paper.config.CustomConfig;
-import it.renvins.serverpulse.paper.utils.ChatUtils;
+import it.renvins.serverpulse.common.utils.ChatUtils;
+import it.renvins.serverpulse.paper.config.PaperConfiguration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,10 +12,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class ServerPulseCommand implements CommandExecutor {
 
-    private final CustomConfig config;
+    private final PaperConfiguration config;
     private final Map<String, GeneralCommand> commands = new HashMap<>();
 
-    public ServerPulseCommand(CustomConfig config) {
+    public ServerPulseCommand(PaperConfiguration config) {
         this.config = config;
         registerCommands();
     }

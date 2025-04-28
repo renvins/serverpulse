@@ -15,7 +15,7 @@ import it.renvins.serverpulse.paper.ServerPulsePaperLoader;
 import it.renvins.serverpulse.paper.ServerPulsePaper;
 import it.renvins.serverpulse.api.ServerPulseProvider;
 import it.renvins.serverpulse.api.utils.MemoryUtils;
-import it.renvins.serverpulse.paper.config.CustomConfig;
+import it.renvins.serverpulse.paper.config.PaperConfiguration;
 import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.WorldData;
 import it.renvins.serverpulse.api.service.IMetricsService;
@@ -24,11 +24,11 @@ import org.bukkit.Bukkit;
 public class MetricsService implements IMetricsService {
 
     private final ServerPulsePaper plugin;
-    private final CustomConfig config;
+    private final PaperConfiguration config;
     
     private final Executor asyncExecutor;
 
-    public MetricsService(ServerPulsePaper plugin, CustomConfig config) {
+    public MetricsService(ServerPulsePaper plugin, PaperConfiguration config) {
         this.plugin = plugin;
         this.config = config;
 

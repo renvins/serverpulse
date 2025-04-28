@@ -1,14 +1,14 @@
 package it.renvins.serverpulse.paper.commands;
 
-import it.renvins.serverpulse.paper.config.CustomConfig;
-import it.renvins.serverpulse.paper.utils.ChatUtils;
+import it.renvins.serverpulse.common.utils.ChatUtils;
+import it.renvins.serverpulse.paper.config.PaperConfiguration;
 import org.bukkit.command.CommandSender;
 
 public class ReloadCommand extends GeneralCommand {
 
-    private final CustomConfig config;
+    private final PaperConfiguration config;
 
-    public ReloadCommand(String permission, boolean isPlayerOnly, CustomConfig config) {
+    public ReloadCommand(String permission, boolean isPlayerOnly, PaperConfiguration config) {
         super(permission, isPlayerOnly);
         this.config = config;
     }

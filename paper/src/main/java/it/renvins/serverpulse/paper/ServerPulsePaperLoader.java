@@ -8,11 +8,14 @@ import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.api.service.Service;
+import it.renvins.serverpulse.common.DatabaseService;
+import it.renvins.serverpulse.common.config.DatabaseConfiguration;
 import it.renvins.serverpulse.paper.commands.ServerPulseCommand;
-import it.renvins.serverpulse.paper.config.CustomConfig;
+import it.renvins.serverpulse.paper.config.PaperConfiguration;
 import it.renvins.serverpulse.paper.metrics.DiskRetriever;
 import it.renvins.serverpulse.paper.metrics.PingRetriever;
-import it.renvins.serverpulse.paper.service.DatabaseService;
+import it.renvins.serverpulse.paper.platform.PaperPlatform;
+import it.renvins.serverpulse.paper.scheduler.PaperTaskScheduler;
 import it.renvins.serverpulse.paper.service.MetricsService;
 
 public class ServerPulsePaperLoader implements Service {
@@ -20,7 +23,7 @@ public class ServerPulsePaperLoader implements Service {
     private final ServerPulsePaper plugin;
     public static Logger LOGGER;
 
-    private final CustomConfig config;
+    private final PaperConfiguration config;
 
     private final IDatabaseService databaseService;
     private final IMetricsService metricsService;
@@ -32,9 +35,17 @@ public class ServerPulsePaperLoader implements Service {
         this.plugin = plugin;
         LOGGER = plugin.getLogger();
 
-        this.config = new CustomConfig(plugin, "config.yml");
+        this.config = new PaperConfiguration(plugin, "config.yml");
+        LOGGER.info("Loading configuration...");
+        config.load();
 
-        this.databaseService = new DatabaseService(plugin, config);
+        DatabaseConfiguration db = new DatabaseConfiguration(
+                config.getConfig().getString("metrics.influxdb.url"),
+                config.getConfig().getString("metrics.influxdb.bucket"),
+                config.getConfig().getString("metrics.influxdb.org"),
+                config.getConfig().getString("metrics.influxdb.token"));
+
+        this.databaseService = new DatabaseService(LOGGER, db, new PaperPlatform(plugin), new PaperTaskScheduler(plugin));
         this.metricsService = new MetricsService(plugin, config);
 
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
@@ -43,9 +54,6 @@ public class ServerPulsePaperLoader implements Service {
 
     @Override
     public void load() {
-        LOGGER.info("Loading configuration...");
-        config.load();
-
         if(!config.getConfig().getBoolean("metrics.enabled")) {
             LOGGER.severe("Shutting down the plugin because metrics are disabled!");
             plugin.getServer().getPluginManager().disablePlugin(plugin);
