@@ -83,6 +83,7 @@ public class ServerPulseBukkitLoader implements Service {
         metricsService.load();
 
         if (tpsRetriever instanceof BukkitTPSRetriever) {
+            LOGGER.info("Starting tick monitoring task...");
             ((BukkitTPSRetriever) tpsRetriever).startTickMonitor();
         }
 

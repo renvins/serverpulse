@@ -21,6 +21,7 @@ dependencies {
     implementation(project(":common"))
 
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.9.22") // resolve conflicts with eco
 }
 
 java {
@@ -31,7 +32,7 @@ val relocatePath = "it.renvins.serverpulse.libs"
 
 tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"
-    archiveClassifier = "paper"
+    archiveClassifier = "bukkit"
     archiveVersion = "${rootProject.version}"
 
     relocate("com.influxdb", "$relocatePath.influxdb")
