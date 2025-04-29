@@ -26,9 +26,8 @@ ServerPulse is an **open-source**, real-time performance monitoring tool for Min
 
 ServerPulse now supports **all Minecraft server platforms** in the Bukkit ecosystem:
 
-- **Bukkit/CraftBukkit**: Full support with custom TPS monitoring implementation
+- **Bukkit/Spigot**: Full support with custom TPS monitoring implementation
 - **Paper and its forks** (PurPur, Pufferfish, etc.): Enhanced support with native TPS monitoring
-- **Spigot**: Complete compatibility
 
 The plugin automatically detects your server platform and uses the most efficient implementation available for that environment.
 
