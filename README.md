@@ -1,6 +1,6 @@
 # ServerPulse
 
-ServerPulse is an **open-source**, real-time performance monitoring tool for Paper Minecraft servers. It collects key server metrics (TPS, disk usage, memory, player count, entities, chunks, ping) and visualizes them through an integrated Grafana dashboard.
+ServerPulse is an **open-source**, real-time performance monitoring tool for Minecraft servers. It collects key server metrics (TPS, disk usage, memory, player count, entities, chunks, ping) and visualizes them through an integrated Grafana dashboard.
 
 <details>
 <summary>📊 View Dashboard Examples</summary>
@@ -17,22 +17,48 @@ ServerPulse is an **open-source**, real-time performance monitoring tool for Pap
 
 - **Goal:** Provide an extensible, lightweight plugin to gather server metrics and store them in InfluxDB for visualization with Grafana.
 - **Tech stack:**
-    - Java (Paper plugin) → InfluxDB
+    - Java (Bukkit/Paper plugin) → InfluxDB
     - Grafana dashboard (preconfigured via provisioning)
     - Discord alerts for key server metrics
     - Docker Compose (for InfluxDB & Grafana setup)
+
+## 🌟 Platform Support
+
+ServerPulse now supports **all Minecraft server platforms** in the Bukkit ecosystem:
+
+- **Bukkit/CraftBukkit**: Full support with custom TPS monitoring implementation
+- **Paper and its forks** (PurPur, Pufferfish, etc.): Enhanced support with native TPS monitoring
+- **Spigot**: Complete compatibility
+
+The plugin automatically detects your server platform and uses the most efficient implementation available for that environment.
 
 ## Why Choose ServerPulse?
 
 ServerPulse isn't just another metrics exporter - it offers several unique advantages:
 
-* **Complete Monitoring Stack**: Fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards
-* **Per-World Analytics**: Track entity counts, chunk loading, and performance metrics separately for each world
-* **Flexible Tagging System**: Group and filter metrics by server, network, region, or any custom dimension through simple configuration
-* **Zero-Configuration Dashboards**: Auto-provisioned Grafana dashboards - no manual setup required
-* **Alert Notifications**: Integrated Discord and Telegram alerts for critical server metrics (TPS drops, memory issues, etc.)
-* **Production-Ready Infrastructure**: Built-in health checks, connection retry mechanisms, and proper error handling
-* **Docker-First Deployment**: Single command deployment with Docker Compose for the entire monitoring stack
+- **Complete Monitoring Stack**  
+  Fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards
+
+- **Universal Platform Support**  
+  Works with any Bukkit-based server while taking advantage of Paper-specific optimizations when available
+
+- **Per-World Analytics**  
+  Track entity counts, chunk loading, and performance metrics separately for each world
+
+- **Flexible Tagging System**  
+  Group and filter metrics by server, network, region, or any custom dimension through simple configuration
+
+- **Zero-Configuration Dashboards**  
+  Auto-provisioned Grafana dashboards - no manual setup required
+
+- **Alert Notifications**  
+  Integrated Discord and Telegram alerts for critical server metrics (TPS drops, memory issues, etc.)
+
+- **Production-Ready Infrastructure**  
+  Built-in health checks, connection retry mechanisms, and proper error handling
+
+- **Docker-First Deployment**  
+  Single command deployment with Docker Compose for the entire monitoring stack
 
 ## 📚 Documentation
 
@@ -53,6 +79,7 @@ The wiki contains comprehensive documentation on:
 | Setup Time | ~5 minutes with Docker Compose | Manual metrics + Prometheus + Grafana setup |
 | Dashboard Configuration | Pre-configured, auto-provisioned | Manual dashboard creation |
 | Data Storage | InfluxDB (optimized for time-series) | Prometheus (general-purpose) |
+| Platform Support | All Bukkit-based servers | Varies by implementation |
 | Per-World Metrics | Built-in | Usually not available |
 | Custom Tagging | Flexible tag system | Limited labeling |
 | Alert System | Discord and Telegram integration | Requires manual setup |
