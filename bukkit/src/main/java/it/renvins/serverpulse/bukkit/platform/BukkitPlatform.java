@@ -1,13 +1,13 @@
-package it.renvins.serverpulse.paper.platform;
+package it.renvins.serverpulse.bukkit.platform;
 
 import it.renvins.serverpulse.common.platform.Platform;
-import it.renvins.serverpulse.paper.ServerPulsePaper;
+import it.renvins.serverpulse.bukkit.ServerPulseBukkit;
 
-public class PaperPlatform implements Platform {
+public class BukkitPlatform implements Platform {
 
-    private final ServerPulsePaper plugin;
+    private final ServerPulseBukkit plugin;
 
-    public PaperPlatform(ServerPulsePaper plugin) {
+    public BukkitPlatform(ServerPulseBukkit plugin) {
         this.plugin = plugin;
     }
 

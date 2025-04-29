@@ -1,16 +1,16 @@
-package it.renvins.serverpulse.paper.config;
+package it.renvins.serverpulse.bukkit.config;
 
 import java.io.File;
 import java.util.logging.Level;
 
-import it.renvins.serverpulse.paper.ServerPulsePaperLoader;
-import it.renvins.serverpulse.paper.ServerPulsePaper;
+import it.renvins.serverpulse.bukkit.ServerPulseBukkitLoader;
+import it.renvins.serverpulse.bukkit.ServerPulseBukkit;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class PaperConfiguration {
+public class BukkitConfiguration {
 
-    private final ServerPulsePaper plugin;
+    private final ServerPulseBukkit plugin;
     private final String name;
 
     private File file;
@@ -22,7 +22,7 @@ public class PaperConfiguration {
      * @param plugin The main ServerPulsePlugin instance.
      * @param name   The name of the configuration file (e.g., "config.yml").
      */
-    public PaperConfiguration(ServerPulsePaper plugin, String name) {
+    public BukkitConfiguration(ServerPulseBukkit plugin, String name) {
         this.plugin = plugin;
         this.name = name;
     }
@@ -50,7 +50,7 @@ public class PaperConfiguration {
         try {
             config.save(file);
         } catch (Exception e) {
-            ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "Could not save " + name + " file", e);
+            ServerPulseBukkitLoader.LOGGER.log(Level.SEVERE, "Could not save " + name + " file", e);
         }
     }
 
@@ -62,7 +62,7 @@ public class PaperConfiguration {
      */
     public boolean reload() {
         if (file == null) {
-            ServerPulsePaperLoader.LOGGER.log(Level.SEVERE, "File is null, cannot reload configuration.");
+            ServerPulseBukkitLoader.LOGGER.log(Level.SEVERE, "File is null, cannot reload configuration.");
             return false;
         }
         config = YamlConfiguration.loadConfiguration(file);

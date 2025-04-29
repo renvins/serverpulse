@@ -1,12 +1,12 @@
-package it.renvins.serverpulse.paper.config;
+package it.renvins.serverpulse.bukkit.config;
 
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class PaperDatabaseConfiguration implements DatabaseConfiguration {
+public class BukkitDatabaseConfiguration implements DatabaseConfiguration {
 
-    private final PaperConfiguration configuration;
+    private final BukkitConfiguration configuration;
 
     @Override
     public String getHost() {

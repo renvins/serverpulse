@@ -1,9 +1,9 @@
-package it.renvins.serverpulse.paper.metrics;
+package it.renvins.serverpulse.bukkit.metrics;
 
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import org.bukkit.Bukkit;
 
-public class TPSRetriever implements ITPSRetriever {
+public class PaperTPSRetriever implements ITPSRetriever {
 
     @Override
     public double[] getTPS() {

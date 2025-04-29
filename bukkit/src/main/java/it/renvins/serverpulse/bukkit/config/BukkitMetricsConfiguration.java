@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.paper.config;
+package it.renvins.serverpulse.bukkit.config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,9 +7,9 @@ import it.renvins.serverpulse.common.config.MetricsConfiguration;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class PaperMetricsConfiguration implements MetricsConfiguration {
+public class BukkitMetricsConfiguration implements MetricsConfiguration {
 
-    private final PaperConfiguration configuration;
+    private final BukkitConfiguration configuration;
 
     @Override
     public String getServerTag() {

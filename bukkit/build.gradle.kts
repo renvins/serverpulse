@@ -3,33 +3,35 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
     id("java")
     id("com.gradleup.shadow") version "9.0.0-beta11"
+    id("io.freefair.lombok") version "8.13.1"
 }
 
-group =
-    "it.renvins"
+group = "it.renvins"
 
 repositories {
     mavenCentral()
     maven {
-        name = "SpigotMC"
-        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+        name = "papermc"
+        url = uri("https://repo.papermc.io/repository/maven-public/")
     }
 }
 
 dependencies {
     implementation(project(":api"))
-    compileOnly("org.spigotmc:spigot-api:1.21.5-R0.1-SNAPSHOT")
+    implementation(project(":common"))
+
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
 }
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-val relocatePath = "it.renvins.serverpulse.bukkit.libs"
+val relocatePath = "it.renvins.serverpulse.libs"
 
 tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"
-    archiveClassifier = "bukkit"
+    archiveClassifier = "paper"
     archiveVersion = "${rootProject.version}"
 
     relocate("com.influxdb", "$relocatePath.influxdb")

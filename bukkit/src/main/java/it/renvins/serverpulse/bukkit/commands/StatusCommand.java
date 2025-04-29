@@ -1,15 +1,15 @@
-package it.renvins.serverpulse.paper.commands;
+package it.renvins.serverpulse.bukkit.commands;
 
 import it.renvins.serverpulse.api.ServerPulseProvider;
 import it.renvins.serverpulse.common.utils.ChatUtils;
-import it.renvins.serverpulse.paper.config.PaperConfiguration;
+import it.renvins.serverpulse.bukkit.config.BukkitConfiguration;
 import org.bukkit.command.CommandSender;
 
 public class StatusCommand extends GeneralCommand {
 
-    private final PaperConfiguration config;
+    private final BukkitConfiguration config;
 
-    public StatusCommand(String permission, boolean isPlayerOnly, PaperConfiguration config) {
+    public StatusCommand(String permission, boolean isPlayerOnly, BukkitConfiguration config) {
         super(permission, isPlayerOnly);
 
         this.config = config;

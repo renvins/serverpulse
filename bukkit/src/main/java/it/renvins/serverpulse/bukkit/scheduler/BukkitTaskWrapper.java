@@ -1,13 +1,13 @@
-package it.renvins.serverpulse.paper.scheduler;
+package it.renvins.serverpulse.bukkit.scheduler;
 
 import it.renvins.serverpulse.common.scheduler.Task;
 import org.bukkit.scheduler.BukkitTask;
 
-public class PaperTaskWrapper implements Task {
+public class BukkitTaskWrapper implements Task {
 
     private final BukkitTask task;
 
-    public PaperTaskWrapper(BukkitTask task) {
+    public BukkitTaskWrapper(BukkitTask task) {
         this.task = task;
     }
 

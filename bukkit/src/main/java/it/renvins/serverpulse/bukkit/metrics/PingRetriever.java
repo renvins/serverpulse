@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.paper.metrics;
+package it.renvins.serverpulse.bukkit.metrics;
 
 import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import org.bukkit.Bukkit;
