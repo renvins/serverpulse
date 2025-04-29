@@ -1,4 +1,4 @@
-# ServerPulse
+![ServerPulse Poster](img/poster.png)
 
 ServerPulse is an **open-source**, real-time performance monitoring tool for Minecraft servers. It collects key server metrics (TPS, disk usage, memory, player count, entities, chunks, ping) and visualizes them through an integrated Grafana dashboard.
 
