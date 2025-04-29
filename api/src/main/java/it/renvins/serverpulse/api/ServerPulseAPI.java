@@ -2,6 +2,7 @@ package it.renvins.serverpulse.api;
 
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;
 import it.renvins.serverpulse.api.metrics.IPingRetriever;
+import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.api.service.IMetricsService;
 
@@ -20,6 +21,13 @@ public interface ServerPulseAPI {
      * @return The IMetricsService instance.
      */
     IMetricsService getMetricsService();
+
+    /**
+     * Retrieves the instance of ITPSRetriever.
+     *
+     * @return The ITPSRetriever instance.
+     */
+    ITPSRetriever getTPSRetriever();
 
     /**
      * Retrieves the instance of IDiskRetriever.
