@@ -40,9 +40,9 @@ jobs:
       - name: Find Shadow Jar and Extract Name
         id: find_jar
         run: |
-          JAR_PATH=$(find plugin/build/libs -maxdepth 1 -name '*.jar' -printf "%s %p\n" | sort -nr | head -n 1 | awk '{print $2}')
+          JAR_PATH=$(find bukkit/build/libs -maxdepth 1 -name '*.jar' -printf "%s %p\n" | sort -nr | head -n 1 | awk '{print $2}')
           if [ -z "$JAR_PATH" ]; then
-            echo "Error: Could not find the shadow JAR file in plugin/build/libs/"
+            echo "Error: Could not find the shadow JAR file in bukkit/build/libs/"
             exit 1
           fi
           JAR_FILENAME=$(basename "$JAR_PATH")
