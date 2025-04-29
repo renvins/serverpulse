@@ -35,29 +35,14 @@ The plugin automatically detects your server platform and uses the most efficien
 
 ServerPulse isn't just another metrics exporter - it offers several unique advantages:
 
-- **Complete Monitoring Stack**  
-  Fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards
-
-- **Universal Platform Support**  
-  Works with any Bukkit-based server while taking advantage of Paper-specific optimizations when available
-
-- **Per-World Analytics**  
-  Track entity counts, chunk loading, and performance metrics separately for each world
-
-- **Flexible Tagging System**  
-  Group and filter metrics by server, network, region, or any custom dimension through simple configuration
-
-- **Zero-Configuration Dashboards**  
-  Auto-provisioned Grafana dashboards - no manual setup required
-
-- **Alert Notifications**  
-  Integrated Discord and Telegram alerts for critical server metrics (TPS drops, memory issues, etc.)
-
-- **Production-Ready Infrastructure**  
-  Built-in health checks, connection retry mechanisms, and proper error handling
-
-- **Docker-First Deployment**  
-  Single command deployment with Docker Compose for the entire monitoring stack
+- **Complete Monitoring Stack** - Fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards
+- **Universal Platform Support** - Works with any Bukkit-based server while taking advantage of Paper-specific optimizations when available
+- **Per-World Analytics** - Track entity counts, chunk loading, and performance metrics separately for each world
+- **Flexible Tagging System** - Group and filter metrics by server, network, region, or any custom dimension through simple configuration
+- **Zero-Configuration Dashboards** - Auto-provisioned Grafana dashboards - no manual setup required
+- **Alert Notifications** - Integrated Discord and Telegram alerts for critical server metrics (TPS drops, memory issues, etc.)
+- **Production-Ready Infrastructure** - Built-in health checks, connection retry mechanisms, and proper error handling
+- **Docker-First Deployment** - Single command deployment with Docker Compose for the entire monitoring stack
 
 ## 📚 Documentation
 
