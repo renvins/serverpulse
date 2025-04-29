@@ -96,6 +96,7 @@ public class ServerPulseBukkitLoader implements Service {
         databaseService.unload();
         metricsService.unload();
 
+        plugin.getServer().getScheduler().cancelTasks(plugin);
         ServerPulseProvider.unregister();
     }
 

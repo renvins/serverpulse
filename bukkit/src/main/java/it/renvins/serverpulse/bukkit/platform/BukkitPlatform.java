@@ -23,7 +23,6 @@ public class BukkitPlatform implements Platform {
 
     @Override
     public void disable() {
-        plugin.getServer().getScheduler().cancelTasks(plugin);
         plugin.getServer().getPluginManager().disablePlugin(plugin);
     }
 
