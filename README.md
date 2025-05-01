@@ -33,7 +33,7 @@ ServerPulse now supports **all Minecraft server platforms** in the Bukkit ecosys
 
 The plugin automatically detects your server platform and uses the most efficient implementation available for that environment.
 
-## Why Choose ServerPulse?
+## 🚀 Why Choose ServerPulse?
 
 ServerPulse isn't just another metrics exporter - it offers several unique advantages:
 
