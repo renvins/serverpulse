@@ -102,7 +102,13 @@ public class MetricsService implements IMetricsService {
         try {
             double[] tps = ServerPulseProvider.get().getTPSRetriever().getTPS();
             int playerCount = platform.getOnlinePlayerCount();
-            Map<String, WorldData> worldsData = platform.getWorldsData();
+
+            Map<String, WorldData> worldsData = null;
+            try {
+                worldsData = platform.getWorldsData();
+            } catch (UnsupportedOperationException e) {
+                worldsData = Map.of();
+            }
 
             return new SyncMetricsSnapshot(tps, playerCount, worldsData);
         } catch (Exception e) {
