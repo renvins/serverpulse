@@ -18,7 +18,7 @@ import it.renvins.serverpulse.bukkit.config.BukkitConfiguration;
 import it.renvins.serverpulse.common.metrics.DiskRetriever;
 import it.renvins.serverpulse.bukkit.config.BukkitDatabaseConfiguration;
 import it.renvins.serverpulse.bukkit.config.BukkitMetricsConfiguration;
-import it.renvins.serverpulse.bukkit.metrics.PingRetriever;
+import it.renvins.serverpulse.bukkit.metrics.BukkitPingRetriever;
 import it.renvins.serverpulse.bukkit.metrics.PaperTPSRetriever;
 import it.renvins.serverpulse.bukkit.platform.BukkitPlatform;
 import it.renvins.serverpulse.bukkit.scheduler.BukkitTaskScheduler;
@@ -62,7 +62,7 @@ public class ServerPulseBukkitLoader implements Service {
             this.tpsRetriever = new BukkitTPSRetriever(plugin);
         }
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
-        this.pingRetriever = new PingRetriever();
+        this.pingRetriever = new BukkitPingRetriever();
     }
 
     @Override

@@ -100,11 +100,12 @@ public class MetricsService implements IMetricsService {
             throw new IllegalStateException("This method must be called on the main thread.");
         }
         try {
-            double[] tps = ServerPulseProvider.get().getTPSRetriever().getTPS();
+            double[] tps = new double[]{0.0, 0.0, 0.0}; // Default TPS to 0.0 for non-ticking platforms
             int playerCount = platform.getOnlinePlayerCount();
 
             Map<String, WorldData> worldsData = null;
             try {
+                tps = ServerPulseProvider.get().getTPSRetriever().getTPS();
                 worldsData = platform.getWorldsData();
             } catch (UnsupportedOperationException e) {
                 worldsData = Map.of();
