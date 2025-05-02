@@ -4,7 +4,7 @@ services:
     container_name: influxdb
     volumes:
       - ./influxdb:/etc/influxdb2 # Use a custom configuration directory to prevent chown issues
-      - influxdb-data:/var/lib/influxdb # Persist data
+      - influxdb-data:/var/lib/influxdb2 # Persist data
     ports:
       - "8086:8086" # Expose the InfluxDB API
   grafana:
