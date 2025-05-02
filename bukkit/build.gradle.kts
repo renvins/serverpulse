@@ -21,7 +21,7 @@ dependencies {
     implementation(project(":common"))
 
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.9.22") // resolve conflicts with eco
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
 }
 
 java {
@@ -46,11 +46,8 @@ tasks.withType<ShadowJar> {
     relocate("org.intellij", "$relocatePath.intellij")
     relocate("org.reactivestreams", "$relocatePath.reactivestreams")
     relocate("retrofit2", "$relocatePath.retrofit2")
-
-    // Exclude Kotlin to avoid conflicts with eco
-    exclude("kotlin/**")
-    exclude("org/jetbrains/kotlin/**")
-    exclude("META-INF/kotlin*")
+    relocate("kotlin", "$relocatePath.kotlin") // Relocate instead of exclude
+    relocate("org.jetbrains.kotlin", "$relocatePath.jetbrains.kotlin") // Relocate instead of exclude
 
     // Prevent Paper from giving errors about duplicate files
     exclude("META-INF/AL2.0")
