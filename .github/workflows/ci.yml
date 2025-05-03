@@ -23,7 +23,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin' # Or 'adopt', 'zulu', etc.
-          
+
       # 3. Give permission to gradle to execute commands
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -35,7 +35,16 @@ jobs:
 
       # Gradle with the new updates doesn't support arguments
       - name: Build jar
-        run: ./gradlew shadowJar 
+        run: ./gradlew shadowJar
+
+      # Upload JAR as an artifact (NEW STEP)
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-jar
+          path: bukkit/build/libs/*.jar # Adjust this path to match your JAR location
+          retention-days: 14 # Keep artifacts for 14 days
+          if-no-files-found: error # Fail the workflow if no JARs are found
 
       # --- Infrastructure Testing ---
 
