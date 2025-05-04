@@ -9,9 +9,6 @@ public interface ITPSRetriever {
      *         The first value is the average TPS over the last minute,
      *         the second value is the average TPS over the last 5 minutes,
      *         and the third value is the average TPS over the last 15 minutes.
-     * @throws UnsupportedOperationException if the platform does not support this operation.
      */
-    default double[] getTPS() {
-        throw new UnsupportedOperationException("This method is not supported on this platform.");
-    }
+     double[] getTPS();
 }
