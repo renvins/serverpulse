@@ -17,12 +17,13 @@ import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.WorldData;
 import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.common.config.MetricsConfiguration;
+import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 
 public class MetricsService implements IMetricsService {
 
-    private final Logger logger;
+    private final PulseLogger logger;
 
     private final Platform platform;
     private final MetricsConfiguration configuration;
@@ -30,7 +31,7 @@ public class MetricsService implements IMetricsService {
     private final TaskScheduler scheduler;
     private final Executor asyncExecutor;
 
-    public MetricsService(Logger logger, Platform platform, MetricsConfiguration configuration, TaskScheduler scheduler) {
+    public MetricsService(PulseLogger logger, Platform platform, MetricsConfiguration configuration, TaskScheduler scheduler) {
         this.logger = logger;
 
         this.platform = platform;
@@ -78,12 +79,12 @@ public class MetricsService implements IMetricsService {
                         try {
                             ServerPulseProvider.get().getDatabaseService().getWriteApi().writePoints(points);
                         } catch (Exception e) {
-                            logger.log(Level.SEVERE, "Error sending metrics to InfluxDB...", e);
+                            logger.error("Error sending metrics to InfluxDB...", e);
                         }
                     }
                 }, asyncExecutor)
                          .exceptionally(ex -> {
-                             logger.log(Level.SEVERE, "Failed metrics pipeline stage...", ex);
+                             logger.error( "Failed metrics pipeline stage...", ex);
                              return null;
                          });
     }
@@ -113,7 +114,7 @@ public class MetricsService implements IMetricsService {
 
             return new SyncMetricsSnapshot(tps, playerCount, worldsData);
         } catch (Exception e) {
-            logger.severe("Unexpected error during sync data collection: " + e.getMessage());
+            logger.error("Unexpected error during sync data collection: " + e.getMessage());
             // Return null or re-throw to signal failure to the CompletableFuture chain
             // Throwing is often cleaner as it goes directly to exceptionally()
             throw new RuntimeException("Sync data collection failed...", e);

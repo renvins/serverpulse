@@ -6,14 +6,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApi;
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
+import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.Task;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
@@ -21,7 +20,7 @@ import lombok.Getter;
 
 public class DatabaseService implements IDatabaseService {
 
-    private final Logger logger;
+    private final PulseLogger logger;
     private final Platform platform;
 
     private final DatabaseConfiguration configuration;
@@ -41,7 +40,7 @@ public class DatabaseService implements IDatabaseService {
     private volatile boolean isConnected = false;
     private volatile int retryCount = 0;
 
-    public DatabaseService(Logger logger, Platform platform, DatabaseConfiguration configuration, TaskScheduler scheduler) {
+    public DatabaseService(PulseLogger logger, Platform platform, DatabaseConfiguration configuration, TaskScheduler scheduler) {
         this.logger = logger;
         this.platform = platform;
 
@@ -57,7 +56,7 @@ public class DatabaseService implements IDatabaseService {
     @Override
     public void load() {
         if (!checkConnectionData()) {
-            logger.severe("InfluxDB connection data is missing or invalid. Disabling plugin...");
+            logger.error("InfluxDB connection data is missing or invalid. Disabling plugin...");
             platform.disable();
             return;
         }
@@ -78,13 +77,13 @@ public class DatabaseService implements IDatabaseService {
     public boolean ping() {
         String url = configuration.getHost();
         if (url == null || url.isEmpty()) {
-            logger.severe("InfluxDB URL is missing for ping...");
+            logger.error("InfluxDB URL is missing for ping...");
             return false;
         }
 
         // Ensure httpClient is initialized
         if (this.httpClient == null) {
-            logger.severe("HttpClient not initialized for ping...");
+            logger.error("HttpClient not initialized for ping...");
             this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         }
 
@@ -97,7 +96,7 @@ public class DatabaseService implements IDatabaseService {
                                  .timeout(Duration.ofSeconds(5)) // Add timeout specific to ping
                                  .build();
         } catch (IllegalArgumentException e) {
-            logger.log(Level.SEVERE, "Invalid InfluxDB URL format for ping: " + url, e);
+            logger.error("Invalid InfluxDB URL format for ping: " + url, e);
             return false;
         }
 
@@ -112,7 +111,7 @@ public class DatabaseService implements IDatabaseService {
             logger.warning("InfluxDB ping timed out: " + e.getMessage());
             return false;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error during InfluxDB ping: " + e.getMessage(), e);
+            logger.error("Error during InfluxDB ping: " + e.getMessage(), e);
             return false;
         }
     }
@@ -170,7 +169,7 @@ public class DatabaseService implements IDatabaseService {
             }
         } catch (Exception e) {
             // Handle exceptions during InfluxDBClientFactory.create() or ping()
-            logger.log(Level.SEVERE, "Failed to connect or ping InfluxDB: " + e.getMessage());
+            logger.error("Failed to connect or ping InfluxDB: " + e.getMessage());
             this.isConnected = false;
             if (client != null) { // Ensure client is closed on exception
                 client.close();
@@ -186,7 +185,7 @@ public class DatabaseService implements IDatabaseService {
             try {
                 writeApi.close();
             } catch (Exception e) {
-                logger.log(Level.WARNING, "Error closing InfluxDB WriteApi...", e);
+                logger.error("Error closing InfluxDB WriteApi...", e);
             }
             writeApi = null;
         }
@@ -194,7 +193,7 @@ public class DatabaseService implements IDatabaseService {
             try {
                 client.close();
             } catch (Exception e) {
-                logger.log(Level.WARNING, "Error closing InfluxDB Client...", e);
+                logger.error("Error closing InfluxDB Client...", e);
             }
             client = null;
         }
@@ -233,7 +232,7 @@ public class DatabaseService implements IDatabaseService {
 
             // Check retries *before* attempting connection
             if (retryCount >= MAX_RETRIES) {
-                logger.severe("Max connection retries (" + MAX_RETRIES + ") reached. Disabling ServerPulse metrics...");
+                logger.error("Max connection retries (" + MAX_RETRIES + ") reached. Disabling ServerPulse metrics...");
                 stopRetryTask();
                 disconnect(); // Clean up any partial connection
                 // Schedule plugin disable on main thread
@@ -275,19 +274,19 @@ public class DatabaseService implements IDatabaseService {
 
         boolean valid = true;
         if (url == null || url.isEmpty()) {
-            logger.severe("Missing or empty 'metrics.influxdb.url' in config...");
+            logger.error("Missing or empty 'metrics.influxdb.url' in config...");
             valid = false;
         }
         if (bucket == null || bucket.isEmpty()) {
-            logger.severe("Missing or empty 'metrics.influxdb.bucket' in config...");
+            logger.error("Missing or empty 'metrics.influxdb.bucket' in config...");
             valid = false;
         }
         if (org == null || org.isEmpty()) {
-            logger.severe("Missing or empty 'metrics.influxdb.org' in config...");
+            logger.error("Missing or empty 'metrics.influxdb.org' in config...");
             valid = false;
         }
         if (token == null || token.isEmpty() || token.equals("my-token")) {
-            logger.severe("Missing, empty, or default 'metrics.influxdb.token' in config...");
+            logger.error("Missing, empty, or default 'metrics.influxdb.token' in config...");
             valid = false;
         }
         return valid;
