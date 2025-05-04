@@ -1,11 +1,10 @@
 package it.renvins.serverpulse.velocity;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
-import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -61,7 +60,7 @@ public class ServerPulseVelocity {
     }
 
     @Subscribe
-    public void onProxyInitialization() {
+    public void onProxyInitialization(ProxyInitializeEvent event) {
         logger.info("Loading configuration file...");
         config.load();
 
@@ -71,11 +70,6 @@ public class ServerPulseVelocity {
 
             return;
         }
-        databaseService.load();
-        if (server.isShuttingDown()) {
-            return;
-        }
-
         DatabaseConfiguration dbConfig = new VelocityDatabaseConfiguration(config);
         MetricsConfiguration metricsConfig = new VelocityMetricsConfiguration(config);
 
@@ -84,6 +78,11 @@ public class ServerPulseVelocity {
 
         this.databaseService = new DatabaseService(logger, platform, dbConfig, scheduler);
         this.metricsService = new MetricsService(logger, platform, metricsConfig, scheduler);
+
+        databaseService.load();
+        if (server.isShuttingDown()) {
+            return;
+        }
 
         metricsService.load();
         ServerPulseProvider.register(new ServerPulseVelocityAPI(databaseService, metricsService, diskRetriever, pingRetriever));
