@@ -1,5 +1,7 @@
 package it.renvins.serverpulse.common.scheduler;
 
+import java.util.concurrent.Executor;
+
 public interface TaskScheduler {
 
     /**
@@ -54,4 +56,12 @@ public interface TaskScheduler {
      * @return A Task object representing the task
      */
     Task runTaskLaterAsync(Runnable task, long delayTicks);
+
+    default Executor getSyncExecutor() {
+        try {
+            return this::runSync;
+        } catch (UnsupportedOperationException e) {
+            return this::runAsync;
+        }
+    }
 }

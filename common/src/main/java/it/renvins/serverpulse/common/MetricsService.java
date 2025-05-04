@@ -57,7 +57,7 @@ public class MetricsService implements IMetricsService {
             ServerPulseProvider.get().getDatabaseService().startRetryTaskIfNeeded();
             return;
         }
-        CompletableFuture.supplyAsync(this::collectSnapshot, scheduler::runSync)
+        CompletableFuture.supplyAsync(this::collectSnapshot, scheduler.getSyncExecutor())
                 .thenApplyAsync(snapshot -> {
                     if (snapshot == null) {
                         logger.warning("Snapshot is null. Skipping metrics send.");
