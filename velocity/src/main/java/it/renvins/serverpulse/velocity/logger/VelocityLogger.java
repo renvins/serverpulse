@@ -15,8 +15,13 @@ public class VelocityLogger implements PulseLogger {
     }
 
     @Override
-    public void warn(String message) {
+    public void warning(String message) {
         logger.warn(message);
+    }
+
+    @Override
+    public void error(String message) {
+        logger.error(message);
     }
 
     @Override

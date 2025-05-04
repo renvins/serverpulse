@@ -6,31 +6,33 @@ import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.api.service.IMetricsService;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ServerPulseVelocityAPI implements ServerPulseAPI {
+
+    private final IDatabaseService databaseService;
+    private final IMetricsService metricsService;
+    private final IDiskRetriever diskRetriever;
+    private final IPingRetriever pingRetriever;
 
     @Override
     public IDatabaseService getDatabaseService() {
-        return null;
+        return databaseService;
     }
 
     @Override
     public IMetricsService getMetricsService() {
-        return null;
-    }
-
-    @Override
-    public ITPSRetriever getTPSRetriever() {
-        return null;
+        return metricsService;
     }
 
     @Override
     public IDiskRetriever getDiskRetriever() {
-        return null;
+        return diskRetriever;
     }
 
     @Override
     public IPingRetriever getPingRetriever() {
-        return null;
+        return pingRetriever;
     }
 }

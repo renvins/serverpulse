@@ -52,6 +52,8 @@ public class VelocityConfiguration {
             if (in != null) {
                 Files.copy(in, config.getConfigurationFile().toPath());
                 return true;
+            } else {
+                return false;
             }
         } catch (IOException e) {
             logger.error("Failed to copy default configuration file: " + name, e);
