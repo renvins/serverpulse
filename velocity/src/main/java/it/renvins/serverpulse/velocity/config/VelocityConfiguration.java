@@ -48,7 +48,7 @@ public class VelocityConfiguration {
     }
 
     private boolean copyDefaultsFromResource() {
-        try (InputStream in = getClass().getResourceAsStream(name)) {
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(name)) {
             if (in != null) {
                 Files.copy(in, config.getConfigurationFile().toPath());
                 return true;
