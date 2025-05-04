@@ -14,11 +14,13 @@ repositories {
         name = "papermc"
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
     implementation(project(":api"))
     implementation(project(":common"))
+    implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 }
