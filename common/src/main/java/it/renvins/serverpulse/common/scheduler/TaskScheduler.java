@@ -57,11 +57,20 @@ public interface TaskScheduler {
      */
     Task runTaskLaterAsync(Runnable task, long delayTicks);
 
+    /**
+     * Returns an Executor that runs tasks synchronously on the main thread
+     * or falls back to asynchronous execution if sync is not supported.
+     *
+     * @return An Executor for synchronous task execution
+     */
     default Executor getSyncExecutor() {
-        try {
-            return this::runSync;
-        } catch (UnsupportedOperationException e) {
-            return this::runAsync;
-        }
+        return task -> {
+            try {
+                runSync(task);
+            } catch (UnsupportedOperationException e) {
+                // Fallback to async execution if sync is not supported
+                runAsync(task);
+            }
+        };
     }
 }
