@@ -22,7 +22,7 @@ ServerPulse is an **open-source**, real-time performance monitoring tool for Min
 
 - **Goal:** Provide an extensible, lightweight plugin to gather server metrics and store them in InfluxDB for visualization with Grafana.
 - **Tech stack:**
-    - Java (Bukkit/Paper plugin) → InfluxDB
+    - Java (plugin) → InfluxDB
     - Grafana dashboard (preconfigured via provisioning)
     - Discord alerts for key server metrics
     - Docker Compose (for InfluxDB & Grafana setup)
