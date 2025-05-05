@@ -33,6 +33,7 @@ ServerPulse now supports **all Minecraft server platforms** in the Bukkit ecosys
 
 - **Bukkit/Spigot**: Full support with custom TPS monitoring implementation
 - **Paper and its forks** (Purpur, Pufferfish, etc.): Enhanced support with native TPS monitoring
+- **Velocity**: Support for Velocity proxy servers (ofc TPS and world metrics are not available)
 
 The plugin automatically detects your server platform and uses the most efficient implementation available for that environment.
 
@@ -41,7 +42,7 @@ The plugin automatically detects your server platform and uses the most efficien
 ServerPulse isn't just another metrics exporter - it offers several unique advantages:
 
 - **Complete Monitoring Stack** - Fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards
-- **Universal Platform Support** - Works with any Bukkit-based server while taking advantage of Paper-specific optimizations when available
+- **Universal Platform Support** - Works with any Bukkit-based and Velocity server while taking advantage of Paper-specific optimizations when available
 - **Per-World Analytics** - Track entity counts, chunk loading, and performance metrics separately for each world
 - **Flexible Tagging System** - Group and filter metrics by server, network, region, or any custom dimension through simple configuration
 - **Zero-Configuration Dashboards** - Auto-provisioned Grafana dashboards - no manual setup required
