@@ -26,8 +26,11 @@ public interface ServerPulseAPI {
      * Retrieves the instance of ITPSRetriever.
      *
      * @return The ITPSRetriever instance.
+     * @throws UnsupportedOperationException if the API implementation does not support TPS retrieval.
      */
-    ITPSRetriever getTPSRetriever();
+    default ITPSRetriever getTPSRetriever() {
+        throw new UnsupportedOperationException("TPSRetriever is not supported in this API implementation.");
+    }
 
     /**
      * Retrieves the instance of IDiskRetriever.

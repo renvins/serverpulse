@@ -2,7 +2,6 @@ package it.renvins.serverpulse.common.scheduler;
 
 public interface Task {
 
-
     /**
      * Cancels the task
      */

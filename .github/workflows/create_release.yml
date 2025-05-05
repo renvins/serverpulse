@@ -1,4 +1,4 @@
-name: Create Release Asset
+name: Create Release Assets
 
 # Trigger the workflow only when a release is published
 on:
@@ -36,9 +36,9 @@ jobs:
       - name: Build jar
         run: ./gradlew shadowJar
 
-      # 5. Find the specific Shadow Jar file and extract its name
-      - name: Find Shadow Jar and Extract Name
-        id: find_jar
+      # 5. Find the Bukkit Shadow Jar file and extract its name
+      - name: Find Bukkit Shadow Jar and Extract Name
+        id: find_bukkit_jar
         run: |
           JAR_PATH=$(find bukkit/build/libs -maxdepth 1 -name '*.jar' -printf "%s %p\n" | sort -nr | head -n 1 | awk '{print $2}')
           if [ -z "$JAR_PATH" ]; then
@@ -52,12 +52,38 @@ jobs:
           echo "filename=$JAR_FILENAME" >> $GITHUB_OUTPUT
         shell: bash
 
-      # 6. Upload the Shadow Jar as a release asset
-      - name: Upload Release Asset
+      # 6. Find the Velocity Shadow Jar file and extract its name
+      - name: Find Velocity Shadow Jar and Extract Name
+        id: find_velocity_jar
+        run: |
+          JAR_PATH=$(find velocity/build/libs -maxdepth 1 -name '*.jar' -printf "%s %p\n" | sort -nr | head -n 1 | awk '{print $2}')
+          if [ -z "$JAR_PATH" ]; then
+            echo "Error: Could not find the shadow JAR file in velocity/build/libs/"
+            exit 1
+          fi
+          JAR_FILENAME=$(basename "$JAR_PATH")
+          echo "Found JAR path: $JAR_PATH"
+          echo "Found JAR filename: $JAR_FILENAME"
+          echo "path=$JAR_PATH" >> $GITHUB_OUTPUT
+          echo "filename=$JAR_FILENAME" >> $GITHUB_OUTPUT
+        shell: bash
+
+      # 7. Upload the Bukkit Shadow Jar as a release asset
+      - name: Upload Bukkit Release Asset
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions automatically
-          file: ${{ steps.find_jar.outputs.path }} # The path to the JAR found in the previous step
-          asset_name: ${{ steps.find_jar.outputs.filename }} # Use the filename extracted earlier
+          file: ${{ steps.find_bukkit_jar.outputs.path }} # The path to the JAR found in the previous step
+          asset_name: ${{ steps.find_bukkit_jar.outputs.filename }} # Use the filename extracted earlier
+          tag: ${{ github.ref }} # The git tag associated with the release that triggered the workflow
+          overwrite: true # Optional: Replace asset with the same name if it already exists
+
+      # 8. Upload the Velocity Shadow Jar as a release asset
+      - name: Upload Velocity Release Asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions automatically
+          file: ${{ steps.find_velocity_jar.outputs.path }} # The path to the JAR found in the previous step
+          asset_name: ${{ steps.find_velocity_jar.outputs.filename }} # Use the filename extracted earlier
           tag: ${{ github.ref }} # The git tag associated with the release that triggered the workflow
           overwrite: true # Optional: Replace asset with the same name if it already exists

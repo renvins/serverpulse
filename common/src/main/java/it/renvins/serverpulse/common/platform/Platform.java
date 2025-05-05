@@ -21,6 +21,16 @@ public interface Platform {
      */
     boolean isPrimaryThread();
 
+    /**
+     * @return the number of online players
+     */
     int getOnlinePlayerCount();
-    Map<String, WorldData> getWorldsData();
+
+    /**
+     * @return a map of world names to their data
+     * @throws UnsupportedOperationException if the platform does not support this method
+     */
+    default Map<String, WorldData> getWorldsData() {
+        throw new UnsupportedOperationException("This method is not supported on this platform.");
+    }
 }

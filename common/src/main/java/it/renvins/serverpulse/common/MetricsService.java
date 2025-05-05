@@ -17,12 +17,13 @@ import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.WorldData;
 import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.common.config.MetricsConfiguration;
+import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 
 public class MetricsService implements IMetricsService {
 
-    private final Logger logger;
+    private final PulseLogger logger;
 
     private final Platform platform;
     private final MetricsConfiguration configuration;
@@ -30,7 +31,7 @@ public class MetricsService implements IMetricsService {
     private final TaskScheduler scheduler;
     private final Executor asyncExecutor;
 
-    public MetricsService(Logger logger, Platform platform, MetricsConfiguration configuration, TaskScheduler scheduler) {
+    public MetricsService(PulseLogger logger, Platform platform, MetricsConfiguration configuration, TaskScheduler scheduler) {
         this.logger = logger;
 
         this.platform = platform;
@@ -56,7 +57,7 @@ public class MetricsService implements IMetricsService {
             ServerPulseProvider.get().getDatabaseService().startRetryTaskIfNeeded();
             return;
         }
-        CompletableFuture.supplyAsync(this::collectSnapshot, scheduler::runSync)
+        CompletableFuture.supplyAsync(this::collectSnapshot, scheduler.getSyncExecutor())
                 .thenApplyAsync(snapshot -> {
                     if (snapshot == null) {
                         logger.warning("Snapshot is null. Skipping metrics send.");
@@ -78,12 +79,12 @@ public class MetricsService implements IMetricsService {
                         try {
                             ServerPulseProvider.get().getDatabaseService().getWriteApi().writePoints(points);
                         } catch (Exception e) {
-                            logger.log(Level.SEVERE, "Error sending metrics to InfluxDB...", e);
+                            logger.error("Error sending metrics to InfluxDB...", e);
                         }
                     }
                 }, asyncExecutor)
                          .exceptionally(ex -> {
-                             logger.log(Level.SEVERE, "Failed metrics pipeline stage...", ex);
+                             logger.error( "Failed metrics pipeline stage...", ex);
                              return null;
                          });
     }
@@ -100,13 +101,20 @@ public class MetricsService implements IMetricsService {
             throw new IllegalStateException("This method must be called on the main thread.");
         }
         try {
-            double[] tps = ServerPulseProvider.get().getTPSRetriever().getTPS();
+            double[] tps = new double[]{0.0, 0.0, 0.0}; // Default TPS to 0.0 for non-ticking platforms
             int playerCount = platform.getOnlinePlayerCount();
-            Map<String, WorldData> worldsData = platform.getWorldsData();
+
+            Map<String, WorldData> worldsData = null;
+            try {
+                tps = ServerPulseProvider.get().getTPSRetriever().getTPS();
+                worldsData = platform.getWorldsData();
+            } catch (UnsupportedOperationException e) {
+                worldsData = Map.of();
+            }
 
             return new SyncMetricsSnapshot(tps, playerCount, worldsData);
         } catch (Exception e) {
-            logger.severe("Unexpected error during sync data collection: " + e.getMessage());
+            logger.error("Unexpected error during sync data collection: " + e.getMessage());
             // Return null or re-throw to signal failure to the CompletableFuture chain
             // Throwing is often cleaner as it goes directly to exceptionally()
             throw new RuntimeException("Sync data collection failed...", e);

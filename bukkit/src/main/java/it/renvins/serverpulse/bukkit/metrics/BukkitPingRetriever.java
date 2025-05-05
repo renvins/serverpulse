@@ -4,7 +4,7 @@ import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class PingRetriever implements IPingRetriever {
+public class BukkitPingRetriever implements IPingRetriever {
 
     @Override
     public int getMinPing() {

@@ -9,16 +9,18 @@ import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.api.service.Service;
+import it.renvins.serverpulse.bukkit.logger.BukkitLogger;
 import it.renvins.serverpulse.bukkit.metrics.BukkitTPSRetriever;
 import it.renvins.serverpulse.common.DatabaseService;
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
 import it.renvins.serverpulse.common.config.MetricsConfiguration;
 import it.renvins.serverpulse.bukkit.commands.ServerPulseCommand;
 import it.renvins.serverpulse.bukkit.config.BukkitConfiguration;
+import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.metrics.DiskRetriever;
 import it.renvins.serverpulse.bukkit.config.BukkitDatabaseConfiguration;
 import it.renvins.serverpulse.bukkit.config.BukkitMetricsConfiguration;
-import it.renvins.serverpulse.bukkit.metrics.PingRetriever;
+import it.renvins.serverpulse.bukkit.metrics.BukkitPingRetriever;
 import it.renvins.serverpulse.bukkit.metrics.PaperTPSRetriever;
 import it.renvins.serverpulse.bukkit.platform.BukkitPlatform;
 import it.renvins.serverpulse.bukkit.scheduler.BukkitTaskScheduler;
@@ -30,9 +32,6 @@ public class ServerPulseBukkitLoader implements Service {
     public static Logger LOGGER;
 
     private final BukkitConfiguration config;
-
-    private final BukkitPlatform platform;
-    private final BukkitTaskScheduler taskScheduler;
 
     private final IDatabaseService databaseService;
     private final IMetricsService metricsService;
@@ -47,14 +46,16 @@ public class ServerPulseBukkitLoader implements Service {
 
         this.config = new BukkitConfiguration(plugin, "config.yml");
 
-        this.platform = new BukkitPlatform(plugin);
-        this.taskScheduler = new BukkitTaskScheduler(plugin);
+        PulseLogger logger = new BukkitLogger(LOGGER);
+
+        BukkitPlatform platform = new BukkitPlatform(plugin);
+        BukkitTaskScheduler taskScheduler = new BukkitTaskScheduler(plugin);
 
         DatabaseConfiguration databaseConfiguration = new BukkitDatabaseConfiguration(config);
         MetricsConfiguration metricsConfiguration = new BukkitMetricsConfiguration(config);
 
-        this.databaseService = new DatabaseService(LOGGER, platform, databaseConfiguration, taskScheduler);
-        this.metricsService = new MetricsService(LOGGER, platform, metricsConfiguration, taskScheduler);
+        this.databaseService = new DatabaseService(logger, platform, databaseConfiguration, taskScheduler);
+        this.metricsService = new MetricsService(logger, platform, metricsConfiguration, taskScheduler);
 
         if (isPaper()) {
             this.tpsRetriever = new PaperTPSRetriever();
@@ -62,7 +63,7 @@ public class ServerPulseBukkitLoader implements Service {
             this.tpsRetriever = new BukkitTPSRetriever(plugin);
         }
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
-        this.pingRetriever = new PingRetriever();
+        this.pingRetriever = new BukkitPingRetriever();
     }
 
     @Override
@@ -76,6 +77,8 @@ public class ServerPulseBukkitLoader implements Service {
 
             return;
         }
+        ServerPulseProvider.register(new ServerPulseBukkitAPI(databaseService, metricsService, tpsRetriever, diskRetriever, pingRetriever));
+
         databaseService.load();
         if (!plugin.isEnabled()) {
             return;
@@ -88,7 +91,6 @@ public class ServerPulseBukkitLoader implements Service {
         }
 
         plugin.getCommand("serverpulse").setExecutor(new ServerPulseCommand(config));
-        ServerPulseProvider.register(new ServerPulseBukkitAPI(databaseService, metricsService, tpsRetriever, diskRetriever, pingRetriever));
     }
 
     @Override
