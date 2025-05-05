@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: serverpulse-bukkit-jar
-          path: bukkit/build/libs/serverpulse-bukkit-*.jar
+          path: bukkit/build/libs/*.jar
           retention-days: 14 # Keep artifacts for 14 days
           if-no-files-found: error # Fail the workflow if no JARs are found
 
@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: serverpulse-velocity-jar
-          path: velocity/build/libs/serverpulse-velocity-*.jar
+          path: velocity/build/libs/*.jar
           retention-days: 14 # Keep artifacts for 14 days
           if-no-files-found: error # Fail the workflow if no JARs are found
 
