@@ -3,6 +3,7 @@ package it.renvins.serverpulse.velocity;
 import java.nio.file.Path;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
@@ -21,6 +22,7 @@ import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.metrics.DiskRetriever;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
+import it.renvins.serverpulse.velocity.commands.ServerPulseCommand;
 import it.renvins.serverpulse.velocity.config.VelocityConfiguration;
 import it.renvins.serverpulse.velocity.config.VelocityDatabaseConfiguration;
 import it.renvins.serverpulse.velocity.config.VelocityMetricsConfiguration;
@@ -36,7 +38,6 @@ description = "Effortless Minecraft performance monitoring with pre-configured G
 public class ServerPulseVelocity {
 
     @Getter private final ProxyServer server;
-    private final Path dataDirectory;
     private final PulseLogger logger;
 
     private final VelocityConfiguration config;
@@ -50,7 +51,6 @@ public class ServerPulseVelocity {
     @Inject
     public ServerPulseVelocity(ProxyServer server, @DataDirectory Path dataDirectory, Logger logger) {
         this.server = server;
-        this.dataDirectory = dataDirectory;
 
         this.logger = new VelocityLogger(logger);
         this.config = new VelocityConfiguration(logger, dataDirectory, "config.yml");
@@ -79,12 +79,17 @@ public class ServerPulseVelocity {
         this.databaseService = new DatabaseService(logger, platform, dbConfig, scheduler);
         this.metricsService = new MetricsService(logger, platform, metricsConfig, scheduler);
 
+        ServerPulseProvider.register(new ServerPulseVelocityAPI(databaseService, metricsService, diskRetriever, pingRetriever));
+
         databaseService.load();
         if (server.isShuttingDown()) {
             return;
         }
 
         metricsService.load();
-        ServerPulseProvider.register(new ServerPulseVelocityAPI(databaseService, metricsService, diskRetriever, pingRetriever));
+
+        CommandMeta meta = server.getCommandManager().metaBuilder("serverpulsevelocity")
+                .plugin(this).aliases("spv").build();
+        server.getCommandManager().register(meta, new ServerPulseCommand(config).createCommand());
     }
 }

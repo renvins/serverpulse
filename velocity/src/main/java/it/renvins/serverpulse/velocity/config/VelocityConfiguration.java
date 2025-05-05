@@ -29,7 +29,7 @@ public class VelocityConfiguration {
         this.config = new YamlFile(new File(dataDir.toFile(), name));
     }
 
-    public void load() {
+    public boolean load() {
         try {
             if (!config.exists()) {
                 if (copyDefaultsFromResource()) {
@@ -42,8 +42,10 @@ public class VelocityConfiguration {
                 logger.info("Loading configuration file: " + name);
             }
             config.load();
+            return true;
         } catch (Exception e) {
             logger.error("Failed to load configuration file: " + name, e);
+            return false;
         }
     }
 
