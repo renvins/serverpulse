@@ -13,6 +13,9 @@ ServerPulse is an **open-source**, real-time performance monitoring tool for Min
 ![ServerPulse Grafana Dashboard Example2](img/dashboard2.png)
 *Example dashboard view 2: Per-World Details*
 
+![ServerPulse Grafana Dashboard Example3](img/dashboard3.png)
+*Example dashboard view 3: Players Ping Overview*
+
 </details>
 
 ## 📖 What This Project Is
