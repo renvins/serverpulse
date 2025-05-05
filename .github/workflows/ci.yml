@@ -33,16 +33,25 @@ jobs:
       - name: Setup Gradle and Build Plugin Jar
         uses: gradle/actions/setup-gradle@v4 # Use v4 or latest stable version
 
-      # Gradle with the new updates doesn't support arguments
-      - name: Build jar
+      # Build both Bukkit and Velocity JARs
+      - name: Build JAR files
         run: ./gradlew shadowJar
 
-      # Upload JAR as an artifact (NEW STEP)
-      - name: Upload JAR Artifact
+      # Upload Bukkit JAR as an artifact
+      - name: Upload Bukkit JAR Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: plugin-jar
-          path: bukkit/build/libs/*.jar # Adjust this path to match your JAR location
+          name: serverpulse-bukkit-jar
+          path: bukkit/build/libs/serverpulse-bukkit-*.jar
+          retention-days: 14 # Keep artifacts for 14 days
+          if-no-files-found: error # Fail the workflow if no JARs are found
+
+      # Upload Velocity JAR as an artifact
+      - name: Upload Velocity JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: serverpulse-velocity-jar
+          path: velocity/build/libs/serverpulse-velocity-*.jar
           retention-days: 14 # Keep artifacts for 14 days
           if-no-files-found: error # Fail the workflow if no JARs are found
 
@@ -53,7 +62,6 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq
 
       # 5. Start Docker Compose services in detached mode
-      # Replace 'path/to/your/docker-compose.yml' if it's not in the root
       - name: Start Docker Infrastructure
         run: docker compose -f infra/docker-compose.yml up -d
 
