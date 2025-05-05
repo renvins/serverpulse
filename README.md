@@ -29,7 +29,7 @@ ServerPulse is an **open-source**, real-time performance monitoring tool for Min
 
 ## 🌟 Platform Support
 
-ServerPulse now supports **all Minecraft server platforms** in the Bukkit ecosystem:
+ServerPulse now supports **all Minecraft server platforms** in the Bukkit/Paper ecosystem:
 
 - **Bukkit/Spigot**: Full support with custom TPS monitoring implementation
 - **Paper and its forks** (Purpur, Pufferfish, etc.): Enhanced support with native TPS monitoring
