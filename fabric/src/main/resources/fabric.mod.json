@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "serverpulse",
+  "version": "${version}",
+
+  "name": "serverpulse",
+  "description": "Effortless Minecraft performance monitoring with pre-configured Grafana/InfluxDB via Docker. ",
+  "authors": ["renvins"],
+  "contact": {
+    "homepage": "https://github.com/renvins/serverpulse/",
+    "sources": "https://github.com/renvins/serverpulse/",
+    "issues": "https://github.com/renvins/serverpulse/issues"
+  },
+
+  "license": "unlicense",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": ["it.renvins.serverpulse.fabric.ServerPulseFabric"]
+  },
+
+  "mixins": [
+    "serverpulse.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
