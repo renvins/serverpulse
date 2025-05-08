@@ -13,8 +13,11 @@ public interface Platform {
 
     /**
      * Disable the plugin
+     * @throws UnsupportedOperationException if the platform does not support this method
      */
-    void disable();
+    default void disable() {
+        throw new UnsupportedOperationException("This method is not supported on this platform.");
+    }
 
     /**
      * @return true if the current thread is the main thread of the server
