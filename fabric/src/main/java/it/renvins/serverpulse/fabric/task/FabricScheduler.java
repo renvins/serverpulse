@@ -7,6 +7,7 @@ import java.util.concurrent.ForkJoinPool;
 
 import it.renvins.serverpulse.common.scheduler.Task;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
+import it.renvins.serverpulse.fabric.ServerPulseFabric;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 
@@ -26,19 +27,27 @@ public class FabricScheduler implements TaskScheduler {
 
     @Override
     public void runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
-        FabricTask fabricTask = new FabricTask(task, false, delayTicks, periodTicks);
+        FabricTask fabricTask = new FabricTask(task, true, delayTicks, periodTicks);
         tasks.add(fabricTask);
     }
 
     @Override
     public void runAsync(Runnable task) {
-        CompletableFuture.runAsync(task);
+        CompletableFuture.runAsync(task).exceptionally(
+                throwable -> {
+                    ServerPulseFabric.LOGGER.log(java.util.logging.Level.SEVERE, "An error occurred while executing task!", throwable);
+                    return null;
+                }
+        );
     }
 
     @Override
     public Task runTaskTimerAsync(Runnable task, long delayTicks, long periodTicks) {
-        FabricTask fabricTask = new FabricTask(() -> CompletableFuture.runAsync(task),
-                true, delayTicks, periodTicks);
+        FabricTask fabricTask = new FabricTask(() -> CompletableFuture.runAsync(task).exceptionally(
+                throwable -> {
+                    ServerPulseFabric.LOGGER.log(java.util.logging.Level.SEVERE, "An error occurred while executing task!", throwable);
+                    return null;
+                }), true, delayTicks, periodTicks);
         tasks.add(fabricTask);
         return fabricTask;
     }

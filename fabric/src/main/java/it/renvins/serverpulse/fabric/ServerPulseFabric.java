@@ -60,7 +60,7 @@ public class ServerPulseFabric implements ModInitializer {
         this.databaseService = new DatabaseService(logger, platform, dbConfig, scheduler);
         this.metricsService = new MetricsService(logger, platform, metricsConfig, scheduler);
 
-        this.tpsRetriever = new FabricTPSRetriever(scheduler);
+        this.tpsRetriever = new FabricTPSRetriever();
         this.diskRetriever = new DiskRetriever(FabricLoader.getInstance().getGameDir().toFile());
         this.pingRetriever = new FabricPingRetriever(this);
     }

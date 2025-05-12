@@ -1,8 +1,8 @@
 package it.renvins.serverpulse.fabric.metrics;
 
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
-import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 import lombok.RequiredArgsConstructor;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 @RequiredArgsConstructor
 public class FabricTPSRetriever implements ITPSRetriever {
@@ -16,8 +16,6 @@ public class FabricTPSRetriever implements ITPSRetriever {
 
     // Maximum history to keep (15 minutes worth of ticks)
     private static final int MAX_SAMPLES = FIFTEEN_MINUTES * TICKS_PER_SECOND;
-
-    private final TaskScheduler scheduler;
 
     // Ring buffer for storing tick times
     private final long[] tickTimes = new long[MAX_SAMPLES];
@@ -40,8 +38,8 @@ public class FabricTPSRetriever implements ITPSRetriever {
     public void startTickMonitor() {
         lastTickTime = System.nanoTime();
 
-        // Schedule a task to run every server tick
-        scheduler.runTaskTimer(() -> {
+        // Use ServerTickEvents instead of a scheduled task
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
             long now = System.nanoTime();
 
             // Only record after first tick
@@ -62,7 +60,7 @@ public class FabricTPSRetriever implements ITPSRetriever {
             }
 
             lastTickTime = now;
-        }, 1, 1);
+        });
     }
 
     private void updateTPS() {
