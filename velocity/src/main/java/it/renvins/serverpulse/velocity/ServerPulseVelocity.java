@@ -64,12 +64,6 @@ public class ServerPulseVelocity {
         logger.info("Loading configuration file...");
         config.load();
 
-        if(!config.getConfig().getBoolean("metrics.enabled")) {
-            logger.error("Shutting down the plugin because metrics are disabled!");
-            server.shutdown();
-
-            return;
-        }
         DatabaseConfiguration dbConfig = new VelocityDatabaseConfiguration(config);
         MetricsConfiguration metricsConfig = new VelocityMetricsConfiguration(config);
 

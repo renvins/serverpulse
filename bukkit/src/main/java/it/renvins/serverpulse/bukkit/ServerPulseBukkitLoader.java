@@ -25,6 +25,8 @@ import it.renvins.serverpulse.bukkit.metrics.PaperTPSRetriever;
 import it.renvins.serverpulse.bukkit.platform.BukkitPlatform;
 import it.renvins.serverpulse.bukkit.scheduler.BukkitTaskScheduler;
 import it.renvins.serverpulse.common.MetricsService;
+import it.renvins.serverpulse.common.platform.Platform;
+import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 
 public class ServerPulseBukkitLoader implements Service {
 
@@ -32,6 +34,8 @@ public class ServerPulseBukkitLoader implements Service {
     public static Logger LOGGER;
 
     private final BukkitConfiguration config;
+
+    private final Platform platform;
 
     private final IDatabaseService databaseService;
     private final IMetricsService metricsService;
@@ -48,8 +52,8 @@ public class ServerPulseBukkitLoader implements Service {
 
         PulseLogger logger = new BukkitLogger(LOGGER);
 
-        BukkitPlatform platform = new BukkitPlatform(plugin);
-        BukkitTaskScheduler taskScheduler = new BukkitTaskScheduler(plugin);
+        this.platform = new BukkitPlatform(plugin);
+        TaskScheduler taskScheduler = new BukkitTaskScheduler(plugin);
 
         DatabaseConfiguration databaseConfiguration = new BukkitDatabaseConfiguration(config);
         MetricsConfiguration metricsConfiguration = new BukkitMetricsConfiguration(config);
@@ -71,16 +75,10 @@ public class ServerPulseBukkitLoader implements Service {
         LOGGER.info("Loading configuration...");
         config.load();
 
-        if(!config.getConfig().getBoolean("metrics.enabled")) {
-            LOGGER.severe("Shutting down the plugin because metrics are disabled!");
-            plugin.getServer().getPluginManager().disablePlugin(plugin);
-
-            return;
-        }
         ServerPulseProvider.register(new ServerPulseBukkitAPI(databaseService, metricsService, tpsRetriever, diskRetriever, pingRetriever));
 
         databaseService.load();
-        if (!plugin.isEnabled()) {
+        if (!platform.isEnabled()) {
             return;
         }
         metricsService.load();
