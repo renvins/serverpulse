@@ -18,6 +18,11 @@ public class BukkitTaskScheduler implements TaskScheduler {
     }
 
     @Override
+    public void runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
+        plugin.getServer().getScheduler().runTaskTimer(plugin, task, delayTicks, periodTicks);
+    }
+
+    @Override
     public void runAsync(Runnable task) {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, task);
     }

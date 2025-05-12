@@ -9,7 +9,9 @@ import it.renvins.serverpulse.fabric.ServerPulseFabric;
 import lombok.RequiredArgsConstructor;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.TypeFilter;
 
 @RequiredArgsConstructor
 public class FabricPlatform implements Platform {
@@ -36,7 +38,7 @@ public class FabricPlatform implements Platform {
         Map<String, WorldData> worldsData = new HashMap<>();
         for (ServerWorld world : mod.getServer().getWorlds()) {
             WorldData worldData = new WorldData(
-                    world.getEntitiesByType(null, entity -> true).size(),
+                    world.getEntitiesByType(TypeFilter.instanceOf(Entity.class), entity -> true).size(),
                     world.getChunkManager().getLoadedChunkCount());
 
             worldsData.put(world.getRegistryKey().getValue().toString(), worldData);

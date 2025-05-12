@@ -25,6 +25,12 @@ public class FabricScheduler implements TaskScheduler {
     }
 
     @Override
+    public void runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
+        FabricTask fabricTask = new FabricTask(task, false, delayTicks, periodTicks);
+        tasks.add(fabricTask);
+    }
+
+    @Override
     public void runAsync(Runnable task) {
         CompletableFuture.runAsync(task);
     }

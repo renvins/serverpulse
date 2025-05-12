@@ -55,7 +55,7 @@ public class BukkitTPSRetriever implements ITPSRetriever {
         }.runTaskTimer(plugin, 1L, 1L);
     }
     private void calculateAverages() {
-        long sum1m = 0, sum5m = 0, sum15m = 0;
+        double sum1m = 0, sum5m = 0, sum15m = 0;
         int count1m = 0, count5m = 0, count15m = 0;
 
         int i = 0;
@@ -87,7 +87,7 @@ public class BukkitTPSRetriever implements ITPSRetriever {
         tps15m = calculateTPSFromAvgNano(sum15m, count15m);
     }
 
-    private double calculateTPSFromAvgNano(long totalNano, int count) {
+    private double calculateTPSFromAvgNano(double totalNano, int count) {
         if (count == 0) {
             return 20.0;
         }

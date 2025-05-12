@@ -1,8 +1,5 @@
 package it.renvins.serverpulse.fabric.metrics;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 import lombok.RequiredArgsConstructor;
@@ -10,83 +7,102 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FabricTPSRetriever implements ITPSRetriever {
 
-    private static final int TICK_PER_SECOND = 20;
-    private static final int TICK_PER_MIN = TICK_PER_SECOND * 60; // 1200
-    private static final int TICK_FIVE_MIN = TICK_PER_MIN * 5;
-    private static final int TICK_FIFTEEN_MIN = TICK_PER_MIN * 15;
+    private static final int TICKS_PER_SECOND = 20;
 
-    private static final int MAX_HISTORY_SIZE = TICK_FIFTEEN_MIN;
+    // Time windows in seconds
+    private static final int ONE_MINUTE = 60;
+    private static final int FIVE_MINUTES = 300;
+    private static final int FIFTEEN_MINUTES = 900;
 
-    private final Queue<Long> tickHistory = new LinkedList<>();
+    // Maximum history to keep (15 minutes worth of ticks)
+    private static final int MAX_SAMPLES = FIFTEEN_MINUTES * TICKS_PER_SECOND;
 
     private final TaskScheduler scheduler;
 
-    private long lastTickTimeNano = -1;
+    // Ring buffer for storing tick times
+    private final long[] tickTimes = new long[MAX_SAMPLES];
+    private int tickIndex = 0;
+    private boolean bufferFilled = false;
 
+    // Last measurement time
+    private long lastTickTime = -1;
+
+    // Cache for TPS values
     private double tps1m = 20.0;
     private double tps5m = 20.0;
     private double tps15m = 20.0;
 
     @Override
     public double[] getTPS() {
-        calculateAverages();
-        return new double[]{tps1m, tps5m, tps15m};
+        return new double[] { tps1m, tps5m, tps15m };
     }
 
     public void startTickMonitor() {
-        lastTickTimeNano = System.nanoTime();
+        lastTickTime = System.nanoTime();
 
-        scheduler.runTaskTimerAsync(() -> {
-            long currentTimeNano = System.nanoTime();
-            long elapsedTime = currentTimeNano - lastTickTimeNano;
-            lastTickTimeNano = currentTimeNano;
+        // Schedule a task to run every server tick
+        scheduler.runTaskTimer(() -> {
+            long now = System.nanoTime();
 
-            tickHistory.offer(elapsedTime);
-            if (tickHistory.size() > MAX_HISTORY_SIZE) {
-                tickHistory.poll();
+            // Only record after first tick
+            if (lastTickTime > 0) {
+                // Record this tick's time in nanoseconds
+                tickTimes[tickIndex] = now - lastTickTime;
+
+                // Update index in ring buffer
+                tickIndex = (tickIndex + 1) % MAX_SAMPLES;
+
+                // Mark buffer as filled once we wrap around
+                if (tickIndex == 0) {
+                    bufferFilled = true;
+                }
+
+                // Calculate TPS after recording the tick
+                updateTPS();
             }
+
+            lastTickTime = now;
         }, 1, 1);
     }
 
-    public void calculateAverages() {
-        long sum1m = 0, sum5m = 0, sum15m = 0;
-        int count1m = 0, count5m = 0, count15m = 0;
+    private void updateTPS() {
+        // Convert seconds to ticks
+        int oneMinTicks = ONE_MINUTE * TICKS_PER_SECOND;
+        int fiveMinTicks = FIVE_MINUTES * TICKS_PER_SECOND;
+        int fifteenMinTicks = FIFTEEN_MINUTES * TICKS_PER_SECOND;
 
-        Object[] durations = tickHistory.toArray();
-        for (int i = durations.length - 1; i >= 0; i--) {
-            if (!(durations[i] instanceof Long)) continue;
-            long durationNano = (Long) durations[i];
-            if (i < TICK_PER_MIN) {
-                sum1m += durationNano;
-                count1m++;
-            }
-            if (i < TICK_FIVE_MIN) {
-                sum5m += durationNano;
-                count5m++;
-            }
-            if (i < TICK_FIFTEEN_MIN) {
-                sum15m += durationNano;
-                count15m++;
-            } else {
-                break;
-            }
-        }
+        // Calculate the actual number of samples we have
+        int sampleCount = bufferFilled ? MAX_SAMPLES : tickIndex;
 
-        tps1m = calculateTPSFromAvgNano(sum1m, count1m);
-        tps5m = calculateTPSFromAvgNano(sum5m, count5m);
-        tps15m = calculateTPSFromAvgNano(sum15m, count15m);
+        // Calculate TPS for each time window
+        tps1m = calculateTPS(Math.min(oneMinTicks, sampleCount));
+        tps5m = calculateTPS(Math.min(fiveMinTicks, sampleCount));
+        tps15m = calculateTPS(Math.min(fifteenMinTicks, sampleCount));
     }
 
-    public double calculateTPSFromAvgNano(long totalNano, int count) {
-        if (count == 0) {
-            return 20.0;
+    private double calculateTPS(int samples) {
+        if (samples <= 0) {
+            return 20.0; // Default to 20 TPS if we have no samples
         }
-        double avgTickTimeMillis = (double) totalNano / count / 1_000_000.0;
-        if (avgTickTimeMillis <= 0) {
-            return 20.0;
+
+        // Calculate total time for the samples
+        long totalTime = 0;
+
+        // Start from the most recent sample and go backwards
+        for (int i = 0; i < samples; i++) {
+            // Calculate index in the circular buffer, accounting for wrap-around
+            int idx = (tickIndex - 1 - i + MAX_SAMPLES) % MAX_SAMPLES;
+            totalTime += tickTimes[idx];
         }
-        // TPS: 1 second (1000ms) / avg tick time (ms)
-        double tps = 1000.0 / avgTickTimeMillis;
-        return Math.min(tps, 20.0);
+
+        // Calculate TPS:
+        // - totalTime is in nanoseconds for 'samples' ticks
+        // - Convert to seconds to get time for 'samples' ticks
+        // - Then calculate how many ticks would occur in 1 second
+        double timeInSeconds = totalTime / 1_000_000_000.0;
+        double ticksPerSecond = samples / timeInSeconds;
+
+        // Clamp to maximum of 20 TPS
+        return Math.min(ticksPerSecond, 20.0);
     }
 }

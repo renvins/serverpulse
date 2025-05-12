@@ -47,7 +47,7 @@ public class ServerPulseFabric implements ModInitializer {
     private final IPingRetriever pingRetriever;
 
     public ServerPulseFabric() {
-        this.config = new FabricConfiguration(FabricLoader.getInstance().getConfigDir(), "config.yml");
+        this.config = new FabricConfiguration(FabricLoader.getInstance().getConfigDir().resolve("serverpulse"), "config.yml");
 
         PulseLogger logger = new FabricLogger();
 
