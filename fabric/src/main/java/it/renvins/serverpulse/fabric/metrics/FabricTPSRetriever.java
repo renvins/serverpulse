@@ -4,8 +4,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
-import it.renvins.serverpulse.fabric.task.FabricScheduler;
-import it.renvins.serverpulse.fabric.task.FabricTask;
+import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -20,7 +19,7 @@ public class FabricTPSRetriever implements ITPSRetriever {
 
     private final Queue<Long> tickHistory = new LinkedList<>();
 
-    private final FabricScheduler scheduler;
+    private final TaskScheduler scheduler;
 
     private long lastTickTimeNano = -1;
 
@@ -30,7 +29,8 @@ public class FabricTPSRetriever implements ITPSRetriever {
 
     @Override
     public double[] getTPS() {
-        return new double[0];
+        calculateAverages();
+        return new double[]{tps1m, tps5m, tps15m};
     }
 
     public void startTickMonitor() {
@@ -49,7 +49,32 @@ public class FabricTPSRetriever implements ITPSRetriever {
     }
 
     public void calculateAverages() {
-        // Calculate TPS for 1m, 5m, and 15m
+        long sum1m = 0, sum5m = 0, sum15m = 0;
+        int count1m = 0, count5m = 0, count15m = 0;
+
+        Object[] durations = tickHistory.toArray();
+        for (int i = durations.length - 1; i >= 0; i--) {
+            if (!(durations[i] instanceof Long)) continue;
+            long durationNano = (Long) durations[i];
+            if (i < TICK_PER_MIN) {
+                sum1m += durationNano;
+                count1m++;
+            }
+            if (i < TICK_FIVE_MIN) {
+                sum5m += durationNano;
+                count5m++;
+            }
+            if (i < TICK_FIFTEEN_MIN) {
+                sum15m += durationNano;
+                count15m++;
+            } else {
+                break;
+            }
+        }
+
+        tps1m = calculateTPSFromAvgNano(sum1m, count1m);
+        tps5m = calculateTPSFromAvgNano(sum5m, count5m);
+        tps15m = calculateTPSFromAvgNano(sum15m, count15m);
     }
 
     public double calculateTPSFromAvgNano(long totalNano, int count) {
