@@ -16,6 +16,7 @@ import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.metrics.DiskRetriever;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
+import it.renvins.serverpulse.fabric.command.ServerPulseCommand;
 import it.renvins.serverpulse.fabric.config.FabricConfiguration;
 import it.renvins.serverpulse.fabric.config.FabricDatabaseConfiguration;
 import it.renvins.serverpulse.fabric.config.FabricMetricsConfiguration;
@@ -26,6 +27,7 @@ import it.renvins.serverpulse.fabric.platform.FabricPlatform;
 import it.renvins.serverpulse.fabric.task.FabricScheduler;
 import lombok.Getter;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
@@ -71,6 +73,8 @@ public class ServerPulseFabric implements ModInitializer {
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStarting);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopped);
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+                dispatcher.register(new ServerPulseCommand(config).createCommand()));
 
         LOGGER.info("ServerPulse for Fabric initialized - waiting for server starting...");
     }

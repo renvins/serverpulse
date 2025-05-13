@@ -3,7 +3,6 @@ package it.renvins.serverpulse.fabric.task;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ForkJoinPool;
 
 import it.renvins.serverpulse.common.scheduler.Task;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;

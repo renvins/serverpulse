@@ -38,6 +38,8 @@ dependencies {
     implementation(project(":api"))
     implementation(project(":common"))
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
+    modImplementation("me.lucko:fabric-permissions-api:0.3.1")
+    include("me.lucko:fabric-permissions-api:0.3.1") // automatically include the dependency in the jar
 }
 
 tasks.processResources {
