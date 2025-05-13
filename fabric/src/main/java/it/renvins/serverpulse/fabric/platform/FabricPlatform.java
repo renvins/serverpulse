@@ -19,6 +19,11 @@ public class FabricPlatform implements Platform {
     private final ServerPulseFabric mod;
 
     @Override
+    public void disable() {
+        mod.getServer().stop(false);
+    }
+
+    @Override
     public boolean isEnabled() {
         return mod.getServer() != null && FabricLoader.getInstance().isModLoaded("serverpulse");
     }
