@@ -30,12 +30,12 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-val relocatePath = "it.renvins.serverpulse.libs"
-
 tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"
     archiveClassifier = "velocity"
     archiveVersion = "${rootProject.version}"
+
+    val relocatePath = "it.renvins.serverpulse.velocity.libs"
 
     relocate("com.influxdb", "$relocatePath.influxdb")
 }

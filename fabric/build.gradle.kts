@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("fabric-loom") version "1.10-SNAPSHOT"
+    id("com.gradleup.shadow") version "9.0.0-beta11"
     id("io.freefair.lombok") version "8.13.1"
 }
 
@@ -48,7 +49,7 @@ tasks.processResources {
     filesMatching("fabric.mod.json") {
         expand(mapOf(
                 "version" to rootProject.version,
-                "minecraft_version" to "1.21.5",
+                "minecraft_version" to "1.21.4",
                 "loader_version" to "0.16.10"
             )
         )

@@ -33,7 +33,7 @@ import it.renvins.serverpulse.velocity.scheduler.VelocityTaskScheduler;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-@Plugin(id = "serverpulse", name = "ServerPulse", version = "0.2.0-SNAPSHOT",
+@Plugin(id = "serverpulse", name = "ServerPulse", version = "0.3.0-SNAPSHOT",
 description = "Effortless Minecraft performance monitoring with pre-configured Grafana/InfluxDB via Docker.", authors = {"renvins"})
 public class ServerPulseVelocity {
 
