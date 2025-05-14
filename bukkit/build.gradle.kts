@@ -28,7 +28,7 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-val relocatePath = "it.renvins.serverpulse.libs"
+val relocatePath = "it.renvins.serverpulse.bukkit.libs"
 
 tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"

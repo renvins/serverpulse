@@ -1,5 +1,4 @@
 metrics:
-  enabled: true
   interval: 5
   influxdb:
     url: http://localhost:8086 # The URL of the InfluxDB API

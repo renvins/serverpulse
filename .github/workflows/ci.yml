@@ -3,9 +3,9 @@ name: CI Build and Infrastructure Check
 # Controls when the workflow will run
 on:
   push:
-    branches: [ master ] # Or your default branch (e.g., master)
+    branches: [master] # Or your default branch (e.g., master)
   pull_request:
-    branches: [ master ] # Or your default branch
+    branches: [master] # Or your default branch
 
 jobs:
   # Job to build the plugin and test Docker infrastructure
@@ -37,6 +37,9 @@ jobs:
       - name: Build JAR files
         run: ./gradlew shadowJar
 
+      - name: Build Fabric JAR
+        run: ./gradlew fabric:build
+
       # Upload Bukkit JAR as an artifact
       - name: Upload Bukkit JAR Artifact
         uses: actions/upload-artifact@v4
@@ -52,6 +55,15 @@ jobs:
         with:
           name: serverpulse-velocity-jar
           path: velocity/build/libs/*.jar
+          retention-days: 14 # Keep artifacts for 14 days
+          if-no-files-found: error # Fail the workflow if no JARs are found
+
+      # Upload Fabric JAR as an artifact
+      - name: Upload Fabric JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: serverpulse-fabric-jar
+          path: fabric/build/libs/serverpulse-*.jar
           retention-days: 14 # Keep artifacts for 14 days
           if-no-files-found: error # Fail the workflow if no JARs are found
 

@@ -15,11 +15,11 @@
       }
     ]
   },
-  "description": "Bukkit server comprehensive metrics",
+  "description": "Fabric server comprehensive metrics",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 6,
   "links": [],
   "panels": [
     {
@@ -109,7 +109,7 @@
             "type": "influxdb",
             "uid": "P5697886F9CA74929"
           },
-          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"tps_1m\" or r._field == \"tps_5m\" or r._field == \"tps_15m\")\r\n  |> filter(fn: (r) => r.server == \"bed1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"tps_1m\" or r._field == \"tps_5m\" or r._field == \"tps_15m\")\r\n  |> filter(fn: (r) => r.server == \"fabric1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -182,7 +182,7 @@
             "type": "influxdb",
             "uid": "P5697886F9CA74929"
           },
-          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"tps_1m\")\r\n  |> filter(fn: (r) => r.server == \"bed1\")\r\n  |> last()",
+          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"tps_1m\")\r\n  |> filter(fn: (r) => r.server == \"fabric1\")\r\n  |> last()",
           "refId": "A"
         }
       ],
@@ -276,7 +276,7 @@
             "type": "influxdb",
             "uid": "P5697886F9CA74929"
           },
-          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"used_memory\")\r\n  |> filter(fn: (r) => r.server == \"bed1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"used_memory\")\r\n  |> filter(fn: (r) => r.server == \"fabric1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -370,7 +370,7 @@
             "type": "influxdb",
             "uid": "P5697886F9CA74929"
           },
-          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"available_memory\")\r\n  |> filter(fn: (r) => r.server == \"bed1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"available_memory\")\r\n  |> filter(fn: (r) => r.server == \"fabric1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -464,7 +464,7 @@
             "type": "influxdb",
             "uid": "P5697886F9CA74929"
           },
-          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"total_disk_space\")\r\n  |> filter(fn: (r) => r.server == \"bed1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"total_disk_space\")\r\n  |> filter(fn: (r) => r.server == \"fabric1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -558,7 +558,7 @@
             "type": "influxdb",
             "uid": "P5697886F9CA74929"
           },
-          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"usable_disk_space\")\r\n  |> filter(fn: (r) => r.server == \"bed1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"usable_disk_space\")\r\n  |> filter(fn: (r) => r.server == \"fabric1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -583,6 +583,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -591,6 +592,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -639,17 +641,19 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.6.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "P5697886F9CA74929"
           },
-          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"loaded_chunks\")\r\n  |> filter(fn: (r) => r.server == \"bed1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"loaded_chunks\")\r\n  |> filter(fn: (r) => r.server == \"fabric1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -674,6 +678,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -682,6 +687,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -730,17 +736,19 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.6.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "P5697886F9CA74929"
           },
-          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"entities_count\")\r\n  |> filter(fn: (r) => r.server == \"bed1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"metrics_db\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"minecraft_stats\")\r\n  |> filter(fn: (r) => r._field == \"entities_count\")\r\n  |> filter(fn: (r) => r.server == \"fabric1\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -752,7 +760,7 @@
   "refresh": "5s",
   "schemaVersion": 41,
   "tags": [
-    "bukkit",
+    "fabric",
     "minecraft",
     "serverpulse",
     "server"
@@ -766,7 +774,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Bukkit Server Metrics",
-  "uid": "bukkit-server-metrics",
+  "title": "Fabric Server Metrics",
+  "uid": "fabric-server-metrics",
   "version": 1
 }

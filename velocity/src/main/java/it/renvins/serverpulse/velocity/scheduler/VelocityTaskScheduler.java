@@ -24,11 +24,4 @@ public class VelocityTaskScheduler implements TaskScheduler {
                         .repeat(periodTicks / 20, TimeUnit.SECONDS)
                         .schedule());
     }
-
-    @Override
-    public Task runTaskLaterAsync(Runnable task, long delayTicks) {
-        return new VelocityTaskWrapper(plugin.getServer().getScheduler().buildTask(plugin, task)
-                        .delay(delayTicks / 20, TimeUnit.SECONDS)
-                        .schedule());
-    }
 }

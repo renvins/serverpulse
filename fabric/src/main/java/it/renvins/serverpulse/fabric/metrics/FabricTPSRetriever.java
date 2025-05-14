@@ -1,13 +1,12 @@
-package it.renvins.serverpulse.bukkit.metrics;
+package it.renvins.serverpulse.fabric.metrics;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
-import it.renvins.serverpulse.bukkit.ServerPulseBukkit;
-import org.bukkit.scheduler.BukkitRunnable;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
-public class BukkitTPSRetriever implements ITPSRetriever {
+public class FabricTPSRetriever implements ITPSRetriever {
 
     private static final int TICKS_PER_SECOND = 20;
     private static final int ONE_MINUTE_TICKS = 60 * TICKS_PER_SECOND; // 1200
@@ -24,12 +23,6 @@ public class BukkitTPSRetriever implements ITPSRetriever {
     private double tps5m = 20.0;
     private double tps15m = 20.0;
 
-    private final ServerPulseBukkit plugin;
-
-    public BukkitTPSRetriever(ServerPulseBukkit plugin) {
-        this.plugin = plugin;
-    }
-
     @Override
     public double[] getTPS() {
         calculateAverages();
@@ -39,10 +32,7 @@ public class BukkitTPSRetriever implements ITPSRetriever {
     public void startTickMonitor() {
         lastTickTimeNano = System.nanoTime();
 
-        new BukkitRunnable() {
-
-            @Override
-            public void run() {
+        ServerTickEvents.END_SERVER_TICK.register(tick -> {
                 long currentTimeNano = System.nanoTime();
                 long elapsedNano = currentTimeNano - lastTickTimeNano;
                 lastTickTimeNano = currentTimeNano;
@@ -51,9 +41,9 @@ public class BukkitTPSRetriever implements ITPSRetriever {
                 if (tickDurations.size() > MAX_HISTORY_SIZE) {
                     tickDurations.poll();
                 }
-            }
-        }.runTaskTimer(plugin, 1L, 1L);
-    }
+            });
+        }
+
     private void calculateAverages() {
         double sum1m = 0, sum5m = 0, sum15m = 0;
         int count1m = 0, count5m = 0, count15m = 0;
