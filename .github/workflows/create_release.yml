@@ -75,7 +75,7 @@ jobs:
       - name: Find Fabric Jar and Extract Name
         id: find_fabric_jar
         run: |
-          JAR_PATH=$(find fabric/build/libs -maxdepth 1 -name '*.jar' -printf "%s %p\n" | sort -nr | head -n 1 | awk '{print $2}')
+          JAR_PATH=$(find fabric/build/libs -maxdepth 1 -name 'serverpulse-*.jar' -printf "%s %p\n" | sort -nr | head -n 1 | awk '{print $2}')
           if [ -z "$JAR_PATH" ]; then
             echo "Error: Could not find the shadow JAR file in fabric/build/libs/"
             exit 1

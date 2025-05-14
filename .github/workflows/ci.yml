@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: serverpulse-fabric-jar
-          path: fabric/build/libs/*.jar
+          path: fabric/build/libs/serverpulse-*.jar
           retention-days: 14 # Keep artifacts for 14 days
           if-no-files-found: error # Fail the workflow if no JARs are found
 
