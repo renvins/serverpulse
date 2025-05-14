@@ -56,7 +56,7 @@ public class DatabaseService implements IDatabaseService {
     @Override
     public void load() {
         if (!checkConnectionData()) {
-            logger.error("InfluxDB connection data is missing or invalid. Disabling plugin...");
+            logger.error("InfluxDB connection data is missing or invalid. Shutting down...");
             platform.disable();
             return;
         }
@@ -66,6 +66,7 @@ public class DatabaseService implements IDatabaseService {
 
     @Override
     public void unload() {
+        logger.info("Unloading InfluxDB connection...");
         stopRetryTask(); // Stop retries before disconnecting
         disconnect();
         if (httpClient != null) {
