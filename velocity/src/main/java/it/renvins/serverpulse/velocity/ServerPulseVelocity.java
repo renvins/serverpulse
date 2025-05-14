@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -38,29 +39,36 @@ description = "Effortless Minecraft performance monitoring with pre-configured G
 public class ServerPulseVelocity {
 
     @Getter private final ProxyServer server;
-    private final PulseLogger logger;
+    private final Logger logger;
+    private final Path dataDirectory;
 
-    private final VelocityConfiguration config;
+    private PulseLogger pulseLogger;
 
-    private final IDiskRetriever diskRetriever;
-    private final IPingRetriever pingRetriever;
+    private VelocityConfiguration config;
+
+    private IDiskRetriever diskRetriever;
+    private IPingRetriever pingRetriever;
 
     private IDatabaseService databaseService;
     private IMetricsService metricsService;
 
     @Inject
-    public ServerPulseVelocity(ProxyServer server, @DataDirectory Path dataDirectory, Logger logger) {
+    public ServerPulseVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
         this.server = server;
+        this.logger = logger;
+        this.dataDirectory = dataDirectory;
 
-        this.logger = new VelocityLogger(logger);
-        this.config = new VelocityConfiguration(logger, dataDirectory, "config.yml");
-
-        this.diskRetriever = new DiskRetriever(dataDirectory.toFile());
-        this.pingRetriever = new VelocityPingRetriever(this);
+        logger.info("ServerPulse for Fabric initialized - waiting for proxy starting...");
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        this.pulseLogger = new VelocityLogger(logger);
+        this.config = new VelocityConfiguration(logger, dataDirectory, "config.yml");
+
+        this.diskRetriever = new DiskRetriever(dataDirectory.toFile());
+        this.pingRetriever = new VelocityPingRetriever(this);
+
         logger.info("Loading configuration file...");
         config.load();
 
@@ -70,8 +78,8 @@ public class ServerPulseVelocity {
         Platform platform = new VelocityPlatform(this);
         TaskScheduler scheduler = new VelocityTaskScheduler(this);
 
-        this.databaseService = new DatabaseService(logger, platform, dbConfig, scheduler);
-        this.metricsService = new MetricsService(logger, platform, metricsConfig, scheduler);
+        this.databaseService = new DatabaseService(pulseLogger, platform, dbConfig, scheduler);
+        this.metricsService = new MetricsService(pulseLogger, platform, metricsConfig, scheduler);
 
         ServerPulseProvider.register(new ServerPulseVelocityAPI(databaseService, metricsService, diskRetriever, pingRetriever));
 
@@ -85,5 +93,22 @@ public class ServerPulseVelocity {
         CommandMeta meta = server.getCommandManager().metaBuilder("serverpulsevelocity")
                 .plugin(this).aliases("spv").build();
         server.getCommandManager().register(meta, new ServerPulseCommand(config).createCommand());
+    }
+
+    @Subscribe
+    public void onProxyShutdown(ProxyShutdownEvent event) {
+        if (databaseService != null) {
+            databaseService.unload();
+        }
+        if (metricsService != null) {
+            metricsService.unload();
+        }
+
+        try {
+            ServerPulseProvider.unregister();
+        } catch (IllegalStateException e) {
+            // API might already be unregistered, that's okay
+        }
+        logger.info("ServerPulse for Velocity has been shut down.");
     }
 }

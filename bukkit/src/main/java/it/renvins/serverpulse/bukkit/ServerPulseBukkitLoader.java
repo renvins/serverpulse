@@ -68,6 +68,8 @@ public class ServerPulseBukkitLoader implements Service {
         }
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
         this.pingRetriever = new BukkitPingRetriever();
+
+        LOGGER.info("ServerPulse for Bukkit/Paper initialized - waiting for server starting...");
     }
 
     @Override

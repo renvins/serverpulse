@@ -41,7 +41,6 @@ tasks.withType<ShadowJar> {
     relocate("okhttp3", "$relocatePath.okhttp3")
     relocate("okio", "$relocatePath.okio")
     relocate("org.jetbrains", "$relocatePath.jetbrains")
-    relocate("com.google", "$relocatePath.google")
     relocate("io.reactivex", "$relocatePath.reactivex")
     relocate("javax.annotation", "$relocatePath.annotation")
     relocate("org.apache", "$relocatePath.apache")
@@ -50,4 +49,6 @@ tasks.withType<ShadowJar> {
     relocate("retrofit2", "$relocatePath.retrofit2")
     relocate("kotlin", "$relocatePath.kotlin") // Relocate instead of exclude
     relocate("org.jetbrains.kotlin", "$relocatePath.jetbrains.kotlin") // Relocate instead of exclude
+    relocate("org.simpleyaml", "$relocatePath.simpleyaml")
+    relocate("org.yaml", "$relocatePath.yaml")
 }

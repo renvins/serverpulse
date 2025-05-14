@@ -80,9 +80,9 @@ public class ServerPulseFabric implements ModInitializer {
     }
 
     private void onServerStarting(MinecraftServer server) {
-        LOGGER.info("ServerPulse is starting...");
         this.server = server;
 
+        LOGGER.info("Loading configuration...");
         config.load();
 
         ServerPulseProvider.register(new ServerPulseFabricAPI(databaseService, metricsService, tpsRetriever, diskRetriever, pingRetriever));
@@ -98,8 +98,6 @@ public class ServerPulseFabric implements ModInitializer {
     }
 
     private void onServerStopped(MinecraftServer server) {
-        LOGGER.info("ServerPulse is stopping...");
-
         databaseService.unload();
         metricsService.unload();
 
