@@ -2,6 +2,7 @@ package it.renvins.serverpulse.api.data;
 
 import java.util.Map;
 
+
 public class SyncMetricsSnapshot {
 
     private final double[] tps;
