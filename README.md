@@ -22,18 +22,19 @@ ServerPulse is an **open-source**, real-time performance monitoring tool for Min
 
 - **Goal:** Provide an extensible, lightweight plugin to gather server metrics and store them in InfluxDB for visualization with Grafana.
 - **Tech stack:**
-    - Java (plugin) → InfluxDB
+    - Java (plugin/mod) → InfluxDB
     - Grafana dashboard (preconfigured via provisioning)
     - Discord alerts for key server metrics
     - Docker Compose (for InfluxDB & Grafana setup)
 
 ## 🌟 Platform Support
 
-ServerPulse now supports **all Minecraft server platforms** in the Bukkit/Paper ecosystem:
+ServerPulse now supports **all Minecraft server platforms** in the ecosystem:
 
 - **Bukkit/Spigot**: Full support with custom TPS monitoring implementation
 - **Paper and its forks** (Purpur, Pufferfish, etc.): Enhanced support with native TPS monitoring
 - **Velocity**: Support for Velocity proxy servers (ofc TPS and world metrics are not available)
+- **Fabric**: Support for Fabric servers (latest versions of Fabric API and Minecraft)
 
 The plugin automatically detects your server platform and uses the most efficient implementation available for that environment.
 
@@ -42,7 +43,7 @@ The plugin automatically detects your server platform and uses the most efficien
 ServerPulse isn't just another metrics exporter - it offers several unique advantages:
 
 - **Complete Monitoring Stack** - Fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards
-- **Universal Platform Support** - Works with any Bukkit-based and Velocity server while taking advantage of Paper-specific optimizations when available
+- **Universal Platform Support** - Works with any Bukkit-based, Velocity and Fabric server while taking advantage of Paper-specific optimizations when available
 - **Per-World Analytics** - Track entity counts, chunk loading, and performance metrics separately for each world
 - **Flexible Tagging System** - Group and filter metrics by server, network, region, or any custom dimension through simple configuration
 - **Zero-Configuration Dashboards** - Auto-provisioned Grafana dashboards - no manual setup required
@@ -64,17 +65,17 @@ The wiki contains comprehensive documentation on:
 
 ## 📊 Comparison with Alternative Solutions
 
-| Feature | ServerPulse | Generic Prometheus Exporters |
-|---------|------------|--------------------------|
-| Setup Time | ~5 minutes with Docker Compose | Manual metrics + Prometheus + Grafana setup |
-| Dashboard Configuration | Pre-configured, auto-provisioned | Manual dashboard creation |
+| Feature | ServerPulse                          | Generic Prometheus Exporters |
+|---------|--------------------------------------|--------------------------|
+| Setup Time | ~5 minutes with Docker Compose       | Manual metrics + Prometheus + Grafana setup |
+| Dashboard Configuration | Pre-configured, auto-provisioned     | Manual dashboard creation |
 | Data Storage | InfluxDB (optimized for time-series) | Prometheus (general-purpose) |
-| Platform Support | All Bukkit-based servers | Varies by implementation |
-| Per-World Metrics | Built-in | Usually not available |
-| Custom Tagging | Flexible tag system | Limited labeling |
-| Alert System | Discord and Telegram integration | Requires manual setup |
-| Infrastructure | Complete stack included | Manual integration required |
-| Health Monitoring | Automated health checks | Varies by implementation |
+| Platform Support | All Minecraft Servers                | Varies by implementation |
+| Per-World Metrics | Built-in                             | Usually not available |
+| Custom Tagging | Flexible tag system                  | Limited labeling |
+| Alert System | Discord and Telegram integration     | Requires manual setup |
+| Infrastructure | Complete stack included              | Manual integration required |
+| Health Monitoring | Automated health checks              | Varies by implementation |
 
 ## 🤝 Contributing
 
