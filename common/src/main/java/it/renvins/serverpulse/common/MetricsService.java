@@ -161,7 +161,7 @@ public class MetricsService implements IMetricsService {
                                     .addTag("world", worldName)
                                     .addField("entities_count", worldData.getEntities())
                                     .addField("loaded_chunks", worldData.getLoadedChunks())
-                                    .setTimestamp(Instant.now().getNano());
+                                    .setTimestamp(Instant.now().toEpochMilli() * 1_000_000);
             addConfigTags(worldPoint);
             points.add(worldPoint.toLineProtocol());
         }
