@@ -1,7 +1,6 @@
 package it.renvins.serverpulse.common;
 
 import java.time.Instant;
-import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +148,7 @@ public class MetricsService implements IMetricsService {
                                               .addField("min_ping", minPing)
                                               .addField("max_ping", maxPing)
                                               .addField("avg_ping", avgPing)
-                                              .setTimestamp(Instant.now().getNano());
+                                              .setTimestamp(Instant.now().toEpochMilli() * 1_000_000);
         addConfigTags(generalPoint);
         points.add(generalPoint.toLineProtocol());
 

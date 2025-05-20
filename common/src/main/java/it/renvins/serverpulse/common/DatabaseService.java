@@ -215,13 +215,11 @@ public class DatabaseService implements IDatabaseService {
                 stopRetryTask(); // Stop retrying if we just connected
                 logger.info("Successfully connected to InfluxDB and ping successful...");
             } else {
-                // Ping failed after client creation
-                logger.warning("Created InfluxDB instance, but ping failed. Will retry...");
+                logger.warning("Ping failed. Will retry...");
                 this.isConnected = false; // Ensure status is false
                 startRetryTaskIfNeeded(); // Start retry task
             }
         } catch (Exception e) {
-            // Handle exceptions during InfluxDBClientFactory.create() or ping()
             logger.error("Failed to connect or ping InfluxDB: " + e.getMessage());
             this.isConnected = false;
             startRetryTaskIfNeeded(); // Start retry task
