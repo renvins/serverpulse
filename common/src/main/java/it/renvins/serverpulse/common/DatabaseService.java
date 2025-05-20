@@ -1,22 +1,19 @@
 package it.renvins.serverpulse.common;
 
-import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
-import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.InfluxDBClientFactory;
-import com.influxdb.client.WriteApi;
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.Task;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
-import lombok.Getter;
 
 public class DatabaseService implements IDatabaseService {
 
@@ -28,9 +25,6 @@ public class DatabaseService implements IDatabaseService {
 
     private HttpClient httpClient; // Keep for ping
 
-    @Getter private InfluxDBClient client;
-    @Getter private WriteApi writeApi;
-
     private volatile Task retryTask; // volatile for visibility across threads
 
     private final int MAX_RETRIES = 5;
@@ -40,12 +34,15 @@ public class DatabaseService implements IDatabaseService {
     private volatile boolean isConnected = false;
     private volatile int retryCount = 0;
 
+    //HTTP API endpoints
+    private String pingUrl;
+    private String writeUrl;
+
     public DatabaseService(PulseLogger logger, Platform platform, DatabaseConfiguration configuration, TaskScheduler scheduler) {
         this.logger = logger;
         this.platform = platform;
 
         this.configuration = configuration;
-
         this.scheduler = scheduler;
 
         this.httpClient = HttpClient.newBuilder()
@@ -61,6 +58,17 @@ public class DatabaseService implements IDatabaseService {
             return;
         }
         logger.info("Connecting to InfluxDB...");
+
+        // Initialize the HttpClient for ping
+        String baseUrl = configuration.getHost();
+        if (!baseUrl.endsWith("/")) {
+            baseUrl += "/";
+        }
+
+        this.pingUrl = baseUrl + "ping";
+        this.writeUrl = baseUrl + "api/v2/write?org=" + configuration.getOrg() +
+                "&bucket=" + configuration.getBucket() + "&precision=ns";
+
         scheduler.runAsync(this::connect);
     }
 
@@ -75,44 +83,57 @@ public class DatabaseService implements IDatabaseService {
     }
 
     @Override
-    public boolean ping() {
-        String url = configuration.getHost();
-        if (url == null || url.isEmpty()) {
-            logger.error("InfluxDB URL is missing for ping...");
-            return false;
-        }
-
-        // Ensure httpClient is initialized
-        if (this.httpClient == null) {
-            logger.error("HttpClient not initialized for ping...");
-            this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-        }
-
-        HttpRequest request;
-        try {
-            String pingUrl = url.endsWith("/") ? url + "ping" : url + "/ping";
-            request = HttpRequest.newBuilder()
-                                 .uri(URI.create(pingUrl))
-                                 .GET()
-                                 .timeout(Duration.ofSeconds(5)) // Add timeout specific to ping
-                                 .build();
-        } catch (IllegalArgumentException e) {
-            logger.error("Invalid InfluxDB URL format for ping: " + url, e);
-            return false;
+    public CompletableFuture<Boolean> writeLineProtocol(String lineProtocol) {
+        if (!isConnected) {
+            return CompletableFuture.completedFuture(false);
         }
 
         try {
-            HttpResponse<Void> response = this.httpClient.send(request, HttpResponse.BodyHandlers.discarding());
-            return response.statusCode() == 204;
-        } catch (java.net.ConnectException | java.net.UnknownHostException e) {
-            logger.warning("InfluxDB service is offline...");
-            return false;
-        } catch (
-                SocketTimeoutException e) {
-            logger.warning("InfluxDB ping timed out: " + e.getMessage());
-            return false;
+            HttpRequest request = HttpRequest.newBuilder()
+                                             .uri(URI.create(writeUrl))
+                                             .header("Authorization", "Token " + configuration.getToken())
+                                             .header("Content-Type", "text/plain; charset=utf-8")
+                                             .POST(HttpRequest.BodyPublishers.ofString(lineProtocol, StandardCharsets.UTF_8))
+                                             .timeout(Duration.ofSeconds(10))
+                                             .build();
+
+            return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                             .thenApply(response -> {
+                                 if (response.statusCode() == 204) {
+                                     return true;
+                                 } else {
+                                     logger.error("Failed to write to InfluxDB: " + response.statusCode() + " - " + response.body());
+                                     return false;
+                                 }
+                             })
+                             .exceptionally(throwable -> {
+                                 logger.error("Error writing to InfluxDB: " + throwable.getMessage());
+                                 if (throwable.getCause() instanceof java.net.ConnectException) {
+                                     // Connection lost, trigger reconnection
+                                     this.isConnected = false;
+                                     startRetryTaskIfNeeded();
+                                 }
+                                 return false;
+                             });
         } catch (Exception e) {
-            logger.error("Error during InfluxDB ping: " + e.getMessage(), e);
+            logger.error("Failed to create write request: " + e.getMessage());
+            return CompletableFuture.completedFuture(false);
+        }
+    }
+
+    @Override
+    public boolean ping() {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                                             .uri(URI.create(pingUrl))
+                                             .GET()
+                                             .timeout(Duration.ofSeconds(5))
+                                             .build();
+
+            HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            return response.statusCode() == 204;
+        } catch (Exception e) {
+            logger.warning("InfluxDB ping failed: " + e.getMessage());
             return false;
         }
     }
@@ -121,84 +142,6 @@ public class DatabaseService implements IDatabaseService {
     public boolean isConnected() {
         // Return the flag, don't ping here!
         return this.isConnected;
-    }
-
-    /**
-     * Attempts to connect to InfluxDB. Updates the internal connection status
-     * and starts the retry task if connection fails.
-     * Should be run asynchronously.
-     */
-    private void connect() {
-        // If already connected, don't try again unless forced (e.g., by retry task)
-        // Note: This check might prevent the retry task from running if isConnected is true
-        // but the connection actually dropped without detection. We rely on ping() inside here.
-
-        // Ensure previous resources are closed if attempting a new connection
-        // This might be needed if connect() is called manually or by retry.
-        disconnect();
-
-        String url = configuration.getHost();
-        String token = configuration.getToken();
-        String org = configuration.getOrg();
-        String bucket = configuration.getBucket();
-
-        try {
-            logger.info("Attempting to connect to InfluxDB at " + url);
-            client = InfluxDBClientFactory.create(url, token.toCharArray(), org, bucket);
-
-            // Ping immediately after creating client to verify reachability & auth
-            boolean isPingSuccessful = ping(); // Use the internal ping method
-
-            if (isPingSuccessful) {
-                writeApi = client.makeWriteApi(); // Initialize Write API
-
-                this.isConnected = true;
-                this.retryCount = 0; // Reset retry count on successful connection
-
-                stopRetryTask(); // Stop retrying if we just connected
-                logger.info("Successfully connected to InfluxDB and ping successful...");
-            } else {
-                // Ping failed after client creation
-                logger.warning("Created InfluxDB instance, but ping failed. Will retry...");
-                this.isConnected = false; // Ensure status is false
-
-                if (client != null) {
-                    client.close(); // Close the client if ping failed
-                    client = null;
-                }
-                startRetryTaskIfNeeded(); // Start retry task
-            }
-        } catch (Exception e) {
-            // Handle exceptions during InfluxDBClientFactory.create() or ping()
-            logger.error("Failed to connect or ping InfluxDB: " + e.getMessage());
-            this.isConnected = false;
-            if (client != null) { // Ensure client is closed on exception
-                client.close();
-                client = null;
-            }
-            startRetryTaskIfNeeded(); // Start retry task
-        }
-    }
-
-    @Override
-    public void disconnect() {
-        if (writeApi != null) {
-            try {
-                writeApi.close();
-            } catch (Exception e) {
-                logger.error("Error closing InfluxDB WriteApi...", e);
-            }
-            writeApi = null;
-        }
-        if (client != null) {
-            try {
-                client.close();
-            } catch (Exception e) {
-                logger.error("Error closing InfluxDB Client...", e);
-            }
-            client = null;
-        }
-        this.isConnected = false;
     }
 
 
@@ -248,6 +191,42 @@ public class DatabaseService implements IDatabaseService {
     }
 
 
+    /**
+     * Attempts to connect to InfluxDB. Updates the internal connection status
+     * and starts the retry task if connection fails.
+     * Should be run asynchronously.
+     */
+    private void connect() {
+        disconnect();
+
+        try {
+            logger.info("Attempting to connect to InfluxDB via HTTP API...");
+            boolean isPingSuccessful = ping(); // Use the internal ping method
+
+            if (isPingSuccessful) {
+                this.isConnected = true;
+                this.retryCount = 0; // Reset retry count on successful connection
+
+                stopRetryTask(); // Stop retrying if we just connected
+                logger.info("Successfully connected to InfluxDB and ping successful...");
+            } else {
+                // Ping failed after client creation
+                logger.warning("Created InfluxDB instance, but ping failed. Will retry...");
+                this.isConnected = false; // Ensure status is false
+                startRetryTaskIfNeeded(); // Start retry task
+            }
+        } catch (Exception e) {
+            // Handle exceptions during InfluxDBClientFactory.create() or ping()
+            logger.error("Failed to connect or ping InfluxDB: " + e.getMessage());
+            this.isConnected = false;
+            startRetryTaskIfNeeded(); // Start retry task
+        }
+    }
+
+    private void disconnect() {
+        this.isConnected = false;
+    }
+
     /** Stops and nullifies the retry task if it's running. */
     private synchronized void stopRetryTask() {
         if (retryTask != null) {
@@ -261,7 +240,6 @@ public class DatabaseService implements IDatabaseService {
             retryTask = null;
         }
     }
-
 
     /**
      * Checks if the essential connection data is present in the config.
