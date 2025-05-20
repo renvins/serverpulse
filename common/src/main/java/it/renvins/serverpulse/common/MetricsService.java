@@ -1,17 +1,14 @@
 package it.renvins.serverpulse.common;
 
 import java.time.Instant;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.influxdb.client.domain.WritePrecision;
-import com.influxdb.client.write.Point;
 import it.renvins.serverpulse.api.ServerPulseProvider;
+import it.renvins.serverpulse.api.data.LineProtocolPoint;
 import it.renvins.serverpulse.api.utils.MemoryUtils;
 import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.WorldData;
@@ -49,7 +46,7 @@ public class MetricsService implements IMetricsService {
 
     @Override
     public void collectAndSendMetrics() {
-        if (!ServerPulseProvider.get().getDatabaseService().isConnected() || ServerPulseProvider.get().getDatabaseService().getWriteApi() == null) {
+        if (!ServerPulseProvider.get().getDatabaseService().isConnected()) {
             return;
         }
         if (!ServerPulseProvider.get().getDatabaseService().ping()) {
@@ -77,7 +74,8 @@ public class MetricsService implements IMetricsService {
                 }, asyncExecutor).thenAcceptAsync(points -> {
                     if (!points.isEmpty()) {
                         try {
-                            ServerPulseProvider.get().getDatabaseService().getWriteApi().writePoints(points);
+                            String body = String.join("\n", points);
+                            ServerPulseProvider.get().getDatabaseService().writeLineProtocol(body);
                         } catch (Exception e) {
                             logger.error("Error sending metrics to InfluxDB...", e);
                         }
@@ -131,42 +129,42 @@ public class MetricsService implements IMetricsService {
      * @param usableDisk The usable disk space in bytes.
      * @return A list of InfluxDB points representing the metrics.
      */
-    private List<Point> buildPoints(SyncMetricsSnapshot snapshot, long usedHeap, long committedHeap,
+    private List<String> buildPoints(SyncMetricsSnapshot snapshot, long usedHeap, long committedHeap,
             long totalDisk, long usableDisk, int minPing, int maxPing, int avgPing) {
-        List<Point> points = new ArrayList<>();
+        List<String> points = new ArrayList<>();
 
         String serverTag = configuration.getServerTag();
         String measurement = configuration.getMeasurementTable();
 
-        Point generalPoint = Point.measurement(measurement)
-                                  .addTag("server", serverTag)
-                                  .addField("tps_1m", snapshot.getTps()[0])
-                                  .addField("tps_5m", snapshot.getTps()[1])
-                                  .addField("tps_15m", snapshot.getTps()[2])
-                                  .addField("players_online", snapshot.getPlayerCount())
-                                  .addField("used_memory", usedHeap)
-                                  .addField("available_memory", committedHeap)
-                                  .addField("total_disk_space", totalDisk)
-                                  .addField("usable_disk_space", usableDisk)
-                                  .addField("min_ping", minPing)
-                                  .addField("max_ping", maxPing)
-                                  .addField("avg_ping", avgPing)
-                                  .time(Instant.now(), WritePrecision.NS);
+        LineProtocolPoint generalPoint = new LineProtocolPoint(measurement)
+                                              .addTag("server", serverTag)
+                                              .addField("tps_1m", snapshot.getTps()[0])
+                                              .addField("tps_5m", snapshot.getTps()[1])
+                                              .addField("tps_15m", snapshot.getTps()[2])
+                                              .addField("players_online", snapshot.getPlayerCount())
+                                              .addField("used_memory", usedHeap)
+                                              .addField("available_memory", committedHeap)
+                                              .addField("total_disk_space", totalDisk)
+                                              .addField("usable_disk_space", usableDisk)
+                                              .addField("min_ping", minPing)
+                                              .addField("max_ping", maxPing)
+                                              .addField("avg_ping", avgPing)
+                                              .setTimestamp(Instant.now().getNano());
         addConfigTags(generalPoint);
-        points.add(generalPoint);
+        points.add(generalPoint.toLineProtocol());
 
         for (Map.Entry<String, WorldData> entry : snapshot.getWorldData().entrySet()) {
             String worldName = entry.getKey();
             WorldData worldData = entry.getValue();
 
-            Point worldPoint = Point.measurement(measurement)
+            LineProtocolPoint worldPoint = new LineProtocolPoint(measurement)
                                     .addTag("server", serverTag)
                                     .addTag("world", worldName)
                                     .addField("entities_count", worldData.getEntities())
                                     .addField("loaded_chunks", worldData.getLoadedChunks())
-                                    .time(Instant.now(), WritePrecision.NS);
+                                    .setTimestamp(Instant.now().getNano());
             addConfigTags(worldPoint);
-            points.add(worldPoint);
+            points.add(worldPoint.toLineProtocol());
         }
         return points;
     }
@@ -176,7 +174,7 @@ public class MetricsService implements IMetricsService {
      *
      * @param point The InfluxDB point to which tags will be added.
      */
-    private void addConfigTags(Point point) {
+    private void addConfigTags(LineProtocolPoint point) {
         Map<String, String> tags = configuration.getTags();
         tags.forEach(point::addTag);
     }

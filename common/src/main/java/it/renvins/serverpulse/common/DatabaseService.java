@@ -139,6 +139,11 @@ public class DatabaseService implements IDatabaseService {
     }
 
     @Override
+    public void disconnect() {
+        this.isConnected = false;
+    }
+
+    @Override
     public boolean isConnected() {
         // Return the flag, don't ping here!
         return this.isConnected;
@@ -221,10 +226,6 @@ public class DatabaseService implements IDatabaseService {
             this.isConnected = false;
             startRetryTaskIfNeeded(); // Start retry task
         }
-    }
-
-    private void disconnect() {
-        this.isConnected = false;
     }
 
     /** Stops and nullifies the retry task if it's running. */

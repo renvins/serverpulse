@@ -19,6 +19,11 @@ public interface IDatabaseService extends Service {
     boolean ping();
 
     /**
+     * Sets the isConnected flag to false.
+     */
+    void disconnect();
+
+    /**
      * Returns the last known connection status. Does not perform a live check.
      * @return true if the service believes it's connected, false otherwise.
      */
