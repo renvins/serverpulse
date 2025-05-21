@@ -1,9 +1,15 @@
 package it.renvins.serverpulse.api.service;
 
-import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.WriteApi;
+import java.util.concurrent.CompletableFuture;
 
 public interface IDatabaseService extends Service {
+
+    /**
+     * Writes a line protocol string to the InfluxDB instance.
+     * @param lineProtocol The line protocol string to write.
+     * @return A CompletableFuture that completes with true if the write was successful, false otherwise.
+     */
+    CompletableFuture<Boolean> writeLineProtocol(String lineProtocol);
 
     /**
      * Performs a health check ping to the InfluxDB instance.
@@ -13,16 +19,15 @@ public interface IDatabaseService extends Service {
     boolean ping();
 
     /**
+     * Sets the isConnected flag to false.
+     */
+    void disconnect();
+
+    /**
      * Returns the last known connection status. Does not perform a live check.
      * @return true if the service believes it's connected, false otherwise.
      */
     boolean isConnected();
-
-    /**
-     * Connects to the InfluxDB instance using the configured settings.
-     * This method should be called before performing any database operations.
-     */
-    void disconnect();
 
     /**
      * Disconnects from the InfluxDB instance and cleans up resources.
@@ -31,17 +36,4 @@ public interface IDatabaseService extends Service {
      */
     void startRetryTaskIfNeeded();
 
-    /**
-     * Gets the configured InfluxDB client instance.
-     *
-     * @return The InfluxDBClient.
-     */
-    InfluxDBClient getClient();
-
-    /**
-     * Gets the InfluxDB Write API instance for sending data points.
-     *
-     * @return The WriteApi.
-     */
-    WriteApi getWriteApi();
 }

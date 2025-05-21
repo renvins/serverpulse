@@ -15,10 +15,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    api("com.influxdb:influxdb-client-java:7.2.0")
-}
-
 publishing {
     publications {
         create<MavenPublication>("maven") {
