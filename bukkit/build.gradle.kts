@@ -21,40 +21,16 @@ dependencies {
     implementation(project(":common"))
 
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
 }
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-val relocatePath = "it.renvins.serverpulse.bukkit.libs"
-
 tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"
     archiveClassifier = "bukkit"
     archiveVersion = "${rootProject.version}"
-
-    relocate("com.influxdb", "$relocatePath.influxdb")
-    relocate("okhttp3", "$relocatePath.okhttp3")
-    relocate("okio", "$relocatePath.okio")
-    relocate("org.jetbrains", "$relocatePath.jetbrains")
-    relocate("com.google", "$relocatePath.google")
-    relocate("io.reactivex", "$relocatePath.reactivex")
-    relocate("javax.annotation", "$relocatePath.annotation")
-    relocate("org.apache", "$relocatePath.apache")
-    relocate("org.intellij", "$relocatePath.intellij")
-    relocate("org.reactivestreams", "$relocatePath.reactivestreams")
-    relocate("retrofit2", "$relocatePath.retrofit2")
-    relocate("kotlin", "$relocatePath.kotlin") // Relocate instead of exclude
-    relocate("org.jetbrains.kotlin", "$relocatePath.jetbrains.kotlin") // Relocate instead of exclude
-
-    // Prevent Paper from giving errors about duplicate files
-    exclude("META-INF/AL2.0")
-    exclude("META-INF/LGPL2.1")
-    exclude("META-INF/LICENSE")
-    exclude("META-INF/LICENSE.txt")
-    exclude("META-INF/NOTICE.txt")
 }
 
 tasks.withType<ProcessResources> {
