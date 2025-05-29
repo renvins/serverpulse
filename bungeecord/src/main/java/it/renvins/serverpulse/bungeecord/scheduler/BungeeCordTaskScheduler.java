@@ -3,16 +3,14 @@ package it.renvins.serverpulse.bungeecord.scheduler;
 import it.renvins.serverpulse.bungeecord.ServerPulseBungeeCord;
 import it.renvins.serverpulse.common.scheduler.Task;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
+import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.TimeUnit;
 
+@RequiredArgsConstructor
 public class BungeeCordTaskScheduler implements TaskScheduler {
 
     private final ServerPulseBungeeCord plugin;
-
-    public BungeeCordTaskScheduler(ServerPulseBungeeCord plugin) {
-        this.plugin = plugin;
-    }
 
     @Override
     public void runAsync(Runnable task) {

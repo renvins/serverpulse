@@ -8,4 +8,8 @@ public class ServerPulseBungeeCord extends Plugin {
     public void onEnable() {
 
     }
+
+    @Override
+    public void onDisable() {
+    }
 }
