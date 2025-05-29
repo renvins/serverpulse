@@ -17,3 +17,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+include("bungeecord")
