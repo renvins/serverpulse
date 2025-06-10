@@ -1,5 +1,6 @@
 package it.renvins.serverpulse.bungeecord;
 
+import it.renvins.serverpulse.api.ServerPulseProvider;
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;
 import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
@@ -26,6 +27,7 @@ import java.util.logging.Logger;
 public class ServerPulseBungeeCordLoader implements Service {
 
     private final ServerPulseBungeeCord plugin;
+    public static Logger LOGGER;
 
     private final BungeeCordConfiguration config;
     private final Platform platform;
@@ -38,6 +40,7 @@ public class ServerPulseBungeeCordLoader implements Service {
 
     public ServerPulseBungeeCordLoader(ServerPulseBungeeCord plugin) {
         this.plugin = plugin;
+        LOGGER = plugin.getLogger();
 
         this.config = new BungeeCordConfiguration(plugin, "config.yml");
         this.platform = new BungeeCordPlatform(plugin);
@@ -54,16 +57,29 @@ public class ServerPulseBungeeCordLoader implements Service {
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
         this.pingRetriever =new BungeeCordPingRetriever(plugin);
 
-
+        LOGGER.info("ServerPulse for BungeeCord initialized - waiting for server starting...");
     }
 
     @Override
     public void load() {
+        LOGGER.info("Loading configuration...");
+        config.load();
 
+        ServerPulseProvider.register(new ServerPulseBungeeCordAPI(databaseService, metricsService, diskRetriever, pingRetriever));
+
+        databaseService.load();
+        if (!platform.isEnabled()) {
+            return;
+        }
+        metricsService.load();
     }
 
     @Override
     public void unload() {
-        Service.super.unload();
+        databaseService.unload();
+        metricsService.unload();
+
+        plugin.getProxy().getScheduler().cancel(plugin);
+        ServerPulseProvider.unregister();
     }
 }
