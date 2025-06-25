@@ -57,4 +57,14 @@ public class BungeeCordConfiguration {
             plugin.getLogger().log(Level.SEVERE, "Failed to save config!", e);
         }
     }
+
+    public boolean reload() {
+        try {
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
+            return true;
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to reload config: " + name, e);
+            return false;
+        }
+    }
 }

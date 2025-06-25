@@ -3,7 +3,6 @@ package it.renvins.serverpulse.velocity;
 import it.renvins.serverpulse.api.ServerPulseAPI;
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;
 import it.renvins.serverpulse.api.metrics.IPingRetriever;
-import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.api.service.IMetricsService;
 import lombok.RequiredArgsConstructor;

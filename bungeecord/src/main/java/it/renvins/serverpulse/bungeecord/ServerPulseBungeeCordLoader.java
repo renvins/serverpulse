@@ -6,6 +6,7 @@ import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.api.service.Service;
+import it.renvins.serverpulse.bungeecord.commands.ServerPulseCommand;
 import it.renvins.serverpulse.bungeecord.config.BungeeCordConfiguration;
 import it.renvins.serverpulse.bungeecord.config.BungeeCordDatabaseConfiguration;
 import it.renvins.serverpulse.bungeecord.config.BungeeCordMetricsConfiguration;
@@ -64,6 +65,9 @@ public class ServerPulseBungeeCordLoader implements Service {
     public void load() {
         LOGGER.info("Loading configuration...");
         config.load();
+
+        // Register commands
+        plugin.getProxy().getPluginManager().registerCommand(plugin, new ServerPulseCommand(config));
 
         ServerPulseProvider.register(new ServerPulseBungeeCordAPI(databaseService, metricsService, diskRetriever, pingRetriever));
 
