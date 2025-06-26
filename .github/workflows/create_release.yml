@@ -33,7 +33,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4 # Use v4 or latest stable version
 
       # Gradle with the new updates doesn't support arguments
-      - name: Build Bukkit and Velocity jar
+      - name: Build Bukkit, Velocity and BungeeCord jar
         run: ./gradlew shadowJar
 
       - name: Build fabric jar
@@ -70,8 +70,24 @@ jobs:
           echo "path=$JAR_PATH" >> $GITHUB_OUTPUT
           echo "filename=$JAR_FILENAME" >> $GITHUB_OUTPUT
         shell: bash
+        
+      # 7. Find the BungeeCord Shadow Jar file and extract its name
+      - name: Find BungeeCord Shadow Jar and Extract Name
+        id: find_bungeecord_jar
+        run: |
+          JAR_PATH=$(find bungeecord/build/libs -maxdepth 1 -name '*.jar' -printf "%s %p\n" | sort -nr | head -n 1 | awk '{print $2}')
+          if [ -z "$JAR_PATH" ]; then
+            echo "Error: Could not find the shadow JAR file in bungeecord/build/libs/"
+            exit 1
+          fi
+          JAR_FILENAME=$(basename "$JAR_PATH")
+          echo "Found JAR path: $JAR_PATH"
+          echo "Found JAR filename: $JAR_FILENAME"
+          echo "path=$JAR_PATH" >> $GITHUB_OUTPUT
+          echo "filename=$JAR_FILENAME" >> $GITHUB_OUTPUT
+        shell: bash
 
-      # 7. Find the Fabric Jar file and extract its name
+      # 8. Find the Fabric Jar file and extract its name
       - name: Find Fabric Jar and Extract Name
         id: find_fabric_jar
         run: |
@@ -87,7 +103,7 @@ jobs:
           echo "filename=$JAR_FILENAME" >> $GITHUB_OUTPUT
         shell: bash
 
-      # 8. Upload the Bukkit Shadow Jar as a release asset
+      # 9. Upload the Bukkit Shadow Jar as a release asset
       - name: Upload Bukkit Release Asset
         uses: svenstaro/upload-release-action@v2
         with:
@@ -97,7 +113,7 @@ jobs:
           tag: ${{ github.ref }} # The git tag associated with the release that triggered the workflow
           overwrite: true # Optional: Replace asset with the same name if it already exists
 
-      # 9. Upload the Velocity Shadow Jar as a release asset
+      # 10. Upload the Velocity Shadow Jar as a release asset
       - name: Upload Velocity Release Asset
         uses: svenstaro/upload-release-action@v2
         with:
@@ -107,7 +123,17 @@ jobs:
           tag: ${{ github.ref }} # The git tag associated with the release that triggered the workflow
           overwrite: true # Optional: Replace asset with the same name if it already exists
 
-      # 10. Upload the Fabric Jar as a release asset
+      # 11. Upload the BungeeCord Shadow Jar as a release asset
+      - name: Upload BungeeCord Release Asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions automatically
+          file: ${{ steps.find_bungeecord_jar.outputs.path }} # The path to the JAR found in the previous step
+          asset_name: ${{ steps.find_bungeecord_jar.outputs.filename }} # Use the filename extracted earlier
+          tag: ${{ github.ref }} # The git tag associated with the release that triggered the workflow
+          overwrite: true # Optional: Replace asset with the same name if it already exists
+
+      # 12. Upload the Fabric Jar as a release asset
       - name: Upload Fabric Release Asset
         uses: svenstaro/upload-release-action@v2
         with:
