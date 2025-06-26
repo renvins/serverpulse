@@ -1,4 +1,4 @@
-package it.renvins.serverpulse.velocity;
+package it.renvins.serverpulse.bungeecord;
 
 import it.renvins.serverpulse.api.ServerPulseAPI;
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;
@@ -8,7 +8,7 @@ import it.renvins.serverpulse.api.service.IMetricsService;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class ServerPulseVelocityAPI implements ServerPulseAPI {
+public class ServerPulseBungeeCordAPI implements ServerPulseAPI {
 
     private final IDatabaseService databaseService;
     private final IMetricsService metricsService;

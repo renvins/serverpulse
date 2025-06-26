@@ -33,6 +33,7 @@ ServerPulse now supports **all Minecraft server platforms** in the ecosystem:
 
 - **Bukkit/Spigot**: Full support with custom TPS monitoring implementation
 - **Paper and its forks** (Purpur, Pufferfish, etc.): Enhanced support with native TPS monitoring
+- **BungeeCord**: Support for BungeeCord proxy servers with network-wide player monitoring
 - **Velocity**: Support for Velocity proxy servers (ofc TPS and world metrics are not available)
 - **Fabric**: Support for Fabric servers (latest versions of Fabric API and Minecraft)
 
