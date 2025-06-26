@@ -14,7 +14,7 @@ repositories {
         name = "bungeecord"
         url = uri("https://oss.sonatype.org/content/repositories/snapshots")
     }
-6    maven {
+    maven {
         name = "mojang"
         url = uri("https://libraries.minecraft.net/")
     }
