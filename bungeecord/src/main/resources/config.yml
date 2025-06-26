@@ -7,7 +7,7 @@ metrics:
     token: my-token # The token to access the InfluxDB API (WRITE AND READ ACCESS)
     table: minecraft_stats # The table where metrics are stored
   tags:
-    server: "proxy1"
+    server: "bungeecord"
 messages:
   noPerms: "&7[&bServer&7Pulse] &7You don't have &bpermission &7to use this &bcommand&7."
   reloadConfig: "&7[&bServer&7Pulse] &7Configuration &breloaded&7."

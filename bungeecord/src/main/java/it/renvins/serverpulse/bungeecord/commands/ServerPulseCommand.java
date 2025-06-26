@@ -16,7 +16,7 @@ public class ServerPulseCommand extends Command {
     private final Map<String, GeneralCommand> commands = new HashMap<>();
 
     public ServerPulseCommand(BungeeCordConfiguration config) {
-        super("serverpulse", "serverpulse.use", "sp");
+        super("serverpulsebungeecord", "serverpulse.use", "sp", "spb");
         this.config = config;
         registerCommands();
     }
