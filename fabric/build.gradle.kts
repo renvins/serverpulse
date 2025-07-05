@@ -2,7 +2,7 @@ import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
     id("java")
-    id("fabric-loom") version "1.10-SNAPSHOT"
+    id("fabric-loom") version "1.11-SNAPSHOT"
     id("com.gradleup.shadow") version "9.0.0-beta11"
     id("io.freefair.lombok") version "8.13.1"
 }
@@ -33,11 +33,11 @@ repositories {
 
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.21.4")
-    mappings("net.fabricmc:yarn:1.21.4+build.8:v2")
+    minecraft("com.mojang:minecraft:1.21.7")
+    mappings("net.fabricmc:yarn:1.21.7+build.2:v2")
     modImplementation("net.fabricmc:fabric-loader:0.16.14")
 
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.119.2+1.21.4")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.128.2+1.21.7")
 
     // API and Common modules
     implementation(project(":api"))

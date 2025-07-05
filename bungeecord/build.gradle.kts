@@ -24,7 +24,7 @@ dependencies {
     implementation(project(":api"))
     implementation(project(":common"))
 
-    compileOnly("net.md-5:bungeecord-api:1.21-R0.2")
+    compileOnly("net.md-5:bungeecord-api:1.21-R0.4-SNAPSHOT")
 }
 
 java {
