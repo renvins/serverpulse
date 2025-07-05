@@ -78,66 +78,6 @@ public class MetricsService implements IMetricsService {
     }
 
     /**
-     * Builds a list of InfluxDB points from the given metrics snapshot.
-     *
-     * @param snapshot The metrics snapshot to convert.
-     * @param usedHeap The used heap memory in bytes.
-     * @param committedHeap The committed heap memory in bytes.
-     * @param totalDisk The total disk space in bytes.
-     * @param usableDisk The usable disk space in bytes.
-     * @return A list of InfluxDB points representing the metrics.
-     */
-    private List<String> buildPoints(SyncMetricsSnapshot snapshot, long usedHeap, long committedHeap,
-            long totalDisk, long usableDisk, int minPing, int maxPing, int avgPing) {
-        List<String> points = new ArrayList<>();
-
-        String serverTag = configuration.getServerTag();
-        String measurement = configuration.getMeasurementTable();
-
-        LineProtocolPoint generalPoint = new LineProtocolPoint(measurement)
-                                              .addTag("server", serverTag)
-                                              .addField("tps_1m", snapshot.getTps()[0])
-                                              .addField("tps_5m", snapshot.getTps()[1])
-                                              .addField("tps_15m", snapshot.getTps()[2])
-                                              .addField("players_online", snapshot.getPlayerCount())
-                                              .addField("used_memory", usedHeap)
-                                              .addField("available_memory", committedHeap)
-                                              .addField("total_disk_space", totalDisk)
-                                              .addField("usable_disk_space", usableDisk)
-                                              .addField("min_ping", minPing)
-                                              .addField("max_ping", maxPing)
-                                              .addField("avg_ping", avgPing)
-                                              .setTimestamp(Instant.now().toEpochMilli() * 1_000_000);
-        addConfigTags(generalPoint);
-        points.add(generalPoint.toLineProtocol());
-
-        for (Map.Entry<String, WorldData> entry : snapshot.getWorldData().entrySet()) {
-            String worldName = entry.getKey();
-            WorldData worldData = entry.getValue();
-
-            LineProtocolPoint worldPoint = new LineProtocolPoint(measurement)
-                                    .addTag("server", serverTag)
-                                    .addTag("world", worldName)
-                                    .addField("entities_count", worldData.getEntities())
-                                    .addField("loaded_chunks", worldData.getLoadedChunks())
-                                    .setTimestamp(Instant.now().toEpochMilli() * 1_000_000);
-            addConfigTags(worldPoint);
-            points.add(worldPoint.toLineProtocol());
-        }
-        return points;
-    }
-
-    /**
-     * Adds configuration tags to the given InfluxDB point.
-     *
-     * @param point The InfluxDB point to which tags will be added.
-     */
-    private void addConfigTags(LineProtocolPoint point) {
-        Map<String, String> tags = configuration.getTags();
-        tags.forEach(point::addTag);
-    }
-
-    /**
      * Loads the metrics task with a configurable interval.
      */
     private void loadTask() {
