@@ -17,7 +17,7 @@ import it.renvins.serverpulse.common.config.MetricsConfiguration;
 import it.renvins.serverpulse.bukkit.commands.ServerPulseCommand;
 import it.renvins.serverpulse.bukkit.config.BukkitConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
-import it.renvins.serverpulse.common.metrics.DiskRetriever;
+import it.renvins.serverpulse.common.disk.DiskRetriever;
 import it.renvins.serverpulse.bukkit.config.BukkitDatabaseConfiguration;
 import it.renvins.serverpulse.bukkit.config.BukkitMetricsConfiguration;
 import it.renvins.serverpulse.bukkit.metrics.BukkitPingRetriever;

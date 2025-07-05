@@ -59,15 +59,6 @@ public class MetricsService implements IMetricsService {
                         logger.warning("Snapshot is null. Skipping metrics send.");
                         throw new IllegalStateException("Sync metric collection failed.");
                     }
-                    long usedHeap = MemoryUtils.getUsedHeapBytes();
-                    long committedHeap = MemoryUtils.getCommittedHeapBytes();
-
-                    long totalDisk = ServerPulseProvider.get().getDiskRetriever().getTotalSpace();
-                    long usableDisk = ServerPulseProvider.get().getDiskRetriever().getUsableSpace();
-
-                    int minPing = ServerPulseProvider.get().getPingRetriever().getMinPing();
-                    int maxPing = ServerPulseProvider.get().getPingRetriever().getMaxPing();
-                    int avgPing = ServerPulseProvider.get().getPingRetriever().getAveragePing();
 
                     return buildPoints(snapshot, usedHeap, committedHeap, totalDisk, usableDisk, minPing, maxPing, avgPing);
                 }, asyncExecutor).thenAcceptAsync(points -> {
@@ -84,38 +75,6 @@ public class MetricsService implements IMetricsService {
                              logger.error( "Failed metrics pipeline stage...", ex);
                              return null;
                          });
-    }
-
-    /**
-     * Collects the current server metrics snapshot.
-     *
-     * @return A SyncMetricsSnapshot containing the current server metrics.
-     * @throws IllegalStateException if called from a non-primary thread.
-     */
-    private SyncMetricsSnapshot collectSnapshot() {
-        if (!platform.isPrimaryThread()) {
-            logger.warning("Skipping metrics send because the thread is not primary thread...");
-            throw new IllegalStateException("This method must be called on the main thread.");
-        }
-        try {
-            double[] tps = new double[]{0.0, 0.0, 0.0}; // Default TPS to 0.0 for non-ticking platforms
-            int playerCount = platform.getOnlinePlayerCount();
-
-            Map<String, WorldData> worldsData = null;
-            try {
-                tps = ServerPulseProvider.get().getTPSRetriever().getTPS();
-                worldsData = platform.getWorldsData();
-            } catch (UnsupportedOperationException e) {
-                worldsData = Map.of();
-            }
-
-            return new SyncMetricsSnapshot(tps, playerCount, worldsData);
-        } catch (Exception e) {
-            logger.error("Unexpected error during sync data collection: " + e.getMessage());
-            // Return null or re-throw to signal failure to the CompletableFuture chain
-            // Throwing is often cleaner as it goes directly to exceptionally()
-            throw new RuntimeException("Sync data collection failed...", e);
-        }
     }
 
     /**

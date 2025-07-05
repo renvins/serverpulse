@@ -13,7 +13,7 @@ import it.renvins.serverpulse.common.MetricsService;
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
 import it.renvins.serverpulse.common.config.MetricsConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
-import it.renvins.serverpulse.common.metrics.DiskRetriever;
+import it.renvins.serverpulse.common.disk.DiskRetriever;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 import it.renvins.serverpulse.fabric.command.ServerPulseCommand;
