@@ -14,6 +14,8 @@ import it.renvins.serverpulse.common.config.DatabaseConfiguration;
 import it.renvins.serverpulse.common.config.MetricsConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.disk.DiskRetriever;
+import it.renvins.serverpulse.common.metrics.LineProtocolFormatter;
+import it.renvins.serverpulse.common.metrics.MetricsCollector;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 import it.renvins.serverpulse.fabric.command.ServerPulseCommand;
@@ -40,13 +42,15 @@ public class ServerPulseFabric implements ModInitializer {
     private final FabricConfiguration config;
 
     private final Platform platform;
+    private final TaskScheduler scheduler;
 
     private final IDatabaseService databaseService;
-    private final IMetricsService metricsService;
 
     private final ITPSRetriever tpsRetriever;
     private final IDiskRetriever diskRetriever;
     private final IPingRetriever pingRetriever;
+
+    private final IMetricsService metricsService;
 
     public ServerPulseFabric() {
         this.config = new FabricConfiguration(FabricLoader.getInstance().getConfigDir().resolve("serverpulse"), "config.yml");
@@ -54,17 +58,21 @@ public class ServerPulseFabric implements ModInitializer {
         PulseLogger logger = new FabricLogger();
 
         this.platform = new FabricPlatform(this);
-        TaskScheduler scheduler = new FabricScheduler();
+        this.scheduler = new FabricScheduler();
 
         DatabaseConfiguration dbConfig = new FabricDatabaseConfiguration(config);
         MetricsConfiguration metricsConfig = new FabricMetricsConfiguration(config);
 
         this.databaseService = new DatabaseService(logger, platform, dbConfig, scheduler);
-        this.metricsService = new MetricsService(logger, platform, metricsConfig, scheduler);
 
         this.tpsRetriever = new FabricTPSRetriever();
         this.diskRetriever = new DiskRetriever(FabricLoader.getInstance().getGameDir().toFile());
         this.pingRetriever = new FabricPingRetriever(this);
+
+        MetricsCollector collector = new MetricsCollector(logger, platform, tpsRetriever, diskRetriever, pingRetriever);
+        LineProtocolFormatter formatter = new LineProtocolFormatter(metricsConfig);
+
+        this.metricsService = new MetricsService(logger, collector, formatter, scheduler, databaseService);
     }
 
     @Getter private MinecraftServer server;
@@ -85,16 +93,20 @@ public class ServerPulseFabric implements ModInitializer {
         LOGGER.info("Loading configuration...");
         config.load();
 
-        ServerPulseProvider.register(new ServerPulseFabricAPI(databaseService, metricsService, tpsRetriever, diskRetriever, pingRetriever));
 
         databaseService.load();
         if (!platform.isEnabled()) {
             return;
         }
-        metricsService.load();
-
         LOGGER.info("Starting tick monitoring task...");
         ((FabricTPSRetriever) tpsRetriever).startTickMonitor();
+
+        metricsService.load();
+
+        long intervalSeconds = config.getConfig().getLong("metrics.interval", 5);
+        scheduler.runTaskTimerAsync(metricsService::collectAndSendMetrics, 0, intervalSeconds);
+
+        ServerPulseProvider.register(new ServerPulseFabricAPI(databaseService, metricsService, tpsRetriever, diskRetriever, pingRetriever));
     }
 
     private void onServerStopped(MinecraftServer server) {

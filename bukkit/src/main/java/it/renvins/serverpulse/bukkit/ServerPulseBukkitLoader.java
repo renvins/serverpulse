@@ -40,11 +40,12 @@ public class ServerPulseBukkitLoader implements Service {
     private final Platform platform;
 
     private final IDatabaseService databaseService;
-    private final IMetricsService metricsService;
 
     private final ITPSRetriever tpsRetriever;
     private final IDiskRetriever diskRetriever;
     private final IPingRetriever pingRetriever;
+
+    private final IMetricsService metricsService;
 
     public ServerPulseBukkitLoader(ServerPulseBukkit plugin) {
         this.plugin = plugin;
@@ -60,6 +61,8 @@ public class ServerPulseBukkitLoader implements Service {
         DatabaseConfiguration databaseConfiguration = new BukkitDatabaseConfiguration(config);
         MetricsConfiguration metricsConfiguration = new BukkitMetricsConfiguration(config);
 
+        this.databaseService = new DatabaseService(logger, platform, databaseConfiguration, taskScheduler);
+
         if (isPaper()) {
             this.tpsRetriever = new PaperTPSRetriever();
         } else {
@@ -67,8 +70,6 @@ public class ServerPulseBukkitLoader implements Service {
         }
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
         this.pingRetriever = new BukkitPingRetriever();
-
-        this.databaseService = new DatabaseService(logger, platform, databaseConfiguration, taskScheduler);
 
         MetricsCollector collector = new MetricsCollector(logger, platform, tpsRetriever, diskRetriever, pingRetriever);
         LineProtocolFormatter formatter = new LineProtocolFormatter(metricsConfiguration);
@@ -82,8 +83,6 @@ public class ServerPulseBukkitLoader implements Service {
     public void load() {
         LOGGER.info("Loading configuration...");
         config.load();
-
-        ServerPulseProvider.register(new ServerPulseBukkitAPI(databaseService, metricsService, tpsRetriever, diskRetriever, pingRetriever));
 
         databaseService.load();
         if (!platform.isEnabled()) {
@@ -100,6 +99,7 @@ public class ServerPulseBukkitLoader implements Service {
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, metricsService::collectAndSendMetrics, 0L, intervalTicks);
 
         plugin.getCommand("serverpulse").setExecutor(new ServerPulseCommand(config));
+        ServerPulseProvider.register(new ServerPulseBukkitAPI(databaseService, metricsService, tpsRetriever, diskRetriever, pingRetriever));
     }
 
     @Override
