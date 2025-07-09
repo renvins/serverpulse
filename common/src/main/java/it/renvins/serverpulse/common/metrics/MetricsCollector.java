@@ -50,11 +50,9 @@ public class MetricsCollector {
             int playerCount = platform.getOnlinePlayerCount();
 
             try {
-                // Usa le dipendenze iniettate, non il provider statico.
                 tps = this.tpsRetriever.getTPS();
                 worldsData = platform.getWorldsData();
-            } catch (UnsupportedOperationException e) {
-                // Piattaforma non supporta TPS o dati dei mondi, i valori di default sono ok.
+            } catch (UnsupportedOperationException ignored) {
             }
 
             return new SyncMetricsSnapshot(tps, playerCount, worldsData);
