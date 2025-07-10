@@ -36,3 +36,13 @@ tasks.withType<ShadowJar> {
     archiveClassifier = "bungeecord"
     archiveVersion = "${rootProject.version}"
 }
+
+tasks.withType<ProcessResources> {
+    // Define the encoding for resource files
+    filteringCharset = "UTF-8"
+
+    filesMatching("plugin.yml") {
+        // Enable property expansion for plugin.yml
+        expand(project.properties) // Expands properties like 'version'
+    }
+}
