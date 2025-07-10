@@ -1,5 +1,5 @@
 name: ServerPulse
 version: ${rootProject.version}
 main: it.renvins.serverpulse.bungeecord.ServerPulseBungeeCord
-author: username
+author: renvins
 description: Effortless Minecraft performance monitoring with pre-configured Grafana/InfluxDB via Docker.
