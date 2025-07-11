@@ -5,6 +5,7 @@
 ServerPulse is an open-source, real-time performance monitoring tool for Minecraft servers. It collects key server metrics (TPS, disk usage, memory, player count, entities, chunks, ping) and visualizes them through an integrated Grafana dashboard.
 
 [![Available on Spigot](https://img.shields.io/badge/Available%20on-Spigot-yellow.svg)](https://www.spigotmc.org/resources/serverpulse-1-8-1-21-x-real-time-minecraft-performance-monitoring.123707/)
+[![Available on Modrinth](https://img.shields.io/badge/Available%20on-Modrinth-green.svg)](https://modrinth.com/plugin/serverpulse)
 
 <details>
 <summary>📊 View Dashboard Examples</summary>
