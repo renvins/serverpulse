@@ -23,7 +23,7 @@ ServerPulse is an open-source, real-time performance monitoring tool for Minecra
 
 ## 🚀 Why Choose ServerPulse?
 
-ServerPulse isn't just another metrics exporter—it offers several unique advantages:
+ServerPulse isn't just another metrics exporter - it offers several unique advantages:
 
 -   **Complete Monitoring Stack** - Fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards.
 -   **Universal Platform Support** - Works with any Bukkit-based, Velocity, and Fabric server while taking advantage of Paper-specific optimizations when available.
@@ -74,7 +74,7 @@ The wiki contains comprehensive documentation on:
 
 ## 🤝 Contributing
 
-We welcome all contributions—bug reports, feature proposals, pull requests, or simply feedback. Read [Contributing](https://github.com/renvins/serverpulse/wiki/7.-Contributing-guidelines)
+We welcome all contributions - bug reports, feature proposals, pull requests, or simply feedback. Read [Contributing](https://github.com/renvins/serverpulse/wiki/7.-Contributing-guidelines)
 
 ## 📄 License
 
