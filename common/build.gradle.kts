@@ -11,8 +11,12 @@ java {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
     implementation(project(":api"))
+    implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 }
