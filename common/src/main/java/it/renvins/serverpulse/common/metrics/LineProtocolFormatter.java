@@ -29,9 +29,6 @@ public class LineProtocolFormatter {
         LineProtocolPoint generalPoint = new LineProtocolPoint(metricsConfig.getMeasurementTable())
                 .addTag("server", metricsConfig.getServerTag())
                 // Sync data
-                .addField("tps_1m", syncData.getTps()[0])
-                .addField("tps_5m", syncData.getTps()[1])
-                .addField("tps_15m", syncData.getTps()[2])
                 .addField("players_online", syncData.getPlayerCount())
                 // Async data
                 .addField("used_memory", asyncData.getUsedHeap())
@@ -42,6 +39,12 @@ public class LineProtocolFormatter {
                 .addField("max_ping", asyncData.getMaxPing())
                 .addField("avg_ping", asyncData.getAvgPing())
                 .setTimestamp(timestamp);
+
+        if (syncData.getTps()[0] != 0.0 && syncData.getTps()[1] != 0.0 && syncData.getTps()[2] != 0.0) {
+            generalPoint.addField("tps_1m", syncData.getTps()[0])
+                        .addField("tps_5m", syncData.getTps()[1])
+                        .addField("tps_15m", syncData.getTps()[2]);
+        }
 
         addConfigTags(generalPoint);
         points.add(generalPoint);
