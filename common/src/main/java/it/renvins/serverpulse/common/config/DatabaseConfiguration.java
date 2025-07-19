@@ -1,14 +1,26 @@
 package it.renvins.serverpulse.common.config;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Getter
 public class DatabaseConfiguration {
 
-    private final String host;
-    private final String org;
-    private final String token;
-    private final String bucket;
+    private final GeneralConfiguration configuration;
+
+    public String getHost() {
+        return configuration.getConfig().getString("metrics.influxdb.url");
+    }
+
+    public String getOrg() {
+        return configuration.getConfig().getString("metrics.influxdb.org");
+    }
+
+    public String getToken() {
+        return configuration.getConfig().getString("metrics.influxdb.token");
+    }
+
+    public String getBucket() {
+        return configuration.getConfig().getString("metrics.influxdb.bucket");
+    }
+
 }

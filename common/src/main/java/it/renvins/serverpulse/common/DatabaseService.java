@@ -21,9 +21,7 @@ public class DatabaseService implements IDatabaseService {
     private final PulseLogger logger;
     private final Platform platform;
 
-    private final GeneralConfiguration generalConfig;
-
-    private DatabaseConfiguration configuration;
+    private final DatabaseConfiguration configuration;
     private final TaskScheduler scheduler;
 
     private HttpClient httpClient; // Keep for ping
@@ -45,7 +43,7 @@ public class DatabaseService implements IDatabaseService {
         this.logger = logger;
         this.platform = platform;
 
-        this.generalConfig = generalConfig;
+        this.configuration = new DatabaseConfiguration(generalConfig);
         this.scheduler = scheduler;
 
         this.httpClient = HttpClient.newBuilder()
@@ -55,8 +53,6 @@ public class DatabaseService implements IDatabaseService {
 
     @Override
     public void load() {
-        loadConfiguration();
-
         if (!checkConnectionData()) {
             logger.error("InfluxDB connection data is missing or invalid. Shutting down...");
             platform.disable();
@@ -243,17 +239,6 @@ public class DatabaseService implements IDatabaseService {
             }
             retryTask = null;
         }
-    }
-
-    /**
-     * Loads the InfluxDB configuration from the general config.
-     * Should be called before any connection attempts.
-     */
-    private void loadConfiguration() {
-        configuration = new DatabaseConfiguration(generalConfig.getConfig().getString("metrics.influxdb.url"),
-                generalConfig.getConfig().getString("metrics.influxdb.org"),
-                generalConfig.getConfig().getString("metrics.influxdb.token"),
-                generalConfig.getConfig().getString("metrics.influxdb.bucket"));
     }
 
     /**
