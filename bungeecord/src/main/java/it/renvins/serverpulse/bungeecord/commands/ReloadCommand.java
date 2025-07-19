@@ -1,15 +1,15 @@
 package it.renvins.serverpulse.bungeecord.commands;
 
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.utils.ChatUtils;
-import it.renvins.serverpulse.bungeecord.config.BungeeCordConfiguration;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ReloadCommand extends GeneralCommand {
 
-    private final BungeeCordConfiguration config;
+    private final GeneralConfiguration config;
 
-    public ReloadCommand(String permission, boolean isPlayerOnly, BungeeCordConfiguration config) {
+    public ReloadCommand(String permission, boolean isPlayerOnly, GeneralConfiguration config) {
         super(permission, isPlayerOnly);
         this.config = config;
     }
