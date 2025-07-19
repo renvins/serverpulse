@@ -18,5 +18,5 @@ repositories {
 
 dependencies {
     implementation(project(":api"))
-    implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
+    api("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 }

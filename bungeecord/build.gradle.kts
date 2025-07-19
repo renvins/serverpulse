@@ -18,6 +18,9 @@ repositories {
         name = "mojang"
         url = uri("https://libraries.minecraft.net/")
     }
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {

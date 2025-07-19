@@ -45,10 +45,6 @@ dependencies {
     include(project(":api"))
     include(project(":common"))
 
-    // SimpleYAML
-    implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
-    include("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
-
     // Fabric Permissions API
     modImplementation("me.lucko:fabric-permissions-api:0.3.1")
     include("me.lucko:fabric-permissions-api:0.3.1")
