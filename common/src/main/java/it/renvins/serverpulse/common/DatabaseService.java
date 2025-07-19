@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.Task;
@@ -20,7 +21,9 @@ public class DatabaseService implements IDatabaseService {
     private final PulseLogger logger;
     private final Platform platform;
 
-    private final DatabaseConfiguration configuration;
+    private final GeneralConfiguration generalConfig;
+
+    private DatabaseConfiguration configuration;
     private final TaskScheduler scheduler;
 
     private HttpClient httpClient; // Keep for ping
@@ -38,11 +41,11 @@ public class DatabaseService implements IDatabaseService {
     private String pingUrl;
     private String writeUrl;
 
-    public DatabaseService(PulseLogger logger, Platform platform, DatabaseConfiguration configuration, TaskScheduler scheduler) {
+    public DatabaseService(PulseLogger logger, Platform platform, GeneralConfiguration generalConfig, TaskScheduler scheduler) {
         this.logger = logger;
         this.platform = platform;
 
-        this.configuration = configuration;
+        this.generalConfig = generalConfig;
         this.scheduler = scheduler;
 
         this.httpClient = HttpClient.newBuilder()
@@ -52,6 +55,8 @@ public class DatabaseService implements IDatabaseService {
 
     @Override
     public void load() {
+        loadConfiguration();
+
         if (!checkConnectionData()) {
             logger.error("InfluxDB connection data is missing or invalid. Shutting down...");
             platform.disable();
@@ -238,6 +243,17 @@ public class DatabaseService implements IDatabaseService {
             }
             retryTask = null;
         }
+    }
+
+    /**
+     * Loads the InfluxDB configuration from the general config.
+     * Should be called before any connection attempts.
+     */
+    private void loadConfiguration() {
+        configuration = new DatabaseConfiguration(generalConfig.getConfig().getString("metrics.influxdb.url"),
+                generalConfig.getConfig().getString("metrics.influxdb.org"),
+                generalConfig.getConfig().getString("metrics.influxdb.token"),
+                generalConfig.getConfig().getString("metrics.influxdb.bucket"));
     }
 
     /**
