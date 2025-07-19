@@ -12,14 +12,10 @@ import it.renvins.serverpulse.api.service.Service;
 import it.renvins.serverpulse.bukkit.logger.BukkitLogger;
 import it.renvins.serverpulse.bukkit.metrics.BukkitTPSRetriever;
 import it.renvins.serverpulse.common.DatabaseService;
-import it.renvins.serverpulse.common.config.DatabaseConfiguration;
-import it.renvins.serverpulse.common.config.MetricsConfiguration;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.bukkit.commands.ServerPulseCommand;
-import it.renvins.serverpulse.bukkit.config.BukkitConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.disk.DiskRetriever;
-import it.renvins.serverpulse.bukkit.config.BukkitDatabaseConfiguration;
-import it.renvins.serverpulse.bukkit.config.BukkitMetricsConfiguration;
 import it.renvins.serverpulse.bukkit.metrics.BukkitPingRetriever;
 import it.renvins.serverpulse.bukkit.metrics.PaperTPSRetriever;
 import it.renvins.serverpulse.bukkit.platform.BukkitPlatform;
@@ -35,7 +31,7 @@ public class ServerPulseBukkitLoader implements Service {
     private final ServerPulseBukkit plugin;
     public static Logger LOGGER;
 
-    private final BukkitConfiguration config;
+    private final GeneralConfiguration config;
 
     private final Platform platform;
 
@@ -51,17 +47,14 @@ public class ServerPulseBukkitLoader implements Service {
         this.plugin = plugin;
         LOGGER = plugin.getLogger();
 
-        this.config = new BukkitConfiguration(plugin, "config.yml");
-
         PulseLogger logger = new BukkitLogger(LOGGER);
+
+        this.config = new GeneralConfiguration(logger, plugin.getDataFolder(), "config.yml");
 
         this.platform = new BukkitPlatform(plugin);
         TaskScheduler taskScheduler = new BukkitTaskScheduler(plugin);
 
-        DatabaseConfiguration databaseConfiguration = new BukkitDatabaseConfiguration(config);
-        MetricsConfiguration metricsConfiguration = new BukkitMetricsConfiguration(config);
-
-        this.databaseService = new DatabaseService(logger, platform, databaseConfiguration, taskScheduler);
+        this.databaseService = new DatabaseService(logger, platform, config, taskScheduler);
 
         if (isPaper()) {
             this.tpsRetriever = new PaperTPSRetriever();
@@ -72,7 +65,7 @@ public class ServerPulseBukkitLoader implements Service {
         this.pingRetriever = new BukkitPingRetriever();
 
         MetricsCollector collector = new MetricsCollector(logger, platform, tpsRetriever, diskRetriever, pingRetriever);
-        LineProtocolFormatter formatter = new LineProtocolFormatter(metricsConfiguration);
+        LineProtocolFormatter formatter = new LineProtocolFormatter(config);
 
         this.metricsService = new MetricsService(logger, collector, formatter, taskScheduler, databaseService);
 
