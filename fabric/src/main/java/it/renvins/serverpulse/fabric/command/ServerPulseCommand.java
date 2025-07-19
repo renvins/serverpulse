@@ -4,8 +4,8 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import it.renvins.serverpulse.api.ServerPulseProvider;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.utils.ChatUtils;
-import it.renvins.serverpulse.fabric.config.FabricConfiguration;
 import lombok.RequiredArgsConstructor;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.CommandManager;
@@ -15,7 +15,7 @@ import net.minecraft.text.Text;
 @RequiredArgsConstructor
 public class ServerPulseCommand {
 
-    private final FabricConfiguration config;
+    private final GeneralConfiguration config;
 
     public LiteralArgumentBuilder<ServerCommandSource> createCommand() {
         // Create the main command

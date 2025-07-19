@@ -35,7 +35,7 @@ repositories {
 dependencies {
     minecraft("com.mojang:minecraft:1.21.7")
     mappings("net.fabricmc:yarn:1.21.7+build.2:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.16.14")
+    modImplementation("net.fabricmc:fabric-loader:0.16.14") //
 
     modImplementation("net.fabricmc.fabric-api:fabric-api:0.128.2+1.21.7")
 

@@ -11,6 +11,7 @@ import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.common.DatabaseService;
 import it.renvins.serverpulse.common.MetricsService;
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.config.MetricsConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.disk.DiskRetriever;
@@ -19,9 +20,6 @@ import it.renvins.serverpulse.common.metrics.MetricsCollector;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 import it.renvins.serverpulse.fabric.command.ServerPulseCommand;
-import it.renvins.serverpulse.fabric.config.FabricConfiguration;
-import it.renvins.serverpulse.fabric.config.FabricDatabaseConfiguration;
-import it.renvins.serverpulse.fabric.config.FabricMetricsConfiguration;
 import it.renvins.serverpulse.fabric.logger.FabricLogger;
 import it.renvins.serverpulse.fabric.metrics.FabricPingRetriever;
 import it.renvins.serverpulse.fabric.metrics.FabricTPSRetriever;
@@ -39,7 +37,7 @@ public class ServerPulseFabric implements ModInitializer {
     public static final String MOD_ID = "serverpulse";
     public static final Logger LOGGER = Logger.getLogger(MOD_ID);
 
-    private final FabricConfiguration config;
+    private final GeneralConfiguration config;
 
     private final Platform platform;
     private final TaskScheduler scheduler;
@@ -53,24 +51,23 @@ public class ServerPulseFabric implements ModInitializer {
     private final IMetricsService metricsService;
 
     public ServerPulseFabric() {
-        this.config = new FabricConfiguration(FabricLoader.getInstance().getConfigDir().resolve("serverpulse"), "config.yml");
-
         PulseLogger logger = new FabricLogger();
+
+        this.config = new GeneralConfiguration(logger,
+                FabricLoader.getInstance().getConfigDir().resolve("serverpulse").toFile(),
+                "config.yml");
 
         this.platform = new FabricPlatform(this);
         this.scheduler = new FabricScheduler();
 
-        DatabaseConfiguration dbConfig = new FabricDatabaseConfiguration(config);
-        MetricsConfiguration metricsConfig = new FabricMetricsConfiguration(config);
-
-        this.databaseService = new DatabaseService(logger, platform, dbConfig, scheduler);
+        this.databaseService = new DatabaseService(logger, platform, config, scheduler);
 
         this.tpsRetriever = new FabricTPSRetriever();
         this.diskRetriever = new DiskRetriever(FabricLoader.getInstance().getGameDir().toFile());
         this.pingRetriever = new FabricPingRetriever(this);
 
         MetricsCollector collector = new MetricsCollector(logger, platform, tpsRetriever, diskRetriever, pingRetriever);
-        LineProtocolFormatter formatter = new LineProtocolFormatter(metricsConfig);
+        LineProtocolFormatter formatter = new LineProtocolFormatter(config);
 
         this.metricsService = new MetricsService(logger, collector, formatter, scheduler, databaseService);
     }
