@@ -6,8 +6,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import it.renvins.serverpulse.api.ServerPulseProvider;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.utils.ChatUtils;
-import it.renvins.serverpulse.velocity.config.VelocityConfiguration;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -15,7 +15,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 @RequiredArgsConstructor
 public class ServerPulseCommand {
 
-    private final VelocityConfiguration config;
+    private final GeneralConfiguration config;
 
     public BrigadierCommand createCommand() {
         // Create the main command
