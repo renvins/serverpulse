@@ -4,8 +4,8 @@ import it.renvins.serverpulse.api.data.AsyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.LineProtocolPoint;
 import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.WorldData;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.config.MetricsConfiguration;
-import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,10 +17,13 @@ import java.util.stream.Collectors;
  * Formats raw metric snapshots into InfluxDB Line Protocol strings.
  * Its single responsibility is to handle the formatting logic.
  */
-@RequiredArgsConstructor
 public class LineProtocolFormatter {
 
     private final MetricsConfiguration metricsConfig;
+
+    public LineProtocolFormatter(GeneralConfiguration generalConfig) {
+        this.metricsConfig = new MetricsConfiguration(generalConfig);
+    }
 
     public List<String> format(SyncMetricsSnapshot syncData, AsyncMetricsSnapshot asyncData) {
         List<LineProtocolPoint> points = new ArrayList<>();
