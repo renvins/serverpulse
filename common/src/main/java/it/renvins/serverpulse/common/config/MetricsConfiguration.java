@@ -1,12 +1,17 @@
 package it.renvins.serverpulse.common.config;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.Map;
 
-public interface MetricsConfiguration {
+@RequiredArgsConstructor
+@Getter
+public class MetricsConfiguration {
 
-    String getServerTag();
-    String getMeasurementTable();
-    long getMetricsInterval();
-    Map<String, String> getTags();
+    private final String serverTag;
+    private final String measurementTable;
+    private final long metricsInterval;
+    private final Map<String, String> tags;
 
 }
