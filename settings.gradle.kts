@@ -18,3 +18,4 @@ pluginManagement {
     }
 }
 include("bungeecord")
+include("teste2e")
