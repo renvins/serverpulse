@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":common"))
 
     compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
+    compileOnly("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 }
 
 java {
