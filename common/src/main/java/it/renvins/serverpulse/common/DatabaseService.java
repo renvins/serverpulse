@@ -134,7 +134,7 @@ public class DatabaseService implements IDatabaseService {
             HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
             return response.statusCode() == 204;
         } catch (Exception e) {
-            logger.warning("InfluxDB ping failed: " + e.getMessage());
+            logger.error("InfluxDB ping failed", e);
             return false;
         }
     }

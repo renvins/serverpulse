@@ -33,6 +33,9 @@ tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"
     archiveClassifier = "bukkit"
     archiveVersion = "${rootProject.version}"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    minimize()
 }
 
 tasks.withType<ProcessResources> {

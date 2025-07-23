@@ -36,6 +36,7 @@ services:
       VERSION: "1.21.7"
     volumes:
       - ../../../../bukkit/build/libs:/data/plugins
+      - ./config/ServerPulse:/data/plugins/ServerPulse
       - minecraft-server-data:/data
 volumes:
   influxdb-test-data:

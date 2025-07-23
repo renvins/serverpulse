@@ -20,7 +20,7 @@ public class ReloadCommand extends GeneralCommand {
             sender.sendMessage(new TextComponent(ChatUtils.format(config.getConfig().getString("messages.reloadConfigUsage"))));
             return;
         }
-        if (!config.reload()) {
+        if (!config.load()) {
             sender.sendMessage(new TextComponent(ChatUtils.format(config.getConfig().getString("messages.reloadConfigError"))));
         } else {
             sender.sendMessage(new TextComponent(ChatUtils.format(config.getConfig().getString("messages.reloadConfig"))));
