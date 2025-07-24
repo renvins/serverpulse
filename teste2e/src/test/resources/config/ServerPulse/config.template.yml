@@ -7,7 +7,7 @@ metrics:
     token: jGEss1Q6KpTmkCFqYvN0kjaKcXGmFRDL1xz00Xp8VseY-5uLldtY0_HxujH8aMRkMD3Cb3e7MLipahJSlGs6Ng== # The token to access the InfluxDB API (WRITE AND READ ACCESS)
     table: minecraft_stats # The table where metrics are stored
   tags:
-    server: "bed1"
+    server: "%%SERVER_NAME%%"
 messages:
   noPerms: "&7[&bServer&7Pulse] &7You don't have &bpermission &7to use this &bcommand&7."
   reloadConfig: "&7[&bServer&7Pulse] &7Configuration &breloaded&7."

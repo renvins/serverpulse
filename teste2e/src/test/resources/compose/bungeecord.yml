@@ -1,0 +1,42 @@
+services:
+  influxdb:
+    image: influxdb:latest
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: absolutely
+      DOCKER_INFLUXDB_INIT_ORG: ares
+      DOCKER_INFLUXDB_INIT_BUCKET: metrics_db
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: jGEss1Q6KpTmkCFqYvN0kjaKcXGmFRDL1xz00Xp8VseY-5uLldtY0_HxujH8aMRkMD3Cb3e7MLipahJSlGs6Ng==
+    volumes:
+      - influxdb-test-data:/var/lib/influxdb2
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../../../../infra/grafana/provisioning:/etc/grafana/provisioning
+      - ../../../../../infra/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-test-data:/var/lib/grafana
+    depends_on:
+      - influxdb
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: absolutely
+  bungeecord-server:
+    image: itzg/minecraft-server
+    ports:
+      - "25578:25577" # Usa una porta host diversa per evitare conflitti con Velocity
+    environment:
+      EULA: "TRUE"
+      TYPE: "BUNGEECORD"
+    volumes:
+      - ../../../../../bungeecord/build/libs:/data/plugins # Percorso del JAR di BungeeCord
+      - ../config/ServerPulse:/data/plugins/ServerPulse
+      - bungeecord-proxy-data:/data
+volumes:
+  influxdb-test-data:
+  grafana-test-data:
+  bungeecord-proxy-data:
