@@ -28,14 +28,16 @@ services:
   fabric-server:
     image: itzg/minecraft-server
     ports:
-      - "25566:25565" # Usa una porta host diversa
+      - "25566:25565"
     environment:
       EULA: "TRUE"
       TYPE: "FABRIC"
-      VERSION: "1.21.7" # Specifica la versione di Minecraft
+      ONLINE_MODE: "FALSE"
+      VERSION: "1.21.7"
+      MODS: "https://cdn.modrinth.com/data/P7dR8mSH/versions/JntuF9Ul/fabric-api-0.129.0%2B1.21.7.jar"
     volumes:
-      - ../../../../../fabric/build/libs:/data/mods # Fabric usa la cartella 'mods'
-      - ../config/ServerPulse:/data/config/ServerPulse # La config di fabric va in /config
+      - ../../../../../fabric/build/libs:/data/mods
+      - ../config/ServerPulse:/data/config/serverpulse
       - fabric-server-data:/data
 volumes:
   influxdb-test-data:

@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("io.freefair.lombok") version "8.13.1"
 }
 
 group = "it.renvins"
@@ -17,6 +18,8 @@ dependencies {
     // This forces all JUnit dependencies to use the same version
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation(platform("org.testcontainers:testcontainers-bom:1.21.3")) // ADDED THIS LINE
+
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
 
     // Testcontainers dependencies
     testImplementation("org.testcontainers:testcontainers")

@@ -23,6 +23,8 @@ dependencies {
 
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+
+    compileOnly("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 }
 
 java {
@@ -33,4 +35,7 @@ tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"
     archiveClassifier = "velocity"
     archiveVersion = "${rootProject.version}"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    minimize()
 }
