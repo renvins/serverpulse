@@ -28,11 +28,10 @@ public class ServerE2ETest {
 
     private static Stream<TestConfig> testConfigStream() {
         return Stream.of(
-                new TestConfig("fabric", "fabric-server", 25566, ".*Done \\(.*\\)! For help, type \"help\".*", "fabric1"),
+                new TestConfig("bungeecord", "bungeecord-server", 25578, ".*Listening on /0.0.0.0:25577.*", "bungeecord"),
+                new TestConfig("velocity", "velocity-server", 25577, ".*Done \\(.*\\)!.*", "velocity1"),
                 new TestConfig("bukkit", "bukkit-server", 25565, ".*Done \\(.*\\)! For help, type \"help\".*", "bed1"),
-                new TestConfig("velocity", "velocity-server", 25577, ".*Done \\(.*\\)! For help, type \"help\".*", "velocity1"),
-                new TestConfig("bungeecord", "bungeecord-server", 25578, ".*Listening on /0.0.0.0:25577.*", "bungeecord")
-        );
+                new TestConfig("fabric", "fabric-server", 25566, ".*Done \\(.*\\)! For help, type \"help\".*", "fabric1"));
     }
 
     @ParameterizedTest(name = "E2E Test for {0}")
@@ -50,8 +49,9 @@ public class ServerE2ETest {
 
             environment.start();
 
-            System.out.println("Environment for " + config.getModuleName() + " is running. Waiting for 2 minutes for metrics collection...");
-            TimeUnit.MINUTES.sleep(2);
+            System.out.println("Environment for " + config.getModuleName() + " is running. Waiting 30 seconds for the test to complete...");
+
+            TimeUnit.SECONDS.sleep(30);
 
             System.out.println("Test for " + config.getModuleName() + " completed, shutting down.");
         } finally {

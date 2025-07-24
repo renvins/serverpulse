@@ -26,17 +26,16 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: absolutely
   bungeecord-server:
-    image: itzg/minecraft-server
+    image: itzg/mc-proxy
     ports:
-      - "25578:25577" # Usa una porta host diversa per evitare conflitti con Velocity
+      - "25578:25577"
     environment:
-      EULA: "TRUE"
       TYPE: "BUNGEECORD"
     volumes:
-      - ../../../../../bungeecord/build/libs:/data/plugins # Percorso del JAR di BungeeCord
-      - ../config/ServerPulse:/data/plugins/ServerPulse
-      - bungeecord-proxy-data:/data
+      - ../../../../../bungeecord/build/libs:/plugins
+      - ../config/ServerPulse:/plugins/ServerPulse
+      - bungeecord-server-data:/server
 volumes:
   influxdb-test-data:
   grafana-test-data:
-  bungeecord-proxy-data:
+  bungeecord-server-data:

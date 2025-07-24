@@ -59,7 +59,7 @@ public class ServerPulseVelocity {
         this.logger = logger;
         this.dataDirectory = dataDirectory;
 
-        logger.info("ServerPulse for Fabric initialized - waiting for proxy starting...");
+        logger.info("ServerPulse for Velocity initialized - waiting for proxy starting...");
     }
 
     @Subscribe
@@ -89,8 +89,10 @@ public class ServerPulseVelocity {
         if (server.isShuttingDown()) {
             return;
         }
-
         metricsService.load();
+
+        long intervalTicks = config.getConfig().getLong("metrics.interval", 5) * 20L;
+        scheduler.runTaskTimerAsync(metricsService::collectAndSendMetrics, 0L, intervalTicks);
 
         CommandMeta meta = server.getCommandManager().metaBuilder("serverpulsevelocity")
                 .plugin(this).aliases("spv").build();

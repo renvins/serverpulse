@@ -1,24 +1,15 @@
 package it.renvins.serverpulse.common;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import it.renvins.serverpulse.api.ServerPulseProvider;
 import it.renvins.serverpulse.api.data.AsyncMetricsSnapshot;
-import it.renvins.serverpulse.api.data.LineProtocolPoint;
 import it.renvins.serverpulse.api.service.IDatabaseService;
-import it.renvins.serverpulse.api.utils.MemoryUtils;
 import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
-import it.renvins.serverpulse.api.data.WorldData;
 import it.renvins.serverpulse.api.service.IMetricsService;
-import it.renvins.serverpulse.common.config.MetricsConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.metrics.LineProtocolFormatter;
 import it.renvins.serverpulse.common.metrics.MetricsCollector;
-import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 
 public class MetricsService implements IMetricsService {
