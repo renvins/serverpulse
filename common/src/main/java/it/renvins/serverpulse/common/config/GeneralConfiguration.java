@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
+/**
+ * General configuration class for managing the configuration file.
+ * This class handles loading the configuration from a YAML file and creating a default configuration if it does not exist.
+ */
 @RequiredArgsConstructor
 public class GeneralConfiguration {
 
@@ -20,6 +24,12 @@ public class GeneralConfiguration {
 
     @Getter private YamlFile config;
 
+    /**
+     * Loads the configuration file.
+     * If the file does not exist, it creates a default configuration from the resources.
+     *
+     * @return true if the configuration was loaded successfully, false otherwise
+     */
     public boolean load() {
         try {
             createDefaultConfigIfNotExists();

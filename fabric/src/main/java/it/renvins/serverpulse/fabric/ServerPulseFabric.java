@@ -53,9 +53,7 @@ public class ServerPulseFabric implements ModInitializer {
     public ServerPulseFabric() {
         PulseLogger logger = new FabricLogger();
 
-        this.config = new GeneralConfiguration(logger,
-                FabricLoader.getInstance().getConfigDir().resolve("serverpulse").toFile(),
-                "config.yml");
+        this.config = new GeneralConfiguration(logger, FabricLoader.getInstance().getConfigDir().resolve("serverpulse").toFile(), "config.yml");
 
         this.platform = new FabricPlatform(this);
         this.scheduler = new FabricScheduler();
@@ -78,6 +76,7 @@ public class ServerPulseFabric implements ModInitializer {
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStarting);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopped);
+
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                 dispatcher.register(new ServerPulseCommand(config).createCommand()));
 
@@ -89,7 +88,6 @@ public class ServerPulseFabric implements ModInitializer {
 
         LOGGER.info("Loading configuration...");
         config.load();
-
 
         databaseService.load();
         if (!platform.isEnabled()) {

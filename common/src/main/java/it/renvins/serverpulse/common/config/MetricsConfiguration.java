@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Configuration class for metrics settings.
+ * This class retrieves various metrics-related settings from the general configuration.
+ */
 @RequiredArgsConstructor
 public class MetricsConfiguration {
 
