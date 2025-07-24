@@ -18,8 +18,7 @@ import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.common.DatabaseService;
 import it.renvins.serverpulse.common.MetricsService;
-import it.renvins.serverpulse.common.config.DatabaseConfiguration;
-import it.renvins.serverpulse.common.config.MetricsConfiguration;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.disk.DiskRetriever;
 import it.renvins.serverpulse.common.metrics.LineProtocolFormatter;
@@ -28,9 +27,6 @@ import it.renvins.serverpulse.common.metrics.UnsupportedTPSRetriever;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 import it.renvins.serverpulse.velocity.commands.ServerPulseCommand;
-import it.renvins.serverpulse.velocity.config.VelocityConfiguration;
-import it.renvins.serverpulse.velocity.config.VelocityDatabaseConfiguration;
-import it.renvins.serverpulse.velocity.config.VelocityMetricsConfiguration;
 import it.renvins.serverpulse.velocity.logger.VelocityLogger;
 import it.renvins.serverpulse.velocity.metrics.VelocityPingRetriever;
 import it.renvins.serverpulse.velocity.platform.VelocityPlatform;
@@ -38,7 +34,7 @@ import it.renvins.serverpulse.velocity.scheduler.VelocityTaskScheduler;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-@Plugin(id = "serverpulse", name = "ServerPulse", version = "0.4.2-SNAPSHOT",
+@Plugin(id = "serverpulse", name = "ServerPulse", version = "0.4.5-SNAPSHOT",
 description = "Effortless Minecraft performance monitoring with pre-configured Grafana/InfluxDB via Docker.", authors = {"renvins"})
 public class ServerPulseVelocity {
 
@@ -48,7 +44,7 @@ public class ServerPulseVelocity {
 
     private PulseLogger pulseLogger;
 
-    private VelocityConfiguration config;
+    private GeneralConfiguration config;
 
     private IDatabaseService databaseService;
 
@@ -63,25 +59,21 @@ public class ServerPulseVelocity {
         this.logger = logger;
         this.dataDirectory = dataDirectory;
 
-        logger.info("ServerPulse for Fabric initialized - waiting for proxy starting...");
+        logger.info("ServerPulse for Velocity initialized - waiting for proxy starting...");
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         this.pulseLogger = new VelocityLogger(logger);
-        this.config = new VelocityConfiguration(logger, dataDirectory, "config.yml");
+        this.config = new GeneralConfiguration(pulseLogger, dataDirectory.toFile(), "config.yml");
 
         logger.info("Loading configuration file...");
         config.load();
 
-        DatabaseConfiguration dbConfig = new VelocityDatabaseConfiguration(config);
-        MetricsConfiguration metricsConfig = new VelocityMetricsConfiguration(config);
-
-
         Platform platform = new VelocityPlatform(this);
         TaskScheduler scheduler = new VelocityTaskScheduler(this);
 
-        this.databaseService = new DatabaseService(pulseLogger, platform, dbConfig, scheduler);
+        this.databaseService = new DatabaseService(pulseLogger, platform, config, scheduler);
 
         this.diskRetriever = new DiskRetriever(dataDirectory.toFile());
         this.pingRetriever = new VelocityPingRetriever(this);
@@ -89,7 +81,7 @@ public class ServerPulseVelocity {
         ITPSRetriever tpsRetriever = new UnsupportedTPSRetriever(); // Velocity does not provide a TPS retriever
 
         MetricsCollector collector = new MetricsCollector(pulseLogger, platform, tpsRetriever, diskRetriever, pingRetriever);
-        LineProtocolFormatter formatter = new LineProtocolFormatter(metricsConfig);
+        LineProtocolFormatter formatter = new LineProtocolFormatter(config);
 
         this.metricsService = new MetricsService(pulseLogger, collector, formatter, scheduler, databaseService);
 
@@ -97,8 +89,10 @@ public class ServerPulseVelocity {
         if (server.isShuttingDown()) {
             return;
         }
-
         metricsService.load();
+
+        long intervalTicks = config.getConfig().getLong("metrics.interval", 5) * 20L;
+        scheduler.runTaskTimerAsync(metricsService::collectAndSendMetrics, 0L, intervalTicks);
 
         CommandMeta meta = server.getCommandManager().metaBuilder("serverpulsevelocity")
                 .plugin(this).aliases("spv").build();

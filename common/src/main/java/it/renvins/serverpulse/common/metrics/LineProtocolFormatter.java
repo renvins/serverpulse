@@ -4,8 +4,8 @@ import it.renvins.serverpulse.api.data.AsyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.LineProtocolPoint;
 import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.WorldData;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.config.MetricsConfiguration;
-import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,10 +17,13 @@ import java.util.stream.Collectors;
  * Formats raw metric snapshots into InfluxDB Line Protocol strings.
  * Its single responsibility is to handle the formatting logic.
  */
-@RequiredArgsConstructor
 public class LineProtocolFormatter {
 
     private final MetricsConfiguration metricsConfig;
+
+    public LineProtocolFormatter(GeneralConfiguration generalConfig) {
+        this.metricsConfig = new MetricsConfiguration(generalConfig);
+    }
 
     public List<String> format(SyncMetricsSnapshot syncData, AsyncMetricsSnapshot asyncData) {
         List<LineProtocolPoint> points = new ArrayList<>();
@@ -29,9 +32,6 @@ public class LineProtocolFormatter {
         LineProtocolPoint generalPoint = new LineProtocolPoint(metricsConfig.getMeasurementTable())
                 .addTag("server", metricsConfig.getServerTag())
                 // Sync data
-                .addField("tps_1m", syncData.getTps()[0])
-                .addField("tps_5m", syncData.getTps()[1])
-                .addField("tps_15m", syncData.getTps()[2])
                 .addField("players_online", syncData.getPlayerCount())
                 // Async data
                 .addField("used_memory", asyncData.getUsedHeap())
@@ -42,6 +42,12 @@ public class LineProtocolFormatter {
                 .addField("max_ping", asyncData.getMaxPing())
                 .addField("avg_ping", asyncData.getAvgPing())
                 .setTimestamp(timestamp);
+
+        if (syncData.getTps()[0] != 0.0 && syncData.getTps()[1] != 0.0 && syncData.getTps()[2] != 0.0) {
+            generalPoint.addField("tps_1m", syncData.getTps()[0])
+                        .addField("tps_5m", syncData.getTps()[1])
+                        .addField("tps_15m", syncData.getTps()[2]);
+        }
 
         addConfigTags(generalPoint);
         points.add(generalPoint);

@@ -3,8 +3,8 @@ package it.renvins.serverpulse.bungeecord.commands;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.utils.ChatUtils;
-import it.renvins.serverpulse.bungeecord.config.BungeeCordConfiguration;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -12,11 +12,12 @@ import net.md_5.bungee.api.plugin.Command;
 
 public class ServerPulseCommand extends Command {
 
-    private final BungeeCordConfiguration config;
+    private final GeneralConfiguration config;
     private final Map<String, GeneralCommand> commands = new HashMap<>();
 
-    public ServerPulseCommand(BungeeCordConfiguration config) {
+    public ServerPulseCommand(GeneralConfiguration config) {
         super("serverpulsebungeecord", "serverpulse.use", "sp", "spb");
+
         this.config = config;
         registerCommands();
     }

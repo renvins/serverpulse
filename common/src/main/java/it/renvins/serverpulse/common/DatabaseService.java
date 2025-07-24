@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.Task;
@@ -38,11 +39,11 @@ public class DatabaseService implements IDatabaseService {
     private String pingUrl;
     private String writeUrl;
 
-    public DatabaseService(PulseLogger logger, Platform platform, DatabaseConfiguration configuration, TaskScheduler scheduler) {
+    public DatabaseService(PulseLogger logger, Platform platform, GeneralConfiguration generalConfig, TaskScheduler scheduler) {
         this.logger = logger;
         this.platform = platform;
 
-        this.configuration = configuration;
+        this.configuration = new DatabaseConfiguration(generalConfig);
         this.scheduler = scheduler;
 
         this.httpClient = HttpClient.newBuilder()
@@ -133,7 +134,7 @@ public class DatabaseService implements IDatabaseService {
             HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
             return response.statusCode() == 204;
         } catch (Exception e) {
-            logger.warning("InfluxDB ping failed: " + e.getMessage());
+            logger.error("InfluxDB ping failed", e);
             return false;
         }
     }

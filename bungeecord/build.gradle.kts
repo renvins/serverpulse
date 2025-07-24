@@ -18,6 +18,9 @@ repositories {
         name = "mojang"
         url = uri("https://libraries.minecraft.net/")
     }
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
@@ -25,6 +28,7 @@ dependencies {
     implementation(project(":common"))
 
     compileOnly("net.md-5:bungeecord-api:1.21-R0.4-SNAPSHOT")
+    compileOnly("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 }
 
 java {
@@ -35,6 +39,9 @@ tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"
     archiveClassifier = "bungeecord"
     archiveVersion = "${rootProject.version}"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    minimize()
 }
 
 tasks.withType<ProcessResources> {

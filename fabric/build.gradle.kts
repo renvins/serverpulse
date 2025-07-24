@@ -35,7 +35,7 @@ repositories {
 dependencies {
     minecraft("com.mojang:minecraft:1.21.7")
     mappings("net.fabricmc:yarn:1.21.7+build.2:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.16.14")
+    modImplementation("net.fabricmc:fabric-loader:0.16.14") //
 
     modImplementation("net.fabricmc.fabric-api:fabric-api:0.128.2+1.21.7")
 
@@ -45,13 +45,12 @@ dependencies {
     include(project(":api"))
     include(project(":common"))
 
-    // SimpleYAML
-    implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
-    include("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
-
     // Fabric Permissions API
     modImplementation("me.lucko:fabric-permissions-api:0.3.1")
     include("me.lucko:fabric-permissions-api:0.3.1")
+
+    compileOnly("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
+    include("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 }
 
 tasks.processResources {
@@ -60,7 +59,7 @@ tasks.processResources {
     filesMatching("fabric.mod.json") {
         expand(mapOf(
             "version" to rootProject.version,
-            "minecraft_version" to "1.21.4",
+            "minecraft_version" to "1.21.7",
             "loader_version" to "0.16.10"
         )
         )

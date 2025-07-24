@@ -8,17 +8,13 @@ import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.api.service.Service;
 import it.renvins.serverpulse.bungeecord.commands.ServerPulseCommand;
-import it.renvins.serverpulse.bungeecord.config.BungeeCordConfiguration;
-import it.renvins.serverpulse.bungeecord.config.BungeeCordDatabaseConfiguration;
-import it.renvins.serverpulse.bungeecord.config.BungeeCordMetricsConfiguration;
 import it.renvins.serverpulse.bungeecord.logger.BungeeCordLogger;
 import it.renvins.serverpulse.bungeecord.metrics.BungeeCordPingRetriever;
 import it.renvins.serverpulse.bungeecord.platform.BungeeCordPlatform;
 import it.renvins.serverpulse.bungeecord.scheduler.BungeeCordTaskScheduler;
 import it.renvins.serverpulse.common.DatabaseService;
 import it.renvins.serverpulse.common.MetricsService;
-import it.renvins.serverpulse.common.config.DatabaseConfiguration;
-import it.renvins.serverpulse.common.config.MetricsConfiguration;
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.disk.DiskRetriever;
 import it.renvins.serverpulse.common.metrics.LineProtocolFormatter;
@@ -35,7 +31,7 @@ public class ServerPulseBungeeCordLoader implements Service {
     private final ServerPulseBungeeCord plugin;
     public static Logger LOGGER;
 
-    private final BungeeCordConfiguration config;
+    private final GeneralConfiguration config;
     private final Platform platform;
 
     private final IDatabaseService databaseService;
@@ -49,16 +45,14 @@ public class ServerPulseBungeeCordLoader implements Service {
         this.plugin = plugin;
         LOGGER = plugin.getLogger();
 
-        this.config = new BungeeCordConfiguration(plugin, "config.yml");
+        PulseLogger pulseLogger = new BungeeCordLogger(plugin);
+
+        this.config = new GeneralConfiguration(pulseLogger, plugin.getDataFolder(), "config.yml");
         this.platform = new BungeeCordPlatform(plugin);
 
-        PulseLogger pulseLogger = new BungeeCordLogger(plugin);
         TaskScheduler scheduler = new BungeeCordTaskScheduler(plugin);
 
-        DatabaseConfiguration dbConfig = new BungeeCordDatabaseConfiguration(config);
-        MetricsConfiguration metricsConfig = new BungeeCordMetricsConfiguration(config);
-
-        this.databaseService = new DatabaseService(pulseLogger, platform, dbConfig, scheduler);
+        this.databaseService = new DatabaseService(pulseLogger, platform, config, scheduler);
 
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
         this.pingRetriever =new BungeeCordPingRetriever(plugin);
@@ -66,7 +60,7 @@ public class ServerPulseBungeeCordLoader implements Service {
         ITPSRetriever tpsRetriever = new UnsupportedTPSRetriever();
 
         MetricsCollector collector = new MetricsCollector(pulseLogger, platform, tpsRetriever, diskRetriever, pingRetriever);
-        LineProtocolFormatter formatter = new LineProtocolFormatter(metricsConfig);
+        LineProtocolFormatter formatter = new LineProtocolFormatter(config);
 
         this.metricsService = new MetricsService(pulseLogger, collector, formatter, scheduler, databaseService);
 

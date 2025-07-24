@@ -1,14 +1,14 @@
 package it.renvins.serverpulse.bukkit.commands;
 
+import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.common.utils.ChatUtils;
-import it.renvins.serverpulse.bukkit.config.BukkitConfiguration;
 import org.bukkit.command.CommandSender;
 
 public class ReloadCommand extends GeneralCommand {
 
-    private final BukkitConfiguration config;
+    private final GeneralConfiguration config;
 
-    public ReloadCommand(String permission, boolean isPlayerOnly, BukkitConfiguration config) {
+    public ReloadCommand(String permission, boolean isPlayerOnly, GeneralConfiguration config) {
         super(permission, isPlayerOnly);
         this.config = config;
     }
@@ -19,7 +19,7 @@ public class ReloadCommand extends GeneralCommand {
             sender.sendMessage(ChatUtils.format(config.getConfig().getString("messages.reloadConfigUsage")));
             return;
         }
-        if (!config.reload()) {
+        if (!config.load()) {
             sender.sendMessage(ChatUtils.format(config.getConfig().getString("messages.reloadConfigError")));
         } else {
             sender.sendMessage(ChatUtils.format(config.getConfig().getString("messages.reloadConfig")));

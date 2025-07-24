@@ -14,6 +14,7 @@ repositories {
         name = "papermc"
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -21,6 +22,7 @@ dependencies {
     implementation(project(":common"))
 
     compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
+    compileOnly("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 }
 
 java {
@@ -31,6 +33,9 @@ tasks.withType<ShadowJar> {
     archiveBaseName = "serverpulse"
     archiveClassifier = "bukkit"
     archiveVersion = "${rootProject.version}"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    minimize()
 }
 
 tasks.withType<ProcessResources> {

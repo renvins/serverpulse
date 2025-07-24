@@ -6,6 +6,8 @@ include("bukkit")
 include("common")
 include("velocity")
 include("fabric")
+include("bungeecord")
+include("teste2e")
 
 pluginManagement {
     repositories {
@@ -17,4 +19,3 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-include("bungeecord")
