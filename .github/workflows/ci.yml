@@ -67,6 +67,15 @@ jobs:
           retention-days: 14 # Keep artifacts for 14 days
           if-no-files-found: error # Fail the workflow if no JARs are found
 
+      # Upload BungeeCord JAR as an artifact
+      - name: Upload BungeeCord JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: serverpulse-bungeecord-jar
+          path: bungeecord/build/libs/serverpulse-*.jar
+          retention-days: 14
+          if-no-files-found: error # Fail the workflow if no JARs are found
+
       # --- Infrastructure Testing ---
 
       # 4. Install jq (needed for parsing InfluxDB health check JSON)
