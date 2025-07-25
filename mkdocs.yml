@@ -1,0 +1,17 @@
+site_name: ServerPulse Monitoring Tool (Minecraft)
+site_description: Documentation for the ServerPulse Minecraft performance monitoring tool
+site_author: renvins
+repo_url: https://github.com/renvins/serverpulse
+repo_name: serverpulse
+copyright: Copyright &copy; 2025 Vincenzo Reina
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Configuration: configuration.md
+  - Commands: commands.md
+  - Alerts: alerts.md
+  - Developer API: developer_api.md
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/logo.png
