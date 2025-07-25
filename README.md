@@ -48,7 +48,7 @@ The plugin automatically detects your server platform and uses the most efficien
 
 ## 📚 Documentation
 
-**For setup guides, configuration instructions, API examples, and developer information, please visit our [Wiki](https://github.com/renvins/serverpulse/wiki).**
+**For setup guides, configuration instructions, API examples, and developer information, please visit our [Wiki](https://renvins.github.io/serverpulse/).**
 
 The wiki contains comprehensive documentation on:
 -   Installation and setup instructions
@@ -74,7 +74,7 @@ The wiki contains comprehensive documentation on:
 
 ## 🤝 Contributing
 
-We welcome all contributions - bug reports, feature proposals, pull requests, or simply feedback. Read [Contributing](https://github.com/renvins/serverpulse/wiki/7.-Contributing-guidelines)
+We welcome all contributions - bug reports, feature proposals, pull requests, or simply feedback. Read [Contributing](https://github.com/renvins/serverpulse/blob/master/CONTRIBUTING.md)
 
 ## 📄 License
 
