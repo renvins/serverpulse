@@ -1,0 +1,1209 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for the ServerPulse Minecraft performance monitoring tool">
+      
+      
+        <meta name="author" content="renvins">
+      
+      
+      
+        <link rel="prev" href="../commands/">
+      
+      
+        <link rel="next" href="../developer_api/">
+      
+      
+      <link rel="icon" href="../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Alerts - ServerPulse Monitoring Tool (Minecraft)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#alert-system" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ServerPulse Monitoring Tool (Minecraft)" class="md-header__button md-logo" aria-label="ServerPulse Monitoring Tool (Minecraft)" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ServerPulse Monitoring Tool (Minecraft)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Alerts
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/renvins/serverpulse" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    serverpulse
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ServerPulse Monitoring Tool (Minecraft)" class="md-nav__button md-logo" aria-label="ServerPulse Monitoring Tool (Minecraft)" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    ServerPulse Monitoring Tool (Minecraft)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/renvins/serverpulse" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    serverpulse
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Alerts
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Alerts
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contact-point-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contact Point Setup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contact Point Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#discord-integration-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Discord Integration Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telegram-integration-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Telegram Integration Setup
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choosing-your-contact-point-for-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Choosing Your Contact Point for Alerts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Choosing Your Contact Point for Alerts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setting-the-default-contact-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting the Default Contact Point
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-multiple-contact-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Multiple Contact Policies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-alert-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Default Alert Rules
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Default Alert Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tps-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      TPS Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-alerts-via-grafana-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Alerts via Grafana UI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating Alerts via Grafana UI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accessing-alert-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accessing Alert Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-new-alert-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a New Alert Rule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a New Alert Rule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-define-query-and-alert-condition" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Define query and alert condition
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-add-alert-rule-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Add alert rule details
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-add-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Add notifications
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-alerts-to-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Alerts to Create
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Alerts to Create">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#low-tps-alert" class="md-nav__link">
+    <span class="md-ellipsis">
+      Low TPS Alert
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-memory-usage-alert" class="md-nav__link">
+    <span class="md-ellipsis">
+      High Memory Usage Alert
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-disk-space-alert" class="md-nav__link">
+    <span class="md-ellipsis">
+      Low Disk Space Alert
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Alerts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer_api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developer API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contact-point-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contact Point Setup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contact Point Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#discord-integration-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Discord Integration Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telegram-integration-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Telegram Integration Setup
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choosing-your-contact-point-for-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Choosing Your Contact Point for Alerts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Choosing Your Contact Point for Alerts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setting-the-default-contact-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting the Default Contact Point
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-multiple-contact-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Multiple Contact Policies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-alert-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Default Alert Rules
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Default Alert Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tps-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      TPS Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-alerts-via-grafana-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Alerts via Grafana UI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating Alerts via Grafana UI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accessing-alert-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accessing Alert Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-new-alert-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a New Alert Rule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a New Alert Rule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-define-query-and-alert-condition" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Define query and alert condition
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-add-alert-rule-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Add alert rule details
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-add-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Add notifications
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-alerts-to-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Alerts to Create
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Alerts to Create">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#low-tps-alert" class="md-nav__link">
+    <span class="md-ellipsis">
+      Low TPS Alert
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-memory-usage-alert" class="md-nav__link">
+    <span class="md-ellipsis">
+      High Memory Usage Alert
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-disk-space-alert" class="md-nav__link">
+    <span class="md-ellipsis">
+      Low Disk Space Alert
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Alerts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="alert-system">Alert System</h1>
+<p>ServerPulse includes a robust alert system that can notify you about important server events through Discord or Telegram. This guide covers setting up and customizing alerts.</p>
+<h2 id="contact-point-setup">Contact Point Setup</h2>
+<p>ServerPulse supports multiple notification channels. You can choose either Discord or Telegram (or both) for your alerts.</p>
+<h3 id="discord-integration-setup">Discord Integration Setup</h3>
+<ol>
+<li>
+<p><strong>Creating a Discord Webhook</strong></p>
+<ol>
+<li>Open your Discord server settings.</li>
+<li>Navigate to "Integrations" → "Webhooks".</li>
+<li>Click "Create Webhook".</li>
+<li>Choose a name and channel for alerts.</li>
+<li>Copy the webhook URL.</li>
+</ol>
+</li>
+<li>
+<p><strong>Configuring Discord Integration</strong></p>
+<ol>
+<li>
+<p>Open <code>infra/grafana/provisioning/alerting/discord_contact.yml</code>.</p>
+</li>
+<li>
+<p>Replace the example webhook URL with yours:</p>
+<p><code>yaml
+apiVersion: 1
+contactPoints:
+  - orgId: 1
+    name: Discord contact point
+    receivers:
+      - uid: deiz0m4w2afpcb
+        type: discord
+        settings:
+          url: https://discord.com/api/webhooks/your-webhook  # Replace this
+          message: '{{ template "discord.default.message" . }}'
+          title: '{{ template "default.title" . }}'</code></p>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="telegram-integration-setup">Telegram Integration Setup</h3>
+<ol>
+<li>
+<p><strong>Creating a Telegram Bot</strong></p>
+<ol>
+<li>Open Telegram and search for "@BotFather".</li>
+<li>Start a chat and send the command <code>/newbot</code>.</li>
+<li>Follow the instructions to create your bot.</li>
+<li>Copy the bot token provided by BotFather.</li>
+</ol>
+</li>
+<li>
+<p><strong>Getting Your Chat ID</strong></p>
+<ol>
+<li>Add your bot to a group or start a private conversation with it.</li>
+<li>Send any message to the bot.</li>
+<li>Visit <code>https://api.telegram.org/bot&lt;YourBOTToken&gt;/getUpdates</code>.</li>
+<li>Look for the "chat" object and copy the "id" value.</li>
+</ol>
+</li>
+<li>
+<p><strong>Configuring Telegram Integration</strong></p>
+<ol>
+<li>Open <code>infra/grafana/provisioning/alerting/telegram_contact.yml</code>.</li>
+<li>Replace the example values with yours:
+    <code>yaml
+    apiVersion: 1
+    contactPoints:
+        - orgId: 1
+          name: Telegram contact point
+          receivers:
+            - uid: eejlr7re61og0e
+              type: telegram
+              settings:
+                bottoken: your_bot_token      # Replace with your bot token
+                chatid: "your_chat_id"       # Replace with your chat ID
+                disable_notification: false
+                disable_web_page_preview: false
+                protect_content: false
+              disableResolveMessage: false</code></li>
+</ol>
+</li>
+</ol>
+<h2 id="choosing-your-contact-point-for-alerts">Choosing Your Contact Point for Alerts</h2>
+<p>After setting up your desired contact points (Discord, Telegram, or both), you need to select which one to use for your alerts:</p>
+<h3 id="setting-the-default-contact-point">Setting the Default Contact Point</h3>
+<ol>
+<li>
+<p><strong>Edit the Contact Policy</strong></p>
+<ol>
+<li>Open <code>infra/grafana/provisioning/alerting/contact_policy.yml</code>.</li>
+<li>Change the <code>receiver</code> value to your preferred contact point:
+    ```yaml
+    apiVersion: 1
+    policies:<ul>
+<li>orgId: 1
+    receiver: Discord contact point  # Change to "Telegram contact point" if preferred
+    group_wait: 0s
+    group_interval: 30s
+    repeat_interval: 3m
+```</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Update Alert Rules</strong></p>
+<ol>
+<li>Open <code>infra/grafana/provisioning/alerting/metrics.yml</code>.</li>
+<li>For each alert rule, update the <code>receiver</code> in the notification settings:
+    <code>yaml
+    notification_settings:
+      receiver: Discord contact point  # Change to "Telegram contact point" if preferred</code></li>
+</ol>
+</li>
+<li>
+<p><strong>Apply Changes</strong></p>
+<p><code>bash
+docker compose down
+docker compose up -d</code></p>
+</li>
+</ol>
+<h2 id="creating-multiple-contact-policies">Creating Multiple Contact Policies</h2>
+<p>If you want to use different contact points for different alerts, you can create multiple policies:</p>
+<ol>
+<li>
+<p><strong>Edit the Contact Policy</strong></p>
+<p><code>yaml
+apiVersion: 1
+policies:
+  - orgId: 1
+    name: Critical Alerts     # Add a name for clarity
+    receiver: Discord contact point
+    group_wait: 0s
+    group_interval: 30s
+    repeat_interval: 3m
+    matcher:
+      - name: severity
+        value: critical
+  - orgId: 1
+    name: Warning Alerts      # Add a name for clarity
+    receiver: Telegram contact point
+    group_wait: 0s
+    group_interval: 1m
+    repeat_interval: 5m
+    matcher:
+      - name: severity
+        value: warning</code></p>
+</li>
+<li>
+<p><strong>Set Alert Severity Labels</strong>
+    When creating alerts, add a label "severity" with value "critical" or "warning" to route them to the correct contact point.</p>
+</li>
+</ol>
+<h2 id="default-alert-rules">Default Alert Rules</h2>
+<p>ServerPulse comes with pre-configured alerts:</p>
+<h3 id="tps-monitoring">TPS Monitoring</h3>
+<p>The default alert triggers when TPS drops below 18, evaluating every 10 seconds with 5-minute historical context.</p>
+<h2 id="creating-alerts-via-grafana-ui">Creating Alerts via Grafana UI</h2>
+<p>Most server administrators will find it easier to create and manage alerts directly through the Grafana user interface.</p>
+<h3 id="accessing-alert-management">Accessing Alert Management</h3>
+<ol>
+<li>Log in to your Grafana instance (typically http://localhost:3000).</li>
+<li>In the left sidebar, click on the bell icon (Alerting).</li>
+<li>This opens the Alerting page where you can manage all your alerts.</li>
+</ol>
+<h3 id="creating-a-new-alert-rule">Creating a New Alert Rule</h3>
+<ol>
+<li>From the Alerting page, click on "Alert rules" in the sidebar.</li>
+<li>Click the "New alert rule" button.</li>
+<li>Configure your alert in the three sections:</li>
+</ol>
+<h4 id="1-define-query-and-alert-condition">1. Define query and alert condition</h4>
+<ol>
+<li>Select your InfluxDB data source.</li>
+<li>Write your Flux query or use the query builder:
+    <code>from(bucket: "metrics_db")
+      |&gt; range(start: v.timeRangeStart, stop: v.timeRangeStop)
+      |&gt; filter(fn: (r) =&gt; r._measurement == "minecraft_stats")
+      |&gt; filter(fn: (r) =&gt; r._field == "used_memory")
+      |&gt; filter(fn: (r) =&gt; r.server == "your-server-name")</code></li>
+<li>In the "Threshold" section, set the alert trigger condition:<ul>
+<li>Select "Is above" for memory alerts or "Is below" for TPS alerts.</li>
+<li>Enter your threshold value (e.g., 18 for TPS, 80% for memory usage).</li>
+</ul>
+</li>
+</ol>
+<h4 id="2-add-alert-rule-details">2. Add alert rule details</h4>
+<ol>
+<li>Give your alert a descriptive name (e.g., "High Memory Usage").</li>
+<li>Set an appropriate evaluation interval (e.g., 10s for critical metrics, 1m for less critical ones).</li>
+<li>Optionally add a summary and description to provide more context.</li>
+<li>Add any labels needed for routing (e.g., <code>severity=critical</code>).</li>
+</ol>
+<h4 id="3-add-notifications">3. Add notifications</h4>
+<ol>
+<li>
+<p>Select your preferred contact point (Discord or Telegram).</p>
+</li>
+<li>
+<p>Configure the message template (or use the default).</p>
+</li>
+<li>
+<p>Set notification timing:</p>
+<ul>
+<li><strong>Group interval</strong>: How long to wait before sending an updated notification (e.g., 30s).</li>
+<li><strong>Auto resolve</strong>: Toggle if alerts should automatically resolve.</li>
+<li><strong>Resolve timeout</strong>: How long before considering an alert resolved if no longer triggering.</li>
+</ul>
+</li>
+<li>
+<p>Click "Save and exit" to activate your alert.</p>
+</li>
+</ol>
+<h2 id="example-alerts-to-create">Example Alerts to Create</h2>
+<p>Here are some useful alerts you might want to set up:</p>
+<h3 id="low-tps-alert">Low TPS Alert</h3>
+<ul>
+<li><strong>Query</strong>:
+  <code>from(bucket: "metrics_db")
+    |&gt; range(start: v.timeRangeStart, stop: v.timeRangeStop)
+    |&gt; filter(fn: (r) =&gt; r._measurement == "minecraft_stats")
+    |&gt; filter(fn: (r) =&gt; r._field == "tps_1m")
+    |&gt; filter(fn: (r) =&gt; r.server == "your-server-name")</code></li>
+<li><strong>Condition</strong>: Is below 18</li>
+<li><strong>Name</strong>: "Low TPS Alert"</li>
+<li><strong>Evaluation</strong>: Every 10s</li>
+<li><strong>Label</strong>: severity=critical</li>
+</ul>
+<h3 id="high-memory-usage-alert">High Memory Usage Alert</h3>
+<ul>
+<li><strong>Query</strong>:
+  <code>from(bucket: "metrics_db")
+    |&gt; range(start: v.timeRangeStart, stop: v.timeRangeStop)
+    |&gt; filter(fn: (r) =&gt; r._measurement == "minecraft_stats")
+    |&gt; filter(fn: (r) =&gt; r._field == "used_memory")
+    |&gt; filter(fn: (r) =&gt; r.server == "your-server-name")</code></li>
+<li><strong>Condition</strong>: Is above your threshold (e.g., 80% of your server's allocated memory).</li>
+<li><strong>Name</strong>: "High Memory Usage"</li>
+<li><strong>Evaluation</strong>: Every 30s</li>
+<li><strong>Label</strong>: severity=critical</li>
+</ul>
+<h3 id="low-disk-space-alert">Low Disk Space Alert</h3>
+<ul>
+<li><strong>Query</strong>:
+  <code>from(bucket: "metrics_db")
+    |&gt; range(start: v.timeRangeStart, stop: v.timeRangeStop)
+    |&gt; filter(fn: (r) =&gt; r._measurement == "minecraft_stats")
+    |&gt; filter(fn: (r) =&gt; r._field == "usable_disk_space")
+    |&gt; filter(fn: (r) =&gt; r.server == "your-server-name")</code></li>
+<li><strong>Condition</strong>: Is below your threshold (e.g., 10GB).</li>
+<li><strong>Name</strong>: "Low Disk Space"</li>
+<li><strong>Evaluation</strong>: Every 5m</li>
+<li><strong>Label</strong>: severity=warning</li>
+</ul>
+<h2 id="testing-alerts">Testing Alerts</h2>
+<ol>
+<li>
+<p>Simulate trigger conditions:</p>
+<ul>
+<li>For TPS: Use a plugin or command to stress test the server.</li>
+<li>For memory: Load a lot of chunks or spawn many entities.</li>
+<li>For disk space: Create large temporary files in your server directory.</li>
+</ul>
+</li>
+<li>
+<p>Verify Integration:</p>
+<ul>
+<li>Check Discord channel or Telegram chat for alert messages.</li>
+<li>Confirm formatting and content.</li>
+</ul>
+</li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>If alerts aren't working:</p>
+<ol>
+<li>Check webhook URL or bot token for typos.</li>
+<li>Verify Grafana can reach the Discord/Telegram API.</li>
+<li>Confirm your alert conditions are correctly configured.</li>
+<li>Look for error messages in Grafana's alert history.</li>
+<li>Test the contact point by sending a test notification.</li>
+<li>Ensure the correct contact point is selected in your alert rules and policies.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Vincenzo Reina
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>
