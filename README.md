@@ -7,6 +7,10 @@ ServerPulse is an open-source, real-time performance monitoring tool for Minecra
 [![Available on Spigot](https://img.shields.io/badge/Available%20on-Spigot-yellow.svg)](https://www.spigotmc.org/resources/serverpulse-1-8-1-21-x-real-time-minecraft-performance-monitoring.123707/)
 [![Available on Modrinth](https://img.shields.io/badge/Available%20on-Modrinth-green.svg)](https://modrinth.com/plugin/serverpulse)
 
+> ### 💬 Community & Support
+>
+> **Have questions, need help, or want to share your dashboard setup? [Click here to join our Discord Server\!](https://discord.gg/jZUqcemc4G)**
+
 <details>
 <summary>📊 View Dashboard Examples</summary>
 
@@ -29,7 +33,7 @@ ServerPulse isn't just another metrics exporter - it offers several unique advan
 -   **Universal Platform Support** - Works with any Bukkit-based, Velocity, and Fabric server while taking advantage of Paper-specific optimizations when available.
 -   **Per-World Analytics** - Track entity counts, chunk loading, and performance metrics separately for each world.
 -   **Flexible Tagging System** - Group and filter metrics by server, network, region, or any custom dimension through simple configuration.
--   **Zero-Configuration Dashboards** - Auto-provisioned Grafana dashboards—no manual setup required.
+-   **Zero-Configuration Dashboards** - Auto-provisioned Grafana dashboards, no manual setup required.
 -   **Alert Notifications** - Integrated Discord and Telegram alerts for critical server metrics (TPS drops, memory issues, etc.).
 -   **Production-Ready Infrastructure** - Built-in health checks, connection retry mechanisms, and proper error handling.
 -   **Docker-First Deployment** - Single command deployment with Docker Compose for the entire monitoring stack.
