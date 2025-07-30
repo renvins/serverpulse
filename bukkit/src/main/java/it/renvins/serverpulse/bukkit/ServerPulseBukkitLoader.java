@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import it.renvins.serverpulse.api.ServerPulseProvider;
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;
+import it.renvins.serverpulse.api.metrics.IMSPTRetriever;
 import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
@@ -11,6 +12,7 @@ import it.renvins.serverpulse.api.service.IMetricsService;
 import it.renvins.serverpulse.api.service.Service;
 import it.renvins.serverpulse.bukkit.logger.BukkitLogger;
 import it.renvins.serverpulse.bukkit.metrics.BukkitTPSRetriever;
+import it.renvins.serverpulse.bukkit.metrics.PaperMSPTRetriever;
 import it.renvins.serverpulse.common.DatabaseService;
 import it.renvins.serverpulse.common.config.GeneralConfiguration;
 import it.renvins.serverpulse.bukkit.commands.ServerPulseCommand;
@@ -23,6 +25,7 @@ import it.renvins.serverpulse.bukkit.scheduler.BukkitTaskScheduler;
 import it.renvins.serverpulse.common.MetricsService;
 import it.renvins.serverpulse.common.metrics.LineProtocolFormatter;
 import it.renvins.serverpulse.common.metrics.MetricsCollector;
+import it.renvins.serverpulse.common.metrics.UnsupportedMSPTRetriever;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 
@@ -40,6 +43,7 @@ public class ServerPulseBukkitLoader implements Service {
     private final ITPSRetriever tpsRetriever;
     private final IDiskRetriever diskRetriever;
     private final IPingRetriever pingRetriever;
+    private final IMSPTRetriever msptRetriever;
 
     private final IMetricsService metricsService;
 
@@ -58,13 +62,15 @@ public class ServerPulseBukkitLoader implements Service {
 
         if (isPaper()) {
             this.tpsRetriever = new PaperTPSRetriever();
+            this.msptRetriever = new PaperMSPTRetriever();
         } else {
             this.tpsRetriever = new BukkitTPSRetriever(plugin);
+            this.msptRetriever = new UnsupportedMSPTRetriever();
         }
         this.diskRetriever = new DiskRetriever(plugin.getDataFolder());
         this.pingRetriever = new BukkitPingRetriever();
 
-        MetricsCollector collector = new MetricsCollector(logger, platform, tpsRetriever, diskRetriever, pingRetriever);
+        MetricsCollector collector = new MetricsCollector(logger, platform, tpsRetriever, diskRetriever, pingRetriever, msptRetriever);
         LineProtocolFormatter formatter = new LineProtocolFormatter(config);
 
         this.metricsService = new MetricsService(logger, collector, formatter, taskScheduler, databaseService);
@@ -85,6 +91,10 @@ public class ServerPulseBukkitLoader implements Service {
         if (tpsRetriever instanceof BukkitTPSRetriever) {
             LOGGER.info("Starting tick monitoring task...");
             ((BukkitTPSRetriever) tpsRetriever).startTickMonitor();
+        }
+        if (msptRetriever instanceof PaperMSPTRetriever) {
+            LOGGER.info("Registering PaperMSPTRetriever event listener...");
+            plugin.getServer().getPluginManager().registerEvents((PaperMSPTRetriever) msptRetriever, plugin);
         }
         metricsService.load();
 
