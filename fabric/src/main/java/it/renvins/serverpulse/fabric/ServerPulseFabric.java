@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import it.renvins.serverpulse.api.ServerPulseProvider;
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;
+import it.renvins.serverpulse.api.metrics.IMSPTRetriever;
 import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
@@ -21,6 +22,7 @@ import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
 import it.renvins.serverpulse.fabric.command.ServerPulseCommand;
 import it.renvins.serverpulse.fabric.logger.FabricLogger;
+import it.renvins.serverpulse.fabric.metrics.FabricMSPTRetriever;
 import it.renvins.serverpulse.fabric.metrics.FabricPingRetriever;
 import it.renvins.serverpulse.fabric.metrics.FabricTPSRetriever;
 import it.renvins.serverpulse.fabric.platform.FabricPlatform;
@@ -45,6 +47,8 @@ public class ServerPulseFabric implements ModInitializer {
     private final IDatabaseService databaseService;
 
     private final ITPSRetriever tpsRetriever;
+    private final IMSPTRetriever msptRetriever;
+
     private final IDiskRetriever diskRetriever;
     private final IPingRetriever pingRetriever;
 
@@ -61,10 +65,12 @@ public class ServerPulseFabric implements ModInitializer {
         this.databaseService = new DatabaseService(logger, platform, config, scheduler);
 
         this.tpsRetriever = new FabricTPSRetriever();
+        this.msptRetriever = new FabricMSPTRetriever();
+
         this.diskRetriever = new DiskRetriever(FabricLoader.getInstance().getGameDir().toFile());
         this.pingRetriever = new FabricPingRetriever(this);
 
-        MetricsCollector collector = new MetricsCollector(logger, platform, tpsRetriever, diskRetriever, pingRetriever);
+        MetricsCollector collector = new MetricsCollector(logger, platform, tpsRetriever, diskRetriever, pingRetriever, msptRetriever);
         LineProtocolFormatter formatter = new LineProtocolFormatter(config);
 
         this.metricsService = new MetricsService(logger, collector, formatter, scheduler, databaseService);
@@ -95,6 +101,7 @@ public class ServerPulseFabric implements ModInitializer {
         }
         LOGGER.info("Starting tick monitoring task...");
         ((FabricTPSRetriever) tpsRetriever).startTickMonitor();
+        ((FabricMSPTRetriever) msptRetriever).startMSPTMonitor();
 
         metricsService.load();
 
