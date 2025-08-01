@@ -90,8 +90,8 @@ public class MetricsCollector {
         double mspt15m = msptRetriever.getAverageMSPT(15 * 60 * 20);
 
         double lastMSPT = msptRetriever.getLastMSPT();
-        double maxMSPT = msptRetriever.getMaxMSPT();
-        double minMSPT = msptRetriever.getMinMSPT();
+        double maxMSPT = msptRetriever.getMaxMSPT(5 * 60 * 20);
+        double minMSPT = msptRetriever.getMinMSPT(5 * 60 * 20);
 
         return new AsyncMetricsSnapshot(usedHeap, committedHeap,
                 totalDisk, usableDisk,

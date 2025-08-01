@@ -18,16 +18,18 @@ public interface IMSPTRetriever {
     double getAverageMSPT(int ticksCount);
 
     /**
-     * Retrieves the minimum tick duration recorded.
+     * Retrieves the minimum tick duration over the last specified number of ticks.
      *
+     * @param ticksCount The number of ticks to consider for the minimum.
      * @return The minimum tick duration in milliseconds, or 0.0 if no ticks are recorded.
      */
-    double getMinMSPT();
+    double getMinMSPT(int ticksCount);
 
     /**
-     * Retrieves the maximum tick duration recorded.
+     * Retrieves the maximum tick duration over the last specified number of ticks.
      *
+     * @param ticksCount The number of ticks to consider for the maximum.
      * @return The maximum tick duration in milliseconds, or 0.0 if no ticks are recorded.
      */
-    double getMaxMSPT();
+    double getMaxMSPT(int ticksCount);
 }

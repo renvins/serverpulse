@@ -15,12 +15,12 @@ public class UnsupportedMSPTRetriever implements IMSPTRetriever {
     }
 
     @Override
-    public double getMinMSPT() {
+    public double getMinMSPT(int ticksCount) {
         return 0.0;
     }
 
     @Override
-    public double getMaxMSPT() {
+    public double getMaxMSPT(int ticksCount) {
         return 0.0;
     }
 }
