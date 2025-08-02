@@ -58,7 +58,6 @@ The wiki contains comprehensive documentation on:
 -   Installation and setup instructions
 -   Configuration options and customization
 -   Discord and Telegram alerts configuration
--   Custom dashboard creation
 -   Developer API examples
 -   Contributing guidelines
 
