@@ -2,6 +2,7 @@ package it.renvins.serverpulse.bungeecord;
 
 import it.renvins.serverpulse.api.ServerPulseProvider;
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;
+import it.renvins.serverpulse.api.metrics.IMSPTRetriever;
 import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import it.renvins.serverpulse.api.service.IDatabaseService;
@@ -19,6 +20,7 @@ import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.disk.DiskRetriever;
 import it.renvins.serverpulse.common.metrics.LineProtocolFormatter;
 import it.renvins.serverpulse.common.metrics.MetricsCollector;
+import it.renvins.serverpulse.common.metrics.UnsupportedMSPTRetriever;
 import it.renvins.serverpulse.common.metrics.UnsupportedTPSRetriever;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
@@ -58,8 +60,9 @@ public class ServerPulseBungeeCordLoader implements Service {
         this.pingRetriever =new BungeeCordPingRetriever(plugin);
 
         ITPSRetriever tpsRetriever = new UnsupportedTPSRetriever();
+        IMSPTRetriever msptRetriever = new UnsupportedMSPTRetriever();
 
-        MetricsCollector collector = new MetricsCollector(pulseLogger, platform, tpsRetriever, diskRetriever, pingRetriever);
+        MetricsCollector collector = new MetricsCollector(pulseLogger, platform, tpsRetriever, diskRetriever, pingRetriever, msptRetriever);
         LineProtocolFormatter formatter = new LineProtocolFormatter(config);
 
         this.metricsService = new MetricsService(pulseLogger, collector, formatter, scheduler, databaseService);

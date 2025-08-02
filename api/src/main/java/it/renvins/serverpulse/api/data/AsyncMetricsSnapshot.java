@@ -13,8 +13,20 @@ public class AsyncMetricsSnapshot {
     private final long maxPing;
     private final long avgPing;
 
+    private final double mspt1m;
+    private final double mspt5m;
+    private final double mspt15m;
 
-    public AsyncMetricsSnapshot(long usedHeap, long commitedHeap, long totalDisk, long usableDisk, long minPing, long maxPing, long avgPing) {
+    private final double lastMSPT;
+    private final double minMSPT;
+    private final double maxMSPT;
+
+
+    public AsyncMetricsSnapshot(long usedHeap, long commitedHeap,
+                                long totalDisk, long usableDisk,
+                                long minPing, long maxPing, long avgPing,
+                                double mspt1m, double mspt5m, double mspt15m,
+                                double lastMSPT, double minMSPT, double maxMSPT) {
         this.usedHeap = usedHeap;
         this.commitedHeap = commitedHeap;
 
@@ -24,6 +36,14 @@ public class AsyncMetricsSnapshot {
         this.minPing = minPing;
         this.maxPing = maxPing;
         this.avgPing = avgPing;
+
+        this.mspt1m = mspt1m;
+        this.mspt5m = mspt5m;
+        this.mspt15m = mspt15m;
+
+        this.lastMSPT = lastMSPT;
+        this.minMSPT = minMSPT;
+        this.maxMSPT = maxMSPT;
     }
 
     /**
@@ -87,5 +107,59 @@ public class AsyncMetricsSnapshot {
      */
     public long getAvgPing() {
         return avgPing;
+    }
+
+    /**
+     * Gets the average server tick duration over the last 1 minute in milliseconds.
+     *
+     * @return the average tick duration for the last 1 minute
+     */
+    public double getMspt1m() {
+        return mspt1m;
+    }
+
+    /**
+     * Gets the average server tick duration over the last 5 minutes in milliseconds.
+     *
+     * @return the average tick duration for the last 5 minutes
+     */
+    public double getMspt5m() {
+        return mspt5m;
+    }
+
+    /**
+     * Gets the average server tick duration over the last 15 minutes in milliseconds.
+     *
+     * @return the average tick duration for the last 15 minutes
+     */
+    public double getMspt15m() {
+        return mspt15m;
+    }
+
+    /**
+     * Gets the last server tick duration in milliseconds.
+     *
+     * @return the last tick duration
+     */
+    public double getLastMSPT() {
+        return lastMSPT;
+    }
+
+    /**
+     * Gets the minimum server tick duration recorded in milliseconds.
+     *
+     * @return the minimum tick duration
+     */
+    public double getMinMSPT() {
+        return minMSPT;
+    }
+
+    /**
+     * Gets the maximum server tick duration recorded in milliseconds.
+     *
+     * @return the maximum tick duration
+     */
+    public double getMaxMSPT() {
+        return maxMSPT;
     }
 }

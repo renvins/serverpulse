@@ -49,6 +49,16 @@ public class LineProtocolFormatter {
                         .addField("tps_15m", syncData.getTps()[2]);
         }
 
+        if (asyncData.getMspt1m() != 0.0 && asyncData.getMspt5m() != 0.0 && asyncData.getMspt15m() != 0.0 &&
+            asyncData.getLastMSPT() != 0.0 && asyncData.getMinMSPT() != 0.0 && asyncData.getMaxMSPT() != 0.0) {
+                generalPoint.addField("mspt_1m", asyncData.getMspt1m())
+                        .addField("mspt_5m", asyncData.getMspt5m())
+                        .addField("mspt_15m", asyncData.getMspt15m())
+                        .addField("last_mspt", asyncData.getLastMSPT())
+                        .addField("min_mspt", asyncData.getMinMSPT())
+                        .addField("max_mspt", asyncData.getMaxMSPT());
+        }
+
         addConfigTags(generalPoint);
         points.add(generalPoint);
 

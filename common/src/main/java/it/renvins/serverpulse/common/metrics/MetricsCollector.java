@@ -4,6 +4,7 @@ import it.renvins.serverpulse.api.data.AsyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.SyncMetricsSnapshot;
 import it.renvins.serverpulse.api.data.WorldData;
 import it.renvins.serverpulse.api.metrics.IDiskRetriever;
+import it.renvins.serverpulse.api.metrics.IMSPTRetriever;
 import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
 import it.renvins.serverpulse.api.utils.MemoryUtils;
@@ -21,16 +22,22 @@ public class MetricsCollector {
 
     private final PulseLogger logger;
     private final Platform platform;
+
     private final ITPSRetriever tpsRetriever;
     private final IDiskRetriever diskRetriever;
     private final IPingRetriever pingRetriever;
+    private final IMSPTRetriever msptRetriever;
 
-    public MetricsCollector(PulseLogger logger, Platform platform, ITPSRetriever tpsRetriever, IDiskRetriever diskRetriever, IPingRetriever pingRetriever) {
+    public MetricsCollector(PulseLogger logger, Platform platform,
+                            ITPSRetriever tpsRetriever, IDiskRetriever diskRetriever,
+                            IPingRetriever pingRetriever, IMSPTRetriever msptRetriever) {
         this.logger = logger;
         this.platform = platform;
+
         this.tpsRetriever = tpsRetriever;
         this.diskRetriever = diskRetriever;
         this.pingRetriever = pingRetriever;
+        this.msptRetriever = msptRetriever;
     }
 
     /**
@@ -78,6 +85,18 @@ public class MetricsCollector {
         int maxPing = this.pingRetriever.getMaxPing();
         int avgPing = this.pingRetriever.getAveragePing();
 
-        return new AsyncMetricsSnapshot(usedHeap, committedHeap, totalDisk, usableDisk, minPing, maxPing, avgPing);
+        double mspt1m = msptRetriever.getAverageMSPT(60 * 20);
+        double mspt5m = msptRetriever.getAverageMSPT(5 * 60 * 20);
+        double mspt15m = msptRetriever.getAverageMSPT(15 * 60 * 20);
+
+        double lastMSPT = msptRetriever.getLastMSPT();
+        double maxMSPT = msptRetriever.getMaxMSPT(5 * 60 * 20);
+        double minMSPT = msptRetriever.getMinMSPT(5 * 60 * 20);
+
+        return new AsyncMetricsSnapshot(usedHeap, committedHeap,
+                totalDisk, usableDisk,
+                minPing, maxPing, avgPing,
+                mspt1m, mspt5m, mspt15m,
+                lastMSPT, minMSPT, maxMSPT);
     }
 }

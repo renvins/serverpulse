@@ -26,14 +26,15 @@ Add the JitPack repository and the API dependency to your `pom.xml`.
 <repositories>
     <repository>
         <id>jitpack.io</id>
-        <url>[https://jitpack.io](https://jitpack.io)</url>
+        <url>https://jitpack.io</url>
     </repository>
 </repositories>
 
 <dependency>
     <groupId>com.github.renvins.serverpulse</groupId>
     <artifactId>api</artifactId>
-    <version>0.4.5-SNAPSHOT</version> <scope>provided</scope>
+    <version>[VERSION]</version>
+    <scope>provided</scope>
 </dependency>
 ```
 
@@ -44,12 +45,12 @@ Add the JitPack repository and the API dependency to your `build.gradle.kts`.
 ```kotlin
 repositories {
     mavenCentral()
-    maven { url = uri("[https://jitpack.io](https://jitpack.io)") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
     // Replace with the desired release version
-    compileOnly("com.github.renvins.serverpulse:api:0.4.5-SNAPSHOT")
+    compileOnly("com.github.renvins.serverpulse:api:[VERSION]")
 }
 ```
 
