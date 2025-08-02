@@ -262,14 +262,3 @@ Here are some useful alerts you might want to set up:
 
     * Check Discord channel or Telegram chat for alert messages.
     * Confirm formatting and content.
-
-## Troubleshooting
-
-If alerts aren't working:
-
-1.  Check webhook URL or bot token for typos.
-2.  Verify Grafana can reach the Discord/Telegram API.
-3.  Confirm your alert conditions are correctly configured.
-4.  Look for error messages in Grafana's alert history.
-5.  Test the contact point by sending a test notification.
-6.  Ensure the correct contact point is selected in your alert rules and policies.

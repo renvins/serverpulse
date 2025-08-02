@@ -152,7 +152,8 @@ Now it's time to install the ServerPulse plugin on your Minecraft server.
 
     * Open Grafana in your browser at `http://localhost:3000`.
     * Log in with the default credentials (`admin`/`admin`) and change the password when prompted.
-    * Navigate to **Dashboards**. You should find pre-configured dashboards for your server platform.
+    * Navigate to **Dashboards**. You should find pre-configured dashboard.
+    * Set the correct server-name to filter the dashboard to one server.
     * It may take a few minutes for data to start appearing.
 
 -----
