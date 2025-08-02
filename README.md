@@ -14,15 +14,17 @@ ServerPulse is an open-source, real-time performance monitoring tool for Minecra
 <details>
 <summary>📊 View Dashboard Examples</summary>
 
-![ServerPulse Grafana Dashboard Example1](img/dashboard.png)
-*Example dashboard view 1: General Server Overview*
+![ServerPulse Grafana Dashboard Example1](img/dash1.png)
+*Example dashboard view 1: System Metrics*
 
-![ServerPulse Grafana Dashboard Example2](img/dashboard2.png)
-*Example dashboard view 2: Per-World Details*
+![ServerPulse Grafana Dashboard Example2](img/dash2.png)
+*Example dashboard view 2: System Metrics 2*
 
-![ServerPulse Grafana Dashboard Example3](img/dashboard3.png)
-*Example dashboard view 3: Players Ping Overview*
+![ServerPulse Grafana Dashboard Example3](img/dash3.png)
+*Example dashboard view 3: System & World Metrics*
 
+![ServerPulse Grafana Dashboard Example4](img/dash4.png)
+*Example dashboard view 4: Player Metrics*
 </details>
 
 ## 🚀 Why Choose ServerPulse?
