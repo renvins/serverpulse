@@ -33,7 +33,7 @@ The monitoring infrastructure consists of **InfluxDB** for data storage and **Gr
 3.  **Start the Docker Containers**:
 
     * Run the following command to start the InfluxDB and Grafana containers in the background:
-      ```bash
+      ```
       docker compose up -d
       ```
     * This command will download the necessary Docker images and start the services. You can check the status of the containers with `docker compose ps`.
@@ -79,7 +79,7 @@ Grafana needs to be configured to connect to InfluxDB as a data source.
 2.  **Restart the Docker Containers**:
 
     * To apply the changes, restart the Docker containers:
-      ```bash
+      ```
       docker compose down
       docker compose up -d
       ```
@@ -128,19 +128,6 @@ Now it's time to install the ServerPulse plugin on your Minecraft server.
 
     <!-- end list -->
 
-    ```yaml
-    metrics:
-      interval: 5
-      influxdb:
-        url: http://localhost:8086 # URL of your InfluxDB instance
-        org: my-org
-        bucket: metrics_db
-        token: YOUR_INFLUXDB_TOKEN # Replace with your InfluxDB API token
-        table: minecraft_stats
-      tags:
-        server: "your-server-name" # A unique name for this server (e.g., "survival-1")
-    ```
-
     * Replace `YOUR_INFLUXDB_TOKEN` with the token you saved earlier.
     * Set a unique `server` tag to identify this server in Grafana.
     * You can also customize the in-game messages in the `messages` section of the configuration file.
@@ -175,13 +162,14 @@ Now it's time to install the ServerPulse plugin on your Minecraft server.
 * **Bukkit/Paper**:
     * Includes detailed TPS (Ticks Per Second) monitoring. It automatically uses Paper's native TPS retriever if available, otherwise it falls back to a custom implementation for Bukkit.
     * Provides per-world statistics for entities and loaded chunks.
+    * Paper and its forks have also support for MSPT
 * **BungeeCord/Velocity**:
     * Monitors player count and ping across your entire proxy network.
     * Tracks memory and disk usage of the proxy server itself.
 * **Fabric**:
     * A native implementation for Fabric servers using the Fabric API.
     * Includes TPS monitoring and per-world metrics for entities and loaded chunks, similar to the Bukkit version.
-
+    * Also fabric has support for MSPT
 -----
 
 ### Troubleshooting Common Issues 🛠️
@@ -203,6 +191,7 @@ If you run into any issues, you can:
 
 * Check the [GitHub issue tracker](https://github.com/renvins/serverpulse/issues) for existing bug reports and feature requests.
 * Open a new issue if you find a bug, providing as much detail as possible.
+* Join the community on [Discord](https://discord.gg/jZUqcemc4G)
 * For contributing to the project, please see the [contributing guidelines](https://github.com/renvins/serverpulse/blob/master/CONTRIBUTING.md).
 
 Enjoy using ServerPulse to monitor your Minecraft server's performance\! 🎉

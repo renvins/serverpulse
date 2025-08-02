@@ -33,7 +33,7 @@ Add the JitPack repository and the API dependency to your `pom.xml`.
 <dependency>
     <groupId>com.github.renvins.serverpulse</groupId>
     <artifactId>api</artifactId>
-    <version>0.4.5-SNAPSHOT</version> <scope>provided</scope>
+    <version>[VERSION]</version> <scope>provided</scope>
 </dependency>
 ```
 
@@ -49,7 +49,7 @@ repositories {
 
 dependencies {
     // Replace with the desired release version
-    compileOnly("com.github.renvins.serverpulse:api:0.4.5-SNAPSHOT")
+    compileOnly("com.github.renvins.serverpulse:api:[VERSION]")
 }
 ```
 
