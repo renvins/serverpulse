@@ -41,6 +41,9 @@ public class LineProtocolFormatter {
                 .addField("min_ping", asyncData.getMinPing())
                 .addField("max_ping", asyncData.getMaxPing())
                 .addField("avg_ping", asyncData.getAvgPing())
+                .addField("system_cpu_load_ratio", asyncData.getSystemCpuLoadRatio())
+                .addField("process_cpu_load_ratio", asyncData.getProcessCpuLoadRatio())
+                .addField("available_processors", asyncData.getAvailableProcessors())
                 .setTimestamp(timestamp);
 
         if (syncData.getTps()[0] != 0.0 && syncData.getTps()[1] != 0.0 && syncData.getTps()[2] != 0.0) {
