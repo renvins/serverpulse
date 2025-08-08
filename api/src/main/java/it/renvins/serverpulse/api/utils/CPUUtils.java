@@ -10,22 +10,26 @@ public class CPUUtils {
     private final static OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
     /**
-     * Get the CPU load ratio
-     * @return the CPU load ratio
+     * Get the system-wide CPU load ratio (0.0 to 1.0)
+     * @return the system CPU load ratio
      */
-    public static double getCPULoadRatio() {
+    public static double getSystemCPULoadRatio() {
         return osBean.getCpuLoad();
     }
 
     /**
-     * Get the CPU seconds used by the current process
-     * @return the CPU seconds used by the current process
+     * Get the JVM process CPU load ratio (0.0 to 1.0)
+     * @return the process CPU load ratio
      */
-    public static double getProcessCPUMs() {
-        long nanos = osBean.getProcessCpuTime();
-        if (nanos < 0) {
-            return -1.0d;
-        }
-        return nanos / 1_000_000;
+    public static double getProcessCPULoadRatio() {
+        return osBean.getProcessCpuLoad();
+    }
+
+    /**
+     * Get the number of available processors
+     * @return the number of available processors
+     */
+    public static int getAvailableProcessors() {
+        return Runtime.getRuntime().availableProcessors();
     }
 }

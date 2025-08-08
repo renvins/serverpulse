@@ -7,6 +7,7 @@ import it.renvins.serverpulse.api.metrics.IDiskRetriever;
 import it.renvins.serverpulse.api.metrics.IMSPTRetriever;
 import it.renvins.serverpulse.api.metrics.IPingRetriever;
 import it.renvins.serverpulse.api.metrics.ITPSRetriever;
+import it.renvins.serverpulse.api.utils.CPUUtils;
 import it.renvins.serverpulse.api.utils.MemoryUtils;
 import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.platform.Platform;
@@ -93,10 +94,15 @@ public class MetricsCollector {
         double maxMSPT = msptRetriever.getMaxMSPT(5 * 60 * 20);
         double minMSPT = msptRetriever.getMinMSPT(5 * 60 * 20);
 
+        double systemCpuLoadRatio = CPUUtils.getSystemCPULoadRatio();
+        double processCpuLoadRatio = CPUUtils.getProcessCPULoadRatio();
+        int availableProcessors = CPUUtils.getAvailableProcessors();
+
         return new AsyncMetricsSnapshot(usedHeap, committedHeap,
                 totalDisk, usableDisk,
                 minPing, maxPing, avgPing,
                 mspt1m, mspt5m, mspt15m,
-                lastMSPT, minMSPT, maxMSPT);
+                lastMSPT, minMSPT, maxMSPT,
+                systemCpuLoadRatio, processCpuLoadRatio, availableProcessors);
     }
 }

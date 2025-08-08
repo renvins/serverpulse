@@ -21,12 +21,17 @@ public class AsyncMetricsSnapshot {
     private final double minMSPT;
     private final double maxMSPT;
 
+    private final double systemCpuLoadRatio;
+    private final double processCpuLoadRatio;
+    private final int availableProcessors;
+
 
     public AsyncMetricsSnapshot(long usedHeap, long commitedHeap,
                                 long totalDisk, long usableDisk,
                                 long minPing, long maxPing, long avgPing,
                                 double mspt1m, double mspt5m, double mspt15m,
-                                double lastMSPT, double minMSPT, double maxMSPT) {
+                                double lastMSPT, double minMSPT, double maxMSPT,
+                                double systemCpuLoadRatio, double processCpuLoadRatio, int availableProcessors) {
         this.usedHeap = usedHeap;
         this.commitedHeap = commitedHeap;
 
@@ -44,6 +49,10 @@ public class AsyncMetricsSnapshot {
         this.lastMSPT = lastMSPT;
         this.minMSPT = minMSPT;
         this.maxMSPT = maxMSPT;
+
+        this.systemCpuLoadRatio = systemCpuLoadRatio;
+        this.processCpuLoadRatio = processCpuLoadRatio;
+        this.availableProcessors = availableProcessors;
     }
 
     /**
@@ -161,5 +170,29 @@ public class AsyncMetricsSnapshot {
      */
     public double getMaxMSPT() {
         return maxMSPT;
+    }
+
+    /**
+     * Gets the system-wide CPU load ratio (0.0 to 1.0)
+     * @return the system CPU load ratio
+     */
+    public double getSystemCpuLoadRatio() {
+        return systemCpuLoadRatio;
+    }
+
+    /** 
+     * Gets the JVM process CPU load ratio (0.0 to 1.0)
+     * @return the process CPU load ratio
+     */
+    public double getProcessCpuLoadRatio() {
+        return processCpuLoadRatio;
+    }
+
+    /**
+     * Gets the number of available processors
+     * @return the number of available processors
+     */
+    public int getAvailableProcessors() {
+        return availableProcessors;
     }
 }
