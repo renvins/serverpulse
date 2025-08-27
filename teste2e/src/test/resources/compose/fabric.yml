@@ -33,7 +33,7 @@ services:
       EULA: "TRUE"
       TYPE: "FABRIC"
       ONLINE_MODE: "FALSE"
-      VERSION: "1.21.7"
+      VERSION: "1.21.8"
       MODS: "https://cdn.modrinth.com/data/P7dR8mSH/versions/JntuF9Ul/fabric-api-0.129.0%2B1.21.7.jar"
     volumes:
       - ../../../../../fabric/build/libs:/data/mods

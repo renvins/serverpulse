@@ -33,11 +33,11 @@ repositories {
 
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.21.7")
-    mappings("net.fabricmc:yarn:1.21.7+build.2:v2")
+    minecraft("com.mojang:minecraft:1.21.8")
+    mappings("net.fabricmc:yarn:1.21.8+build.1:v2")
     modImplementation("net.fabricmc:fabric-loader:0.16.14") //
 
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.128.2+1.21.7")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.129.0+1.21.8")
 
     // API and Common modules
     implementation(project(":api"))
@@ -59,8 +59,8 @@ tasks.processResources {
     filesMatching("fabric.mod.json") {
         expand(mapOf(
             "version" to rootProject.version,
-            "minecraft_version" to "1.21.7",
-            "loader_version" to "0.16.10"
+            "minecraft_version" to "1.21.8",
+            "loader_version" to "0.16.14"
         )
         )
     }

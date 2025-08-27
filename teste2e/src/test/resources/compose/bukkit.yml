@@ -33,7 +33,7 @@ services:
       EULA: "TRUE"
       ONLINE_MODE: "FALSE"
       TYPE: "PAPER"
-      VERSION: "1.21.7"
+      VERSION: "1.21.8"
     volumes:
       - ../../../../../bukkit/build/libs:/data/plugins
       - ../config/ServerPulse:/data/plugins/ServerPulse
