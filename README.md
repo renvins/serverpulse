@@ -32,7 +32,7 @@ ServerPulse is an open-source, real-time performance monitoring tool for Minecra
 ServerPulse isn't just another metrics exporter - it offers several unique advantages:
 
 -   **Complete Monitoring Stack** - Fully integrated solution with InfluxDB (optimized for time-series data) and pre-configured Grafana dashboards.
--   **Universal Platform Support** - Works with any Bukkit-based, Velocity, and Fabric server while taking advantage of Paper-specific optimizations when available.
+-   **Universal Platform Support** - Works with any Bukkit-based, Velocity, BungeeCord and Fabric server while taking advantage of Paper-specific optimizations when available.
 -   **Per-World Analytics** - Track entity counts, chunk loading, and performance metrics separately for each world.
 -   **Flexible Tagging System** - Group and filter metrics by server, network, region, or any custom dimension through simple configuration.
 -   **Zero-Configuration Dashboards** - Auto-provisioned Grafana dashboards, no manual setup required.
