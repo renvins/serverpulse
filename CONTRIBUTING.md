@@ -20,13 +20,6 @@ When you are creating a bug report, please include as many details as possible. 
 
 If you have an idea for a new feature or an enhancement to an existing one, please open an issue on our [GitHub issue tracker](https://www.google.com/search?q=https://github.com/Renvins/ServerPulse/issues). This allows us to discuss the idea and its implementation before you start working on it.
 
-### **Your First Code Contribution**
-
-Unsure where to begin contributing to ServerPulse? You can start by looking through good-first-issue and help-wanted issues:
-
-* [Good First Issues](https://www.google.com/search?q=https://github.com/Renvins/ServerPulse/issues?q%3Dis%253Aissue%2Bis%253Aopen%2Blabel%253A%2522good%2Bfirst%2Bissue%2522) \- issues which should only require a few lines of code, and a test or two.  
-* [Help Wanted Issues](https://www.google.com/search?q=https://github.com/Renvins/ServerPulse/issues?q%3Dis%253Aissue%2Bis%253Aopen%2Blabel%253A%2522help%2Bwanted%2522) \- issues which should be a bit more involved than good-first-issue issues.
-
 ### **Pull Requests**
 
 We welcome pull requests for bug fixes, new features, and improvements.
