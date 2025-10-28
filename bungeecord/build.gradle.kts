@@ -12,7 +12,7 @@ repositories {
     mavenCentral()
     maven {
         name = "bungeecord"
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+        url = uri("https://central.sonatype.com/repository/maven-snapshots") // <-- This is the new URL
     }
     maven {
         name = "mojang"
@@ -27,7 +27,7 @@ dependencies {
     implementation(project(":api"))
     implementation(project(":common"))
 
-    compileOnly("net.md-5:bungeecord-api:1.21-R0.4-SNAPSHOT")
+    compileOnly("net.md-5:bungeecord-api:1.21-R0.5-SNAPSHOT")
     compileOnly("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 }
 
