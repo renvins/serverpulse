@@ -1,6 +1,7 @@
 package it.renvins.serverpulse.common;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -15,6 +16,7 @@ import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.Task;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
+import lombok.val;
 
 public class DatabaseService implements IDatabaseService {
 
@@ -39,6 +41,9 @@ public class DatabaseService implements IDatabaseService {
     private String pingUrl;
     private String writeUrl;
 
+    // Optimization: Cache the ping request object
+    private HttpRequest pingRequest;
+
     public DatabaseService(PulseLogger logger, Platform platform, GeneralConfiguration generalConfig, TaskScheduler scheduler) {
         this.logger = logger;
         this.platform = platform;
@@ -49,6 +54,10 @@ public class DatabaseService implements IDatabaseService {
         this.httpClient = HttpClient.newBuilder()
                                     .connectTimeout(Duration.ofSeconds(10))
                                     .build();
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -67,8 +76,16 @@ public class DatabaseService implements IDatabaseService {
         }
 
         this.pingUrl = baseUrl + "ping";
-        this.writeUrl = baseUrl + "api/v2/write?org=" + configuration.getOrg() +
-                "&bucket=" + configuration.getBucket() + "&precision=ns";
+
+        this.pingRequest = HttpRequest.newBuilder()
+                                      .uri(URI.create(pingUrl))
+                                      .GET()
+                                      .timeout(Duration.ofSeconds(5))
+                                      .build();
+
+
+        this.writeUrl = baseUrl + "api/v2/write?org=" + encode(configuration.getOrg()) +
+                "&bucket=" + encode(configuration.getBucket()) + "&precision=ns";
 
         scheduler.runAsync(this::connect);
     }
@@ -125,13 +142,7 @@ public class DatabaseService implements IDatabaseService {
     @Override
     public boolean ping() {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                                             .uri(URI.create(pingUrl))
-                                             .GET()
-                                             .timeout(Duration.ofSeconds(5))
-                                             .build();
-
-            HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            HttpResponse<Void> response = httpClient.send(this.pingRequest, HttpResponse.BodyHandlers.discarding());
             return response.statusCode() == 204;
         } catch (Exception e) {
             logger.error("InfluxDB ping failed", e);
