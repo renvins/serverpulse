@@ -29,7 +29,7 @@ public class DatabaseService implements IDatabaseService {
     private volatile Task retryTask; // volatile for visibility across threads
 
     private final int MAX_RETRIES = 5;
-    private final long RETRY_DELAY_TICKS = 20L * 30L; // 30 seconds
+    private final long RETRY_DELAY_MS = 30000L; // 30 seconds
 
     // Use volatile as this is read/written by different threads
     private volatile boolean isConnected = false;
@@ -193,7 +193,7 @@ public class DatabaseService implements IDatabaseService {
 
             logger.info("Retrying InfluxDB connection... Attempt " + retryCount + "/" + MAX_RETRIES);
             connect(); // Note: connect() will handle setting isConnected flag and potentially stopping the task if successful.
-        }, RETRY_DELAY_TICKS, RETRY_DELAY_TICKS); // Start after delay, repeat at delay
+        }, RETRY_DELAY_MS, RETRY_DELAY_MS); // Start after delay, repeat at delay
     }
 
 

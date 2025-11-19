@@ -25,7 +25,9 @@ public class FabricScheduler implements TaskScheduler {
     }
 
     @Override
-    public void runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
+    public void runTaskTimer(Runnable task, long delayMs, long periodMs) {
+        long delayTicks = delayMs / 50;
+        long periodTicks = periodMs / 50;
         FabricTask fabricTask = new FabricTask(task, true, delayTicks, periodTicks);
         tasks.add(fabricTask);
     }
@@ -41,7 +43,10 @@ public class FabricScheduler implements TaskScheduler {
     }
 
     @Override
-    public Task runTaskTimerAsync(Runnable task, long delayTicks, long periodTicks) {
+    public Task runTaskTimerAsync(Runnable task, long delayMs, long periodMs) {
+        long delayTicks = delayMs / 50;
+        long periodTicks = periodMs / 50;
+
         FabricTask fabricTask = new FabricTask(() -> CompletableFuture.runAsync(task).exceptionally(
                 throwable -> {
                     ServerPulseFabric.LOGGER.log(java.util.logging.Level.SEVERE, "An error occurred while executing task!", throwable);
