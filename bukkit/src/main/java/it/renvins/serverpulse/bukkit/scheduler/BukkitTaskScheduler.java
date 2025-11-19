@@ -18,7 +18,9 @@ public class BukkitTaskScheduler implements TaskScheduler {
     }
 
     @Override
-    public void runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
+    public void runTaskTimer(Runnable task, long delayMs, long periodMs) {
+        long delayTicks = delayMs / 50;
+        long periodTicks = periodMs / 50;
         plugin.getServer().getScheduler().runTaskTimer(plugin, task, delayTicks, periodTicks);
     }
 
@@ -28,7 +30,9 @@ public class BukkitTaskScheduler implements TaskScheduler {
     }
 
     @Override
-    public Task runTaskTimerAsync(Runnable task, long delayTicks, long periodTicks) {
+    public Task runTaskTimerAsync(Runnable task, long delayMs, long periodMs) {
+        long delayTicks = delayMs / 50;
+        long periodTicks = periodMs / 50;
         return new BukkitTaskWrapper(plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, task, delayTicks, periodTicks));
     }
 }

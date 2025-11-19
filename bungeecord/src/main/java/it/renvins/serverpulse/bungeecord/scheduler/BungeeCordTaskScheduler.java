@@ -18,10 +18,7 @@ public class BungeeCordTaskScheduler implements TaskScheduler {
     }
 
     @Override
-    public Task runTaskTimerAsync(Runnable task, long delayTicks, long periodTicks) {
-        long delayMs = delayTicks * 50L; // 20 ticks/second = 50ms per tick
-        long periodMs = periodTicks * 50L;
-
+    public Task runTaskTimerAsync(Runnable task, long delayMs, long periodMs) {
         return new BungeeCordTaskWrapper(
                 plugin.getProxy().getScheduler().schedule(plugin, task, delayMs, periodMs, TimeUnit.MILLISECONDS));
     }
