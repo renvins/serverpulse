@@ -94,8 +94,8 @@ public class ServerPulseVelocity {
         }
         metricsService.load();
 
-        long intervalTicks = config.getConfig().getLong("metrics.interval", 5) * 20L;
-        scheduler.runTaskTimerAsync(metricsService::collectAndSendMetrics, 0L, intervalTicks);
+        long intervalMs = config.getConfig().getLong("metrics.interval", 5) * 1000L;
+        scheduler.runTaskTimerAsync(metricsService::collectAndSendMetrics, 0L, intervalMs);
 
         CommandMeta meta = server.getCommandManager().metaBuilder("serverpulsevelocity")
                 .plugin(this).aliases("spv").build();

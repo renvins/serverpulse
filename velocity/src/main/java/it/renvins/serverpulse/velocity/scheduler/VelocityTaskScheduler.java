@@ -18,10 +18,10 @@ public class VelocityTaskScheduler implements TaskScheduler {
     }
 
     @Override
-    public Task runTaskTimerAsync(Runnable task, long delayTicks, long periodTicks) {
+    public Task runTaskTimerAsync(Runnable task, long delayMs, long periodMs) {
         return new VelocityTaskWrapper(plugin.getServer().getScheduler().buildTask(plugin, task)
-                        .delay(delayTicks / 20, TimeUnit.SECONDS)
-                        .repeat(periodTicks / 20, TimeUnit.SECONDS)
+                        .delay(delayMs, TimeUnit.MILLISECONDS)
+                        .repeat(periodMs, TimeUnit.MILLISECONDS)
                         .schedule());
     }
 }

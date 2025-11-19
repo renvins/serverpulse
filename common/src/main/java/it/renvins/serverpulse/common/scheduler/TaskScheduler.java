@@ -18,9 +18,11 @@ public interface TaskScheduler {
      * Runs a task timer synchronously on the main thread.
      *
      * @param task The task to run
+     * @param delayMs Delay in milliseconds before first executing
+     * @param periodMs Period in milliseconds between executions
      * @throws UnsupportedOperationException if the implementation does not support synchronous task execution
      */
-    default void runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
+    default void runTaskTimer(Runnable task, long delayMs, long periodMs) {
         throw new UnsupportedOperationException("Synchronous task timer execution is not supported.");
     }
 
@@ -35,9 +37,11 @@ public interface TaskScheduler {
      * Runs a task timer asynchronously on a separate thread.
      *
      * @param task The task to run
+     * @param delayMs Delay in milliseconds before first executing
+     * @param periodMs Period in milliseconds between executions
      * @return A Task object representing the task
      */
-    Task runTaskTimerAsync(Runnable task, long delayTicks, long periodTicks);
+    Task runTaskTimerAsync(Runnable task, long delayMs, long periodMs);
 
 
     /**
