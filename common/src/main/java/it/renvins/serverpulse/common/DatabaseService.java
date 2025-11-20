@@ -8,6 +8,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import it.renvins.serverpulse.api.service.IDatabaseService;
 import it.renvins.serverpulse.common.config.DatabaseConfiguration;
@@ -16,7 +18,6 @@ import it.renvins.serverpulse.common.logger.PulseLogger;
 import it.renvins.serverpulse.common.platform.Platform;
 import it.renvins.serverpulse.common.scheduler.Task;
 import it.renvins.serverpulse.common.scheduler.TaskScheduler;
-import lombok.val;
 
 public class DatabaseService implements IDatabaseService {
 
@@ -28,14 +29,14 @@ public class DatabaseService implements IDatabaseService {
 
     private HttpClient httpClient; // Keep for ping
 
-    private volatile Task retryTask; // volatile for visibility across threads
-
     private final int MAX_RETRIES = 5;
     private final long RETRY_DELAY_MS = 30000L; // 30 seconds
 
     // Use volatile as this is read/written by different threads
     private volatile boolean isConnected = false;
-    private volatile int retryCount = 0;
+
+    private final AtomicInteger retryCount = new AtomicInteger(0);
+    private final AtomicReference<Task> retryTask = new AtomicReference<>(null);
 
     //HTTP API endpoints
     private String pingUrl;
@@ -163,50 +164,54 @@ public class DatabaseService implements IDatabaseService {
 
 
     @Override
-    public synchronized void startRetryTaskIfNeeded() {
-        if (retryTask != null && !retryTask.isCancelled()) {
+    public void startRetryTaskIfNeeded() {
+        // FAST EXIT: Because a task is already running
+        if (retryTask.get() != null) {
             return;
         }
         if (!platform.isEnabled()) {
-            logger.warning("Plugin disabling, not starting retry task...");
             return;
         }
 
-        // Reset retry count ONLY when starting the task sequence
-        this.retryCount = 0;
-        logger.warning("Connection failed. Starting connection retry task (Max " + MAX_RETRIES + " attempts)...");
+        // We lock on 'retryTask' itself to prevent other threads from
+        // starting a new task simulataneously
+        synchronized (retryTask) {
+            if (retryTask.get() != null) return;
 
-        retryTask = scheduler.runTaskTimerAsync(() -> {
-            // Check connection status *first* using the flag
-            if (this.isConnected) {
-                logger.info("Connection successful, stopping retry task...");
-                stopRetryTask();
-                return;
-            }
+            retryCount.set(0);
+            logger.warning("Connection failed. Starting connection retry task (Max " + MAX_RETRIES + " attempts)...");
 
-            // Check if plugin got disabled externally
-            if (!platform.isEnabled()) {
-                logger.warning("Plugin disabled during retry task execution...");
-                stopRetryTask();
-                return;
-            }
-
-            // Check retries *before* attempting connection
-            if (retryCount >= MAX_RETRIES) {
-                logger.error("Max connection retries (" + MAX_RETRIES + ") reached. Disabling ServerPulse metrics...");
-                stopRetryTask();
-                disconnect(); // Clean up any partial connection
-                // Schedule plugin disable on main thread
-                scheduler.runSync(platform::disable);
-                return;
-            }
-            retryCount++;
-
-            logger.info("Retrying InfluxDB connection... Attempt " + retryCount + "/" + MAX_RETRIES);
-            connect(); // Note: connect() will handle setting isConnected flag and potentially stopping the task if successful.
-        }, RETRY_DELAY_MS, RETRY_DELAY_MS); // Start after delay, repeat at delay
+            Task task = scheduler.runTaskTimerAsync(this::retryLogic, RETRY_DELAY_MS, RETRY_DELAY_MS);
+            retryTask.set(task);
+        }
     }
 
+    private void retryLogic() {
+        // This logic runs on an async thread, so no blocking
+        if (isConnected) {
+            logger.info("Connection successful, stoppin retry task...");
+            stopRetryTask();
+            return;
+        }
+
+        if (!platform.isEnabled()) {
+            logger.warning("Plugin disabled during retry task execution...");
+            stopRetryTask();
+            return;
+        }
+
+        if (retryCount.get() >= MAX_RETRIES) {
+            logger.error("Max connection retries (" + MAX_RETRIES + ") reached. Disabling ServerPulse metrics...");
+            stopRetryTask();
+            disconnect();
+            scheduler.runSync(platform::disable);
+            return;
+        }
+        
+        retryCount.incrementAndGet();
+        logger.info("Retrying InfluxDB connection... Attempt " + retryCount.get() + "/" + MAX_RETRIES);
+        connect();
+    }
 
     /**
      * Attempts to connect to InfluxDB. Updates the internal connection status
@@ -222,7 +227,7 @@ public class DatabaseService implements IDatabaseService {
 
             if (isPingSuccessful) {
                 this.isConnected = true;
-                this.retryCount = 0; // Reset retry count on successful connection
+                this.retryCount.set(0);; // Reset retry count on successful connection
 
                 stopRetryTask(); // Stop retrying if we just connected
                 logger.info("Successfully connected to InfluxDB and ping successful...");
@@ -238,17 +243,15 @@ public class DatabaseService implements IDatabaseService {
         }
     }
 
-    /** Stops and nullifies the retry task if it's running. */
-    private synchronized void stopRetryTask() {
-        if (retryTask != null) {
-            if (!retryTask.isCancelled()) {
-                try {
-                    retryTask.cancel();
-                } catch (Exception e) {
-                    // Ignore potential errors during cancellation
-                }
+    /* Stops and nullifies the retry task if it's running. */
+    private void stopRetryTask() {
+        Task task = retryTask.getAndSet(null);
+        if (task != null) {
+            try {
+                task.cancel();
+            } catch (Exception e) {
+                // Ignore potential errors during cancellation
             }
-            retryTask = null;
         }
     }
 
