@@ -1,0 +1,126 @@
+name: Create Release on Version Change
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "build.gradle.kts"
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Needed so we can inspect previous commits and tags
+          fetch-depth: 0
+
+      - name: Extract current version from build.gradle.kts
+        id: current_version
+        run: |
+          VERSION_LINE=$(grep '^version' build.gradle.kts | head -n 1 || true)
+          if [ -z "$VERSION_LINE" ]; then
+            echo "Could not find version line in build.gradle.kts"
+            exit 1
+          fi
+          VERSION=$(echo "$VERSION_LINE" | sed -E 's/^[^"]*"([^"]+)".*/\1/')
+          echo "Current version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Extract previous version from build.gradle.kts
+        id: previous_version
+        run: |
+          # If there is no previous commit on this branch, treat it as a version change
+          if ! git rev-parse HEAD^ >/dev/null 2>&1; then
+            echo "No previous commit on this branch, treating as version change."
+            echo "version=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          VERSION_LINE=$(git show HEAD^:build.gradle.kts | grep '^version' | head -n 1 || true)
+          if [ -z "$VERSION_LINE" ]; then
+            echo "Could not find version line in previous build.gradle.kts; treating as version change."
+            echo "version=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          VERSION=$(echo "$VERSION_LINE" | sed -E 's/^[^"]*"([^"]+)".*/\1/')
+          echo "Previous version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Determine if version changed
+        id: version_changed
+        run: |
+          CURR="${{ steps.current_version.outputs.version }}"
+          PREV="${{ steps.previous_version.outputs.version }}"
+          echo "Current version: $CURR"
+          echo "Previous version: $PREV"
+
+          if [ -n "$PREV" ] && [ "$CURR" = "$PREV" ]; then
+            echo "Version did not change."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Version changed."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Stop if version did not change
+        if: steps.version_changed.outputs.changed == 'false'
+        run: |
+          echo "Version did not change; skipping release."
+          exit 0
+
+      - name: Determine previous tag
+        id: previous_tag
+        if: steps.version_changed.outputs.changed == 'true'
+        run: |
+          if git describe --tags --abbrev=0 >/dev/null 2>&1; then
+            TAG=$(git describe --tags --abbrev=0)
+            echo "Previous tag: $TAG"
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          else
+            echo "No previous tag found."
+            echo "tag=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate release notes
+        id: notes
+        if: steps.version_changed.outputs.changed == 'true'
+        run: |
+          PREV_TAG="${{ steps.previous_tag.outputs.tag }}"
+
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="$PREV_TAG..HEAD"
+          else
+            FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
+            RANGE="$FIRST_COMMIT..HEAD"
+          fi
+
+          echo "Using commit range: $RANGE"
+          BODY=$(git log --pretty=format:'- %s (%h)' "$RANGE")
+
+          {
+            echo "body<<EOF"
+            echo "Changes in version ${{ steps.current_version.outputs.version }}"
+            echo
+            echo "$BODY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        if: steps.version_changed.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.current_version.outputs.version }}
+          name: v${{ steps.current_version.outputs.version }}
+          body: ${{ steps.notes.outputs.body }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
