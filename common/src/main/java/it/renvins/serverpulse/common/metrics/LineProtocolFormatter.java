@@ -35,7 +35,7 @@ public class LineProtocolFormatter {
                 .addField("players_online", syncData.getPlayerCount())
                 // Async data
                 .addField("used_memory", asyncData.getUsedHeap())
-                .addField("available_memory", asyncData.getCommitedHeap())
+                .addField("available_memory", asyncData.getCommittedHeap())
                 .addField("total_disk_space", asyncData.getTotalDisk())
                 .addField("usable_disk_space", asyncData.getUsableDisk())
                 .addField("min_ping", asyncData.getMinPing())

@@ -4,7 +4,7 @@ package it.renvins.serverpulse.api.data;
 public class AsyncMetricsSnapshot {
 
     private final long usedHeap;
-    private final long commitedHeap;
+    private final long committedHeap;
 
     private final long totalDisk;
     private final long usableDisk;
@@ -26,14 +26,14 @@ public class AsyncMetricsSnapshot {
     private final int availableProcessors;
 
 
-    public AsyncMetricsSnapshot(long usedHeap, long commitedHeap,
+    public AsyncMetricsSnapshot(long usedHeap, long committedHeap,
                                 long totalDisk, long usableDisk,
                                 long minPing, long maxPing, long avgPing,
                                 double mspt1m, double mspt5m, double mspt15m,
                                 double lastMSPT, double minMSPT, double maxMSPT,
                                 double systemCpuLoadRatio, double processCpuLoadRatio, int availableProcessors) {
         this.usedHeap = usedHeap;
-        this.commitedHeap = commitedHeap;
+        this.committedHeap = committedHeap;
 
         this.totalDisk = totalDisk;
         this.usableDisk = usableDisk;
@@ -69,8 +69,8 @@ public class AsyncMetricsSnapshot {
      *
      * @return the committed heap memory
      */
-    public long getCommitedHeap() {
-        return commitedHeap;
+    public long getCommittedHeap() {
+        return committedHeap;
     }
 
     /**
