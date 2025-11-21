@@ -70,7 +70,12 @@ public class MetricsService implements IMetricsService {
 
         try {
             String body = String.join("\n", points);
-            databaseService.writeLineProtocol(body);
+            databaseService.writeLineProtocol(body)
+                .thenAccept(success -> {
+                    if (!success) {
+                        logger.error("Database reported failure on sending metrics.");
+                    }
+                });
         } catch (Exception e) {
             logger.error("Failed to send metrics data to the database.", e);
         }

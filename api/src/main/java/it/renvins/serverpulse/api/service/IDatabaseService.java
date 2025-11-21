@@ -29,11 +29,4 @@ public interface IDatabaseService extends Service {
      */
     boolean isConnected();
 
-    /**
-     * Disconnects from the InfluxDB instance and cleans up resources.
-     * This method should be called when the application is shutting down
-     * or when the connection is no longer needed.
-     */
-    void startRetryTaskIfNeeded();
-
 }

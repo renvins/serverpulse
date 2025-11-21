@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 public class ChatUtils {
 
     public String format(String message) {
+        if (message == null) return "";
         return message.replace("&", "§");
     }
 }

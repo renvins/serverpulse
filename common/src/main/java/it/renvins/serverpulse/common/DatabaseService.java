@@ -162,9 +162,7 @@ public class DatabaseService implements IDatabaseService {
         return this.isConnected;
     }
 
-
-    @Override
-    public void startRetryTaskIfNeeded() {
+    private void startRetryTaskIfNeeded() {
         // FAST EXIT: Because a task is already running
         if (retryTask.get() != null) {
             return;
@@ -227,7 +225,7 @@ public class DatabaseService implements IDatabaseService {
 
             if (isPingSuccessful) {
                 this.isConnected = true;
-                this.retryCount.set(0);; // Reset retry count on successful connection
+                this.retryCount.set(0); // Reset retry count on successful connection
 
                 stopRetryTask(); // Stop retrying if we just connected
                 logger.info("Successfully connected to InfluxDB and ping successful...");
