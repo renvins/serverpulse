@@ -1,5 +1,5 @@
 group = "it.renvins"
-version = "0.5.5-SNAPSHOT"
+version = "0.5.6-SNAPSHOT"
 
 repositories {
     mavenCentral()
