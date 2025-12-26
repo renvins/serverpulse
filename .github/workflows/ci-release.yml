@@ -1,0 +1,196 @@
+name: CI & Auto-Release
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: write # Required to create releases
+
+jobs:
+  # ------------------------------------------------------------------
+  # JOB 1: Build & Test
+  # Runs on Pull Requests AND Pushes.
+  # ------------------------------------------------------------------
+  build-and-test:
+    name: Build & Test Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Build all JARs (Bukkit, Velocity, Fabric, etc.)
+      - name: Build All JARs
+        run: |
+          ./gradlew shadowJar
+          ./gradlew fabric:build
+
+      # --- Infrastructure Testing ---
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Start Docker Infrastructure
+        run: docker compose -f infra/docker-compose.yml up -d
+
+      - name: Wait for InfluxDB Health
+        run: |
+          timeout 90s bash -c ' \
+            until curl -sf http://localhost:8086/health | jq -e ".status == \"pass\""; do \
+              sleep 5; \
+            done \
+          '
+
+      - name: Wait for Grafana Health
+        run: |
+          timeout 60s bash -c ' \
+            until curl -sf http://localhost:3000/api/health; do \
+              sleep 5; \
+            done \
+          '
+
+      - name: Stop Docker Infrastructure
+        if: always()
+        run: docker compose -f infra/docker-compose.yml down -v
+
+      # --- Stage Artifacts for Release ---
+      # We upload these even on PRs so you can inspect them manually if needed
+      - name: Stage JARs
+        run: |
+          mkdir -p staging
+          # Copy jars, suppressing errors if a specific platform didn't generate one
+          cp bukkit/build/libs/*-all.jar staging/ 2>/dev/null || cp bukkit/build/libs/*.jar staging/ 2>/dev/null || true
+          cp velocity/build/libs/*-all.jar staging/ 2>/dev/null || cp velocity/build/libs/*.jar staging/ 2>/dev/null || true
+          cp bungeecord/build/libs/*-all.jar staging/ 2>/dev/null || cp bungeecord/build/libs/*.jar staging/ 2>/dev/null || true
+          cp fabric/build/libs/serverpulse-*.jar staging/ 2>/dev/null || true
+          
+          # Clean up any "plain" jars if they were accidentally copied
+          find staging -name "*-plain.jar" -delete
+          
+          echo "Artifacts to be archived:"
+          ls -R staging
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-jars
+          path: staging/*
+          retention-days: 1
+
+  # ------------------------------------------------------------------
+  # JOB 2: Check for Version Change
+  # STRICTLY LIMITED to 'push' on 'master' (Merges).
+  # Skips on PRs.
+  # ------------------------------------------------------------------
+  check-version:
+    name: Check Version Change
+    needs: build-and-test # Wait for build to succeed
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    outputs:
+      changed: ${{ steps.version_changed.outputs.changed }}
+      version: ${{ steps.current_version.outputs.version }}
+      body: ${{ steps.notes.outputs.body }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed to see history for version comparison
+
+      - name: Extract current version
+        id: current_version
+        run: |
+          # Grep for version, handling potential whitespace differences
+          VERSION_LINE=$(grep 'version\s*=' build.gradle.kts | head -n 1 || true)
+          # Clean up string to get just the number (remove "version =", quotes, etc)
+          VERSION=$(echo "$VERSION_LINE" | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "Detected Current Version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check against previous commit
+        id: version_changed
+        run: |
+          # If this is the very first commit, we assume it changed.
+          if ! git rev-parse HEAD^ >/dev/null 2>&1; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Get version from previous commit (HEAD^)
+          PREV_VERSION_LINE=$(git show HEAD^:build.gradle.kts | grep 'version\s*=' | head -n 1 || true)
+          PREV_VERSION=$(echo "$PREV_VERSION_LINE" | sed -E 's/.*"([^"]+)".*/\1/')
+          
+          CURR_VERSION="${{ steps.current_version.outputs.version }}"
+
+          echo "Previous Version: $PREV_VERSION"
+          echo "Current Version:  $CURR_VERSION"
+
+          if [ "$CURR_VERSION" != "$PREV_VERSION" ] && [ -n "$CURR_VERSION" ]; then
+            echo "Version has changed."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Version has not changed."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate release notes
+        id: notes
+        if: steps.version_changed.outputs.changed == 'true'
+        run: |
+          # Try to find the previous tag
+          if git describe --tags --abbrev=0 >/dev/null 2>&1; then
+            PREV_TAG=$(git describe --tags --abbrev=0)
+            RANGE="$PREV_TAG..HEAD"
+          else
+            # If no tags exist, log from the very beginning
+            RANGE=$(git rev-list --max-parents=0 HEAD)..HEAD
+          fi
+          
+          BODY=$(git log --pretty=format:'- %s (%h)' "$RANGE")
+          
+          # Output multiline string for GitHub Actions
+          {
+            echo "body<<EOF"
+            echo "## Changes in ${{ steps.current_version.outputs.version }}"
+            echo ""
+            echo "$BODY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  # ------------------------------------------------------------------
+  # JOB 3: Publish Release
+  # Runs ONLY if Job 2 said "changed=true"
+  # ------------------------------------------------------------------
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [check-version]
+    if: needs.check-version.outputs.changed == 'true'
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-jars
+          path: assets
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.check-version.outputs.version }}
+          name: v${{ needs.check-version.outputs.version }}
+          body: ${{ needs.check-version.outputs.body }}
+          files: assets/*
+          make_latest: true
